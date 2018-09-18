@@ -254,7 +254,7 @@ Clean							ƒ
 .cp.o							ƒ	.c
 	{CPlus} {StdCPOpts} -o {Targ} {DepDir}{Default}.cp
 
-#include {ToolSrcDir}Tools.make
+#include {DriverDir}Drivers.make
 
 #include {MakeDir}MainCode.make
 
@@ -262,7 +262,5 @@ Clean							ƒ
 
 #include {DeclDir}VSCDeclData:VSCDeclData.make
  
-#include {DriverDir}Drivers.make
-
 #include {ResourceDir}Resources.make
 

@@ -367,12 +367,10 @@ Clean							ƒ
 	{Pascal} {StdPOpts} -o {Targ} {DepDir}{Default}.p
 
 
-#include {ToolSrcDir}Tools.make
+#include {DriverDir}Drivers.make
 
 #include {MakeDir}MainCode.make
 
 #include {DeclDir}DeclData.make
-
-#include {DriverDir}Drivers.make
 
 #include {ResourceDir}Resources.make
