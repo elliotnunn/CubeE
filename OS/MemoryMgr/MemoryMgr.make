@@ -17,13 +17,13 @@
 
 FigmentDir = {MemoryMgrDir}FigmentSources:
 
-#include {FigmentDir}Figment.Make
-
-
 MemoryMgrObjs 					=	"{ObjDir}MemoryMgr.a.o"							∂
 									"{ObjDir}MemoryMgrExtensions.a.o"				∂
 									"{ObjDir}MemoryMgrInternal.a.o"					∂
 									"{ObjDir}BlockMove.a.o"
+
+
+#include {FigmentDir}Figment.Make
 
 
 "{LibDir}MemoryMgr.lib"			ƒ	"{LibDir}Figment.lib" {MemoryMgrObjs}
