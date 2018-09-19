@@ -59,8 +59,8 @@ DeclHeaders	=	"{ObjDir}StandardEqu.d"						∂
 #
 #	DeclData
 #
-"{RsrcDir}DeclData"				ƒ	{DeclResources} "{RsrcDir}RomLink"
-	"{RsrcDir}RomLink"	{DeclResources} -o "{Targ}"
+"{RsrcDir}DeclData"				ƒ	{DeclResources} "{ToolDir}RomLink"
+	"{ToolDir}RomLink"	{DeclResources} -o "{Targ}"
 
 
 "{RsrcDir}DeclData.rsrc"		ƒ	"{RIncludes}Types.r"					∂
