@@ -583,8 +583,8 @@ InitKeybdMenu
 		beq.s	@done
 		move.w	d0,result(a6)						; will override DisposHandle error if one existed
 
-@done 	
-		movem.l	(sp)+,KeyboardMenuRegs 
+@done	
+		movem.l	(sp)+,KeyboardMenuRegs
 		move.w	#menuArgs, d0						; for StdUnlink: number of bytes to clean up
 		bra		StdUnlink							; standard exit
 		endwith										; menuFrame,ItemInstalledRec

@@ -1459,12 +1459,12 @@ DumpAbort
 ;
 ;		Delay 100 usec
 ;
-			move.w	#DelayCnt,d3 
+			move.w	#DelayCnt,d3
 @wait
 		eieioSTP
-			tst.b	(a1)					; sync to VIA clock 
+			tst.b	(a1)					; sync to VIA clock
 			dbra	d3,@wait				; delay at least 100 us (very rough)
- 		eieioSTP
+		eieioSTP
 			btst.b	#vXcvrsesbit,vBufB(a1)	; check for last byte
 		eieioSTP
 			beq.s	DumpAbort				; Clock Tick Packets only 2 bytes
