@@ -2055,7 +2055,7 @@ static int32  sc_DrawParabola(	int32 Ax,
 	/* OK, now we have the 1st and 2nd order differences,
 	   so we go ahead and do the forward differencing loop. */
 	do {
-	    GX += DX;  /* Add first order dif ference to x coordinate */
+	    GX += DX;  /* Add first order difference to x coordinate */
 		DX += DDX; /* Add 2nd order difference to first order difference. */
 		GY += DY;  /* Do the same thing for y. */
 		DY += DDY;

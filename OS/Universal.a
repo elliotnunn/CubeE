@@ -515,7 +515,7 @@ intoROM									; now we are in ROM
 	ENDIF								;												<SM22> rb
 @DoEgretInit							;														<SM38>
 			movea.l	DecoderInfo.VIA1Addr(a0),a1	; get VIA 1 base address						<SM38>
-			move.w	#4000,d0 			;														<SM38>
+			move.w	#4000,d0			;														<SM38>
 @wait	
 		eieioSTP	
 			tst.b	(a1)				; sync to hardware for 1.2µS per access					<SM38>
