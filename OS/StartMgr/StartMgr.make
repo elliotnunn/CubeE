@@ -108,9 +108,7 @@ Boot3Objects			=	"{ObjDir}Boot3.a.o"									∂
 	Asm {StdAOpts} -o "{Targ}" "{StartDir}StartTop.a"
 
 
-"{ObjDir}StartInit.a.o"		ƒ	"{MakeDir}Universal.make"						∂
-								"{MakeDir}RISC.make"							∂
-								"{ObjDir}StandardEqu.d"							∂
+"{ObjDir}StartInit.a.o"		ƒ	"{ObjDir}StandardEqu.d"							∂
 								"{IntAIncludes}HardwarePrivateEqu.a"			∂
 								"{MemoryMgrDir}MemoryMgrPriv.a"					∂
 								"{AIncludes}SCSI.a"								∂
