@@ -79,7 +79,6 @@ OSObjs	= 							"{ObjDir}clock.a.o"								∂
 									"{ObjDir}CrsrDev.a.o"							∂
 									"{ObjDir}CudaMgr.a.o"							∂
 									"{ObjDir}DeferredTaskMgr.a.o"					∂
-									"{ObjDir}DeviceMgr.a.o"							∂
 									"{ObjDir}EgretMgr.a.o"							∂
 									"{ObjDir}HwPriv.a.o"							∂
 									"{ObjDir}Universal.a.o"							∂
