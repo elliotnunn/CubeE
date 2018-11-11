@@ -253,6 +253,7 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{RsrcDir}ROMFonts.rsrc" 				∂
 					"{RsrcDir}RomLayout.Rsrc"				∂
 					"{RsrcDir}InSaneNFPU.rsrc" 				∂
+					"{MiscDir}USB.rsrc"						∂
 					"{RsrcDir}kbd.rsrc"
 
 
