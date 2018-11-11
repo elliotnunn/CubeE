@@ -1241,3 +1241,15 @@ resource 'rrsc' (610, "Native SCSI Mgr 4.3") {
 		{ 43 /*Main*/ };
 	}
 };
+
+resource 'rrsc' (620, "PCCard") {
+	kUniversal,
+	AllCombos,
+	{MiscDir},
+	"PCCard.rsrc",
+
+	{
+		'ndrv',
+		{ -20166 /*DefaultPCCardEnabler*/, -20181 /*pccard-ata*/ };
+	}
+};
