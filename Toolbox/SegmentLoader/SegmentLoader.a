@@ -242,9 +242,7 @@ LoadSeg
 @37											;Aren't we slick and tight?                  <02Nov85>  JTC
 			_HLock							;					<23May85><C169>
 NoMoveHHi
-			MOVE.L	(A0),D0					; handle -> dirty pointer	<C169>
-			_StripAddress					; D0 <- clean ptr			<C169>
-			MOVE.L	D0,A0					;							<C169>				
+			MOVE.L	(A0),A0					; handle -> dirty pointer	<C169>
 			
 			MOVE.L	A5,A1					 ;copy world base address
 			ADD.W 	CurJTOffset,A1			 ;offset by the current offset
@@ -728,7 +726,9 @@ ExitToShell 								 ;									<30Jan85>
 ;			 _CloseResFile
 ;			 CLR.W	 CurApRefNum
 
-			_PMgrExit					; Empty out the palette manager				< 7Jul89>
+			MOVE	#$C, D0				; Empty out the palette manager				< 7Jul89>
+			_PaletteDispatch
+
 			SUB.L	A0,A0				; clear out A0								<30Jan85>
 			_SetGrowZone				; disable application's growZone handler    <30Jan85>
 

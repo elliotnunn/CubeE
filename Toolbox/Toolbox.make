@@ -62,6 +62,7 @@ WindowMgrDir 				= "{ToolBoxDir}WindowMgr:"
 ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 									"{ObjDir}SegmentLoader.a.o"						∂
 									"{ObjDir}ShutDownMgr.a.o"						∂
+									"{ObjDir}ShutDownMgr.c.o"						∂
 									"{ObjDir}Munger.a.o"							∂
 									"{ObjDir}DeskMgr.a.o"							∂
 									"{ObjDir}GetMgr.a.o"							∂

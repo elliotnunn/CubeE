@@ -167,11 +167,11 @@ CLibraries		=	{Sources}Libs:CLibraries:
 PLibraries		=	{Sources}Libs:PLibraries:
 
 
-MAOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$D4C1 -wb -d SubRelease=3 -blksize 62
-MCOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$D4C1 -b3 -mbg off -mc68020 -blksize 62 -opt full
+MAOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$45F6 -wb -d SubRelease=1 -blksize 62
+MCOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$45F6 -b3 -mbg off -mc68020 -blksize 62 -opt full
 MPOpts			=	-mbg off -mc68020
 
-RomBase			=	$40800000
+RomBase			=	$FFC00000
 
 Features		=	hasRISCV0ResMgrPatches					∂
 					hasDoubleByte							∂
@@ -194,10 +194,10 @@ Features		=	hasRISCV0ResMgrPatches					∂
 					PwrMgrADB								∂
 					SystemSevenOrLater						∂
 					SystemSixOrLater						∂
-					ViaADB									∂
 					forADBKeyboards 						∂
 					forAppleTalk20							∂
 					forLocalizability						∂
+					forSTPnop								∂
 					hasADBKeyLayouts						∂
 					hasAliasMgr 							∂
 					hasAppleEventMgr						∂
@@ -232,10 +232,13 @@ Features		=	hasRISCV0ResMgrPatches					∂
 					onHafMac								∂
 					onMac32 								∂
 					onNuMac 								∂
+					hasBCScreen								∂
+					hasMMU									∂
 					ForROM
 
 
 ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
+					"{MiscDir}BCScreen.rsrc"				∂
 					"{RsrcDir}CQD.rsrc"						∂
 					"{RsrcDir}DeclData"						∂
 					"{MiscDir}DriverServices.rsrc"			∂
@@ -244,9 +247,11 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{RsrcDir}Gibbly.rsrc"					∂
 					"{MiscDir}GoNativeResources"			∂
 					"{MiscDir}EmulatorAccelerations.rsrc"	∂
+					"{MiscDir}LANDisk.rsrc"					∂
 					"{RsrcDir}MainCode.Rsrc"				∂
 					"{MiscDir}MediaBay.rsrc"				∂
 					"{RsrcDir}MiscROMRsrcs.rsrc" 			∂
+					"{MiscDir}MultiprocessingServices.rsrc" ∂
 					"{MiscDir}NativeItt.rsrc" 				∂
 					"{MiscDir}NativeNub.rsrc" 				∂
 					"{MiscDir}PCCard.rsrc" 					∂
@@ -254,6 +259,8 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{RsrcDir}ROMFonts.rsrc" 				∂
 					"{RsrcDir}RomLayout.Rsrc"				∂
 					"{RsrcDir}InSaneNFPU.rsrc" 				∂
+					"{RsrcDir}SANE.rsrc" 					∂
+					"{MiscDir}SerialDMA.rsrc"				∂
 					"{MiscDir}USB.rsrc"						∂
 					"{RsrcDir}kbd.rsrc"
 

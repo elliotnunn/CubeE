@@ -362,7 +362,12 @@ GotPDEF
 		_GetHandleSize					; How big is our PDEF Handle					<LW2> fau
 		cmp.l		#32,D0				; Is it "small"									<LW2> fau
 		bhi.s		@RealPDEF			; no, don't flush the cache						<LW2> fau
-		jsr			([jCacheFlush])		; else, flush the caches.						<LW2> fau
+		move.l		A0,-(SP)
+		move.l		(A0),A0
+		move.l		D0,A1
+		import		FLUSHCRANGE
+		bsr.l		FLUSHCRANGE			; else, flush the caches.
+		move.l		(SP)+,A0
 @RealPDEF										;										<LW2> fau
 		_HLock
 ;<22Feb87> JNP Restore curMap before jumping into the print code.
@@ -546,6 +551,14 @@ LLOut
 GlueOut
 ;
 ; Get the number of bytes of parameter to this entry in d1
+		Move.l	sp,-(sp)
+		Moveq.l	#0,d0
+		Move.b	FuncByt(a6),d0
+		Lsr.b	#3,d0
+		Move.l	d0,-(sp)
+		Import	PRINTINGNEWFUNC_337D0
+		Bsr		PRINTINGNEWFUNC_337D0
+		Addq	#8,sp
 		Moveq	#0,d1
 		Move.b	ParmByt(a6),d1			; Get from the table, source of all knowledge...
 ; Copy the function value, if any, back up to the caller's stack frame

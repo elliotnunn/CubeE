@@ -75,10 +75,12 @@ RealTimeDir		=	{OSDir}RealTime:
 #include {I2CDir}I2C.make
 
 
-OSObjs	= 							"{ObjDir}clock.a.o"								∂
+OSObjs	= 							"{ObjDir}BCScreen.a.o"							∂
+									"{ObjDir}clock.a.o"								∂
 									"{ObjDir}CrsrDev.a.o"							∂
 									"{ObjDir}CudaMgr.a.o"							∂
 									"{ObjDir}DeferredTaskMgr.a.o"					∂
+									"{ObjDir}DeviceDispatch.o"						∂
 									"{ObjDir}EgretMgr.a.o"							∂
 									"{ObjDir}HwPriv.a.o"							∂
 									"{ObjDir}Universal.a.o"							∂
@@ -89,8 +91,10 @@ OSObjs	= 							"{ObjDir}clock.a.o"								∂
 									"{ObjDir}MiscPatches.a.o"						∂
 									"{ObjDir}PowerMgr.o"							∂
 									"{ObjDir}VMPatches.a.o"							∂
+									"{ObjDir}MPDispatchStub.a.o"					∂
 									"{ObjDir}Dispatch.a.o"							∂
-									"{ObjDir}UniversalTables.a.o"
+									"{ObjDir}UniversalTables.a.o"					∂
+									"{ObjDir}InterruptHandlers.a.o"					∂
 
 
 "{LibDir}OS.lib"				ƒ	{OSObjs}
@@ -273,3 +277,11 @@ OSObjs	= 							"{ObjDir}clock.a.o"								∂
 
 "{ObjDir}VMPatches.a.o"			ƒ	"{OSDir}VMPatches.a"
 	Asm {StdAOpts} -o "{Targ}" "{OSDir}VMPatches.a"
+
+
+"{ObjDir}MPDispatchStub.a.o"	ƒ	"{OSDir}MPDispatchStub.a"
+	Asm {StdAOpts} -o "{Targ}" "{OSDir}MPDispatchStub.a"
+
+
+"{ObjDir}NKEventGroupWrapper.a.o"	ƒ	"{OSDir}NKEventGroupWrapper.a"
+	Asm {StdAOpts} -o "{Targ}" "{OSDir}NKEventGroupWrapper.a"

@@ -194,7 +194,8 @@ Set	AvailableFeatures  "hasROMGibbly			∂
 						hasPenFraction			∂
 						hasFullKerning			∂
 						hasGlyphState			∂
-						useROMFonts				"
+						useROMFonts				∂
+						hasBCScreen				"
 
 
 	# Hacky replacement for the lost "ParseFeatures"

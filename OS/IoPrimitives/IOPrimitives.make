@@ -16,10 +16,9 @@
 
 
 
-IOPrimitivesObjs	=					"{ObjDir}PowerMgrPrimitives.a.o"			∂
-										"{ObjDir}ImmgPrimitives.a.o"				∂
-										"{ObjDir}ADBPrimitives.a.o"					∂
+IOPrimitivesObjs	=					"{ObjDir}ADBPrimitives.a.o"					∂
 										"{ObjDir}ClockPRAMPrimitives.a.o"			∂
+										"{ObjDir}NVRAMPrimitives.c.o"				∂
 										"{ObjDir}backlightprim.a.o"					∂
 										"{ObjDir}backlightinput.c.o"									∂
 										"{ObjDir}backlightcpu.c.o"										∂
@@ -34,7 +33,6 @@ IOPrimitivesObjs	=					"{ObjDir}PowerMgrPrimitives.a.o"			∂
 "{ObjDir}ADBPrimitives.a.o"			ƒ	"{ObjDir}StandardEqu.d"						∂
 										"{IntAIncludes}HardwarePrivateEqu.a"		∂
 										"{IntAincludes}UniversalEqu.a"				∂
-										"{IntAincludes}SoundPrivate.a"				∂
 										"{IntAincludes}PowerPrivEqu.a"				∂
 										"{IntAincludes}EgretEqu.a"					∂
 										"{IntAincludes}IopEqu.a"					∂
@@ -56,7 +54,6 @@ IOPrimitivesObjs	=					"{ObjDir}PowerMgrPrimitives.a.o"			∂
 
 "{ObjDir}PowerMgrPrimitives.a.o"	ƒ	"{ObjDir}StandardEqu.d"						∂
 										"{IntAIncludes}HardwarePrivateEqu.a"		∂
-										"{IntAincludes}SoundPrivate.a"				∂
 										"{IntAIncludes}UniversalEqu.a"				∂
 										"{IntAIncludes}PowerPrivEqu.a"				∂
 										"{IntAIncludes}MMUEqu.a"					∂
@@ -88,7 +85,6 @@ IOPrimitivesObjs	=					"{ObjDir}PowerMgrPrimitives.a.o"			∂
 
 "{ObjDir}SndPrimitives.a.o"			ƒ	"{ObjDir}StandardEqu.d"						∂
 										"{IntAIncludes}HardwarePrivateEqu.a"		∂
-										"{IntAincludes}SoundPrivate.a"				∂
 										"{IntAIncludes}IOPrimitiveEqu.a"			∂
 										"{IntAIncludes}UniversalEqu.a"				∂
 										"{IOPrimitivesDir}SndPrimitives.a"

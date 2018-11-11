@@ -1,4 +1,5 @@
 PrintingObjs		=			"{ObjDir}PrintGlue.a.o"								∂
+								"{ObjDir}PrintingExtra.a.o"							∂
 
 
 "{ObjDir}PrintGlue.a.o"				ƒ	"{ObjDir}StandardEqu.d"						∂

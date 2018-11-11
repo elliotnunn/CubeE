@@ -151,13 +151,21 @@ vDisptch		BTST.B	#INVBL,QFLAGS+VBLQUEUE 	; doing VBL tasks?
 				MOVEA.L	DTParm(A0),A1			; get optional parameter
 				ANDI.W	#$F8FF,SR				; enable all ints
 				JSR		(A2)					; and go do task
+
+				MOVEA.L	ExpandMem,A1
+				MOVEA.L	$26a(A1),A2
+				TST.L	(A2)
+				BNE.S	@otherThing
+
 @DspStart		ORI.W	#HiIntMask,SR			; disable all ints
 				MOVE.L	DTskQHdr,D0				; get queue head
 				BNE.S	@DspLoop				; loop if tasks	exist
 				
-				BCLR.B	#InDTQ,DTQFlags			; clear indicator
+@backwards		BCLR.B	#InDTQ,DTQFlags			; clear indicator
 				RTS								; and exit
 
+@otherThing		ORI		#$0700,SR
+				BRA.S	@backwards
 
 				END 
 

@@ -14,7 +14,13 @@
 #
 
 
-"{ObjDir}PowerMgr.o"			ƒ	"{ObjDir}StandardEqu.d"							∂
+PowerMgrObjs					=	"{ObjDir}PowerMgr.c.o"							∂
+									"{ObjDir}PowerMgr.a.o"							∂
+
+"{ObjDir}PowerMgr.o"			ƒ	{PowerMgrObjs}
+	Lib {StdLibOpts} -o "{Targ}" {PowerMgrObjs}
+
+"{ObjDir}PowerMgr.a.o"			ƒ	"{ObjDir}StandardEqu.d"							∂
 									"{IntAIncludes}HardwarePrivateEqu.a"			∂
 									"{IntAIncludes}UniversalEqu.a"					∂
 									"{IntAIncludes}PowerPrivEqu.a"					∂

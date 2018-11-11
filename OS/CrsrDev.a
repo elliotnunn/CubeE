@@ -100,7 +100,7 @@ _FixDiv		OPWORD  $A84D
 CrsrDev		PROC
 
 			EXPORT	InitCrsrDev,CrsrDevDispatch
-			IMPORT	CrsrVBLTask
+			IMPORT	CrsrVBLTask,vDrawCursor,vEraseCursor
 
 			WITH	CrsrDevGlobals, CrsrDevRec, CrsrDevSegment, CrsrDataRec
 			WITH	ADBDeviceEntry, ADBVars, ExpandMemRec
@@ -934,20 +934,20 @@ doDouble
 
 ;---------------------------------------------------------			
 doClickLock
-			tst.b	buttonData(a2,d3.w)		; is this the 1st time?
+			tst.b	buttonData(a2,d2.w)		; is this the 1st time?
 			bne.s	@secondHit				; no, skip
 			btst.b	d3,buttons(a2)			; are we down?
 			beq.s	@firstUp				; no, skip
 			bsr.s	CrsrDevButtonDown		; yes, generate button down event
 			bra.s	@done
 
-@firstUp	st.b	buttonData(a2,d3.w)		; first up, mark it
+@firstUp	st.b	buttonData(a2,d2.w)		; first up, mark it
 			bra.s	@done			
 
 @secondHit	btst.b	d3,buttons(a2)			; are we up (2nd time)?
 			bne.s	@done					; no, do nothing...
 			bsr.s	CrsrDevButtonUp			; yes, post up event
-			clr.b	buttonData(a2,d3.w)		; mark that we're really up
+			clr.b	buttonData(a2,d2.w)		; mark that we're really up
 @done		rts
 
 
@@ -963,7 +963,7 @@ doAppleScript
 
 ;---------------------------------------------------------			
 doCustom	
-			pea		buttonData(a2)			; push our custom routine address
+			move.l	buttonData(a2,d2.w),-(sp)	; push our custom routine address
 			rts								; and call it.
 			
 
@@ -1102,7 +1102,21 @@ CrsrDevSetAccel
 ; first find the two tables which enclose the desired acceleration
 ;----------------------------------------------
 
-@foundIt	move.l	acceleration(a2),d3		; get new acceleration in d3
+@foundIt	Move.B    $85(A2), D3
+			BEQ.B     @endofthing
+			Clr       -(SP)
+			Move.L    #'accl', -(A7)
+			Move      #$FFFF, (ROMMapInsert)
+			_CountResources
+			Move      (SP)+, D3
+			Move.L    #'USB*', D4
+			Bsr       FindResource
+			BEQ.B     @endofthing
+			MoveQ.L   #$0, D4
+			Bsr       FindResource
+@endofthing
+
+			move.l	acceleration(a2),d3		; get new acceleration in d3
 			move.w	(a0)+,d2				; get # of  acceleration tables in resource
 			move.l	a0,a1					; keep ptr to 'low' accel table in a1
 			
@@ -1456,6 +1470,9 @@ CrsrDevHandleVBL
 		
 			movea.l	ExpandMem,a3				; get ptr to expandmem rec
 			movea.l	emCursorGlobals(a3),a3		; get cursory global ptr
+			tst.l	a3
+			beq		@exit
+
 			move.l	firstCrsrDev(a3),d0			; get ptr to 1st CrsrDevRec
 			beq		@exit						; if not even 1 device, just exit
 			move.l	d0,a2						;     ptr in a2
@@ -1691,6 +1708,7 @@ DrawCursor	movea.l	firstCrsrData(a3),a4		; get ptr to main CrsrDataRec			<H15>
 			bne.s	@exit						; yes… exit
 			
 			lea		CrsrPin,a0					; it's ok to update cursor, get bounding rect
+			move.l	d0,-(sp)
 			BSR.L	CrsrVBLTask					; pin and draw the cursor
 			
 			move.l	Mouse,d0					; has cursor been pinned?
@@ -1850,6 +1868,7 @@ CrsrDevDisposeDev
 @loop		cmpa.l	a1,a2					; is this the linked list element we want?
 			beq.s	@gotIt					; yes, handle it
 			move.l	a1,d1					; no, prev := next
+			beq.s	@exit
 			move.l	nextCrsrDev(a1),d0		; get next->nextCrsrDev
 			beq.s	@exit					; exit if NIL (we never found it)
 			move.l	d0,a1					; next := next->nextCrsrDev
@@ -1859,8 +1878,10 @@ CrsrDevDisposeDev
 			tst.l	d1						; was it the first one?
 			beq.s	@firstOne				; yes, handle special case
 			
+			move.l	a2,d0
 			move.l	d1,a2
 			move.l	a1,nextCrsrDev(a2)		; else, delete our element from middle of list
+			move.l	d0,a2
 			bra.s	@dispose
 
 @firstOne	move.l	a1,firstCrsrDev(a0)
@@ -1912,6 +1933,7 @@ CrsrDevReInit								;													<H14>
 	
 			movem.l	d0-d3/a0-a3,-(sp)
 			link	a6,#adbPBSize			; Make a stack frame for our param block
+			tst		d0
 			bne.s	@PostInit				; Skip if post-processing
 
 ;---------------------
@@ -2120,7 +2142,9 @@ CrsrDevReInit								;													<H14>
 ;_______________________________________________________________________
 
 syncADBTalk	
+@restart
 			move.l	a0,-(sp)				; save ptr to our buffer
+			move.l	d0,-(sp)
 			clr.w	-(sp)					; our 'sync' flag
 
 			move.l	sp,a1					; keep pointer to globals for later
@@ -2129,14 +2153,19 @@ syncADBTalk
 			move.l	a0,-(sp)				; push pointer to our reply buffer
 			move.l	sp,a0
 			_ADBOp
+			bmi.s	@weird
 			
 @spin		tst.b	(a1)					; have we completed?
 			beq.s	@spin					; no, keep waiting
 			
-			lea		14(sp),sp				; dump locals
+			lea		18(sp),sp				; dump locals
 			move.l	(sp)+,a0				; restore a0
 			rts
 
+@weird		lea.l	$e(sp),sp
+			move.l	(sp)+,d0
+			move.l	(sp)+,a0
+			bra.s	@restart
 
 ;_______________________________________________________________________
 ;			
@@ -2154,6 +2183,8 @@ syncADBTalk
 ;_______________________________________________________________________
 
 syncADBListen	
+@restart
+			movem.l	d0/a0,-(sp)
 			clr.w	-(sp)					; our 'sync' flag
 			move.l	sp,a1					; keep pointer to data area for later
 			move.l	sp,-(sp)				; push pointer to data area
@@ -2161,13 +2192,17 @@ syncADBListen
 			move.l	a0,-(sp)				; push ptr to data to send
 			move.l	sp,a0
 			_ADBOp
+			bmi.s	@weird
 			
 @spin		tst.b	(a1)					; have we completed?
 			beq.s	@spin					; no, keep waiting
 			
-			lea		14(sp),sp				; dump locals
+			lea		22(sp),sp				; dump locals
 			rts
-			
+
+@weird		lea.l	$e(sp),sp
+			movem.l	(sp)+,d0/a0
+			bra.s	@restart
 			
 ;_______________________________________________________________________
 ;			
@@ -2296,6 +2331,21 @@ SetCrsrDelCore
 			rts											; just a hook for now
 
 
+NewCrsrFunction
+			Move.L    (DeviceList), D0
+@loop		BEQ.B     @done
+			MoveA.L   D0, A0
+			CmpA.L    D1, A0
+			BNE.B     @moredone
+			MoveA.L   (A0), A0
+			Move.L    $1E(A0), D0
+			Bra.B     @loop
+@done		SubA.L    A0, A0
+@moredone	Move.L    A0, D1
+			Rts
+
+
+
 ;_____________________________________________________________________________________________	<H15>
 ;	VDrawCursor  -  default DrawCursor routine
 ;
@@ -2304,23 +2354,10 @@ SetCrsrDelCore
 ;	the routine InitCrsrVects.
 ;
 
-			EXPORT	VDrawCursor
-			IMPORT	BLITCURSOR						;from ccrsrcore.a
-VDrawCursor
-			MOVE.B	#1,CRSRBUSY 					;MARK CHANGE IN PROGRESS
-		
-			TST		CRSRSTATE
-			BMI.S	DoneSho							;QUIT IF STILL HIDDEN
-			CLR 	CRSRSTATE						;DON'T LET CRSRSTATE GET > 0
-			TST.B	CRSRVIS 						;IS CURSOR ALREADY VISIBLE?
-			BNE.S	DoneSho							;YES, DON'T TRY TO REDRAW
-			TST.B	CrsrObscure						;Skip if obscured
-			BNE.S	DoneSho
+VDrawCursor	PROC	EXPORT	
 
-			BSR.L	BLITCURSOR						;Do the real work: put pixels up
-
-DoneSho		CLR.B	CRSRBUSY						;CHANGE COMPLETE
-			RTS
+			IMPORT	QD_DRAWCURSOR
+			BRA.L	QD_DRAWCURSOR
 
 
 ;______________________________________________________________________________________________	<H15>
@@ -2331,16 +2368,9 @@ DoneSho		CLR.B	CRSRBUSY						;CHANGE COMPLETE
 ;	the routine InitCrsrVects.
 ;
 
-			EXPORT	VEraseCursor
-			IMPORT	UNBLITCURSOR					;from ccrsrcore.a
-VEraseCursor
-			MOVE.B	#1,CRSRBUSY 					;MARK CHANGE IN PROGRESS
-			TST.B	CRSRVIS 						;IS CURSOR VISIBLE?
-			BEQ.S	DoneHid							;NO, DON'T TRY TO REMOVE IT
-			
-			BSR.L	UNBLITCURSOR					;Zap Pixels
+VEraseCursor	PROC	EXPORT
 
-DoneHid		CLR.B	CRSRBUSY						;CHANGE COMPLETE
-			RTS
+			IMPORT	QD_ERASECURSOR
+			BRA.L	QD_ERASECURSOR
 
 		END

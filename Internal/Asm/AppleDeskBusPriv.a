@@ -53,7 +53,7 @@ resetCmd		EQU			$00					; Command for Bus Reset
 kbdAddr   		EQU 		$02   				; keyboard type device 
 mouseAddr 		EQU 		$03   				; mouse type device 
 numFDBAdr 		EQU 		16   				; number of avaiblae FDB address 
-moveTime  		EQU 		50    				; number of times to move device 
+moveTime  		EQU 		10    				; number of times to move device 
 
 				IF IopADB THEN
 
@@ -127,7 +127,7 @@ hasDev			ds.w	1	    			; every bit corresponds to an device address
 											; 1 = device is present in address (2 bytes)
 devMap			ds.w	1	  				; device address map (2 bytes)
 
-				ds.l	1					; unused space												<6>
+DeviceBase		ds.l	1					; unused space												<6>
 				ds.l	1					; •• Now Used! ••  Pointer to Extended ADB Data (4 bytes)	<6>
 				ds.l	1					; unused space												<6>
 				
