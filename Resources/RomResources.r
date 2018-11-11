@@ -1253,3 +1253,17 @@ resource 'rrsc' (620, "PCCard") {
 		{ -20166 /*DefaultPCCardEnabler*/, -20181 /*pccard-ata*/ };
 	}
 };
+
+resource 'rrsc' (630, "MediaBay") {
+	kUniversal,
+	AllCombos,
+	{MiscDir},
+	"MediaBay.rsrc",
+
+	{
+		'ndrv',
+		{ -20164 /*media-bay*/ };
+		'code',
+		{ -20164 /*Main*/ };
+	}
+};

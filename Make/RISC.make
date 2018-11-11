@@ -244,6 +244,7 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{MiscDir}GoNativeResources"			∂
 					"{MiscDir}EmulatorAccelerations.rsrc"	∂
 					"{RsrcDir}MainCode.Rsrc"				∂
+					"{MiscDir}MediaBay.rsrc"				∂
 					"{RsrcDir}MiscROMRsrcs.rsrc" 			∂
 					"{MiscDir}NativeItt.rsrc" 				∂
 					"{MiscDir}NativeNub.rsrc" 				∂
