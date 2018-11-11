@@ -245,6 +245,7 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{MiscDir}EmulatorAccelerations.rsrc"	∂
 					"{RsrcDir}MainCode.Rsrc"				∂
 					"{RsrcDir}MiscROMRsrcs.rsrc" 			∂
+					"{MiscDir}NativeNub.rsrc" 				∂
 					"{MiscDir}PowerMgr.rsrc" 				∂
 					"{RsrcDir}ROMFonts.rsrc" 				∂
 					"{RsrcDir}RomLayout.Rsrc"				∂
