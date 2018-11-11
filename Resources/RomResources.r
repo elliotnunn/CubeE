@@ -1279,3 +1279,29 @@ resource 'rrsc' (640, "Native ATAMgr") {
 		{ -20186 /*ATAManager*/ };
 	}
 };
+
+resource 'rrsc' (650, "USB") {
+	kUniversal,
+	AllCombos,
+	{MiscDir},
+	"USB.rsrc",
+
+	{
+		'nlib',
+		{ -20776 /*USBServicesLib*/, -20777 /*USBFamilyExpertLib*/, -20778 /*USBManagerLib*/ };
+		'ndrv',
+		{ -20776 /*pciclass,0c0310*/ };
+		'usbd',
+		{ -20776 /*USBHubDriver0*/, -20777 /*USBHubDriver1*/, -20778 /*USBHIDKeyboardModule*/, -20779 /*USBHIDMouseModule*/, -20780 /*USBCompositeDriver*/ };
+		'usbf',
+		{ -20776 };
+		'usbs',
+		{ -20781 /*USBShimKeyboard*/, -20782 /*USBShimMouse*/ };
+		'ndrv',
+		{ -20777 /*USBUnitTableStorageDriver*/ };
+		'usbs',
+		{ -20776 /*USBMassStorageLoader*/ };
+		'usbd',
+		{ -20781 /*USBMassStorageClassDriver*/, -20782 /*USBMassStorageVSDriver*/ };
+	}
+};
