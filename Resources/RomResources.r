@@ -1203,3 +1203,15 @@ resource 'rrsc' (504, "PowerMgr") {
 		{ -20961, -20984 };
 	}
 };
+
+resource 'rrsc' (605, "ATAMgr") {
+	kUniversal,
+	AllCombos,
+	{MiscDir},
+	"ATAMgr.rsrc",
+
+	{
+		'DRVR',
+		{ 53 /*.ATADisk*/, -20175 /*.ATALoad*/ };
+	}
+};

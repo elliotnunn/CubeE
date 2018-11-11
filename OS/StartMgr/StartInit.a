@@ -1864,6 +1864,11 @@ BootRetry	MOVE	#$2700,SR						; disable interrupts
 													; modules
 @noAsyncSCSI
 			ENDIF									; <SM162> /\   
+			IMPORT	ATAMgr_5dae0
+			BSR.L	ATAMgr_5dae0
+			IMPORT	ATAMgr_5dde0
+			BSR.L	ATAMgr_5dde0
+
 
 
 *************************************************************************************************
