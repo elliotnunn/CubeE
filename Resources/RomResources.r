@@ -1227,3 +1227,17 @@ resource 'rrsc' (607, "NativeNub -- for Power Mac Debugger?") {
 		{ 50 /*NativeNub*/ };
 	}
 };
+
+resource 'rrsc' (610, "Native SCSI Mgr 4.3") {
+	hasMixedMode,
+	AllCombos,
+	{MiscDir},
+	"NativeItt.rsrc",
+
+	{
+		'nitt',
+		{ 43 /*Native 4.3*/ };
+		'gcko',
+		{ 43 /*Main*/ };
+	}
+};
