@@ -857,7 +857,7 @@ Handle sb_SizeTheBlock(sb_SplineKeyHdl splineKey, Handle inputH, THz* inputZone,
 				
 				if (newH = sb_NewZoneHandle(splineKey, size, &newZ)) {
 				
-					BlockMove( *h, *newH, origSize );
+					BlockMoveData( *h, *newH, origSize );
 					sb_DisposeZoneHandle( h, *zone );			/* <28-CEL> assigned zone before disposing caused problems */
 
 					if (cachePlace != -1) {		/* <28-CEL> Need to update cache info in cacheList */
@@ -2037,7 +2037,7 @@ long AppendSplineDirectoryToWidthTable( Handle splineHandle, widthTableHdl width
 			SetHandleSize( (Handle) widthTableHandle, sizeof( widthTable ) + splineDirectorySize );
 			if ( (error = MemError( )) == noErr ) {
 			
-				BlockMove( (Ptr) splineDirectoryPointer, (Ptr) (*widthTableHandle)->fSplineDirectory, splineDirectorySize );
+				BlockMoveData( (Ptr) splineDirectoryPointer, (Ptr) (*widthTableHandle)->fSplineDirectory, splineDirectorySize );
 				
 			}
 		

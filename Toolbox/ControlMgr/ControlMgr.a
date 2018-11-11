@@ -991,7 +991,7 @@ GetCTitle
 				MOVEQ	#0,D0					;clear high part
 				MOVE.B	(A0),D0 				;get length of string
 				ADDQ.L	#1,D0					;include the length byte, too
-				_BLOCKMOVE						;move it in place
+				_BLOCKMOVEDATA					;move it in place
 				RTS 							;all done!
 ;
 ; PROCEDURE SetCTitle(theControl: controlHandle; theTitle: Str255);
@@ -1034,7 +1034,7 @@ CopyCTitle										;									<3>
 				MOVE.L	(A3),A1 				;get control pointer
 				LEA 	ContrlTitle(A1),A1		;point to title string
 				ADDQ	#1,D0					;dont forget the length byte
-				_BlockMove						;move it in
+				_BlockMoveData					;move it in
 ;
 ; make it visible if it used to be
 ;

@@ -774,7 +774,7 @@ IdSave$d		EQU		D2			;Save the sResource Id.
 				MOVE.L	a2,a0
 				MOVE.L	a3,a1
 				MOVE.L	d1,d0
-				_BlockMove
+				_BlockMoveData
 				MOVEM.L	(SP)+,A0-A1										;Restore A0-A1, destroyed by _BlockMove.
 				BNE.S	Err1
 				

@@ -1343,7 +1343,7 @@ MoreDifFont
 			MOVE.L	8(A6),A0				; pick up request pointer
 			LEA		copyInput(A6),A1
 			MOVEQ	#$10,D0
-			_BlockMove						; make copy of request
+			_BlockMoveData					; make copy of request
 			MOVE.L	A1,A3
 
 			MOVE.B	fmInFace(A3),FOutCurStyle ; set up desired style
@@ -2160,7 +2160,7 @@ LookForColor
 			ADD.L	D0,A1					; don’t forget header size
 			SUB.L	D0,D2					; take out header from size of post-strike tables
 			MOVE.L	D2,D0
-			_BlockMove						; move tables after the strike
+			_BlockMoveData					; move tables after the strike
 			
 		; put pixel size in stack record for MakeScaleTbl
 			MOVEQ	#1,D4
@@ -2255,7 +2255,7 @@ AddToSynList
 			MOVE.L	widthNFNT(A0),(A1)+		; save the font ID, NFNT flag
 			LEA		foreBack(A6),A0
 			MOVEQ	#rgbColor*2,D0			; size of foreground, background colors
-			_BlockMove						; move foreground, background
+			_BlockMoveData					; move foreground, background
 			
 ; new font should only be made purgable at next DifFont time
 ; this means FontMgr needs to know that it was a “synthetic” font via font flag
@@ -3293,7 +3293,7 @@ SetScreenDevice
 			LEA 	FMDotsPerInch,A1		; get place to stash info
 			LEA 	ScreenStyleTab,A0		; point to the info
 			MOVEQ	#28,D0					; 28 bytes of info to move
-			_BlockMove						; move it in
+			_BlockMoveData					; move it in
 			RTS
 
 ; -------------------------------------------------------------------------------------
