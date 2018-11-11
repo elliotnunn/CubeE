@@ -239,7 +239,7 @@ void FontNameIndexToFontName( StringPtr fontNamePointer, Integer fontNameIndex, 
 	
 	}
 	
-	BlockMove( (Ptr) stringEntryPointer->fString, (Ptr) fontNamePointer, stringEntryPointer->fString[0] + 1 );
+	BlockMoveData( (Ptr) stringEntryPointer->fString, (Ptr) fontNamePointer, stringEntryPointer->fString[0] + 1 );
 	
 }
 
@@ -307,7 +307,7 @@ OSErr FontNameToFontNameIndex( Integer *fontNameIndexPointer, StringPtr fontName
 		} else {
 		
 			stringEntryPointer->fReferenceCount = 1;
-			BlockMove( (Ptr) fontNamePointer, (Ptr) stringEntryPointer->fString, fontNamePointer[0] + 1 );
+			BlockMoveData( (Ptr) fontNamePointer, (Ptr) stringEntryPointer->fString, fontNamePointer[0] + 1 );
 			*fontNameIndexPointer = stringListPointer->fStringCount++;
 			
 		}

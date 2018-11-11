@@ -1950,7 +1950,7 @@ MakeOverrideMap	Proc	Export
 				
 				exg		a2,a1							; Swap reference entry and 'rovm' pointer
 				move.l	#RESize,d0
-				_BlockMove								; Copy reference data
+				_BlockMoveData							; Copy reference data
 				clr.b	RAttr(a0)						; clear the attributes for the resource (protected, etc.)
 
 ;

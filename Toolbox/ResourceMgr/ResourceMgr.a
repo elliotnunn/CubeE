@@ -1280,7 +1280,7 @@ ReDoMap 								; new routine
 		moveq	#$20,d0					; size of null map
 		lea		NullRF,a0				; get null map from rom
 		move.l	(A4),A1 				; Dereference handle to destination
-		_BlockMove						; move map down
+		_BlockMoveData					; move map down
 		move.w	#1,MRefNum(a1)			; and stuff the rom map refnum (so getcurmap works)
 
 		clr.w	-(sp)					; get a buffer on the stack to read in index
@@ -1783,7 +1783,7 @@ vNewMap 								; Def to build dispatch entry					<27oct85> BBM
 		ADDA.L	#HdrSize,A0 			; ... finish calc for source
 		LEA 	HSCache,A1				; Destination for blockmove
 		MOVE.L	#PreSize,D0 			; size for blockmove							<11jul85> BBM
-		_BlockMove						; move the key data to the stack
+		_BlockMoveData					; move the key data to the stack
 		MOVEA.L A0,A1					; restore A1
 		SUBA.L	#HdrSize,A1 			; ... finish restoring A1
 		BSR 	PreFormat				; check the preload format of this file			<SM25> CSS 	
@@ -6324,7 +6324,7 @@ CopyStr
 		MOVEQ	#0, D0					; Zero high order bits.
 		MOVE.B	(A0), D0				; Get length of string
 		ADDQ.W	#1, D0					; include length byte.							<14jun85> BBM
-		_BlockMove						; Copy the string to A1
+		_BlockMoveData					; Copy the string to A1
 		RTS 							; and return.
 
 ;_______________________________________________________________________________

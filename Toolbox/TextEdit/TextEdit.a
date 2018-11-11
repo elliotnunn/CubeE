@@ -8218,7 +8218,7 @@ CopyGuts
 			Bsr			GetStyle				; get the style ptr
 			AddQ.L		#2,A0					; skip 1st entry				** <C207/13oct86/MBK> **
 			MoveQ		#stRecSize-2,D0			; size of a style rec-2			** <C381/6nov86/MBK> **
-			_BlockMove							; copy style to scrap
+			_BlockMoveData						; copy style to scrap
 
 			MoveQ		#0,D0					; it's a long word				** <C207/13oct86/MBK> **
 			Move.W		startChar(A2),D0		; get start offset of this style
@@ -8425,7 +8425,7 @@ DeleteStyle
 			Move.L		A2,A1					; destination of move
 			Move.L		A2,A0
 			Add.L		D4,A0					; source of move
-			_BlockMove
+			_BlockMoveData
 
 @2			MoveM.L		(SP)+,D0/D2-D6/A2		; restore stuff
 
@@ -10901,7 +10901,7 @@ MakeRoom
 			Add.L		D2,A1					; destination
 			Move.L		D3,D0					; length
 			_StripAddress						; clean up high byte of length <5June89smb>
-			_BlockMove							; make room
+			_BlockMoveData						; make room
 
 
 			MoveM.L		(SP)+,D2-D3/A2
@@ -11104,7 +11104,7 @@ AddStyle
 
 @1			Sub.W		D0,D3					; get the index
 			Move.L		#stRecSize,D0			; size of record
-			_BlockMove							; copy it to styleRec array
+			_BlockMoveData						; copy it to styleRec array
 
 			Move.W		D3,D0					; return the index
 
@@ -13927,7 +13927,7 @@ styleLoop	Move.W		styleIndex(A2),D0		; else, index to style
 
 			Move.L		#stRecSize,D0			; length of a styleRec
 			Move.L		A4,A1					; ptr to temp storage
-			_BlockMove							; copy to temp location for mod
+			_BlockMoveData						; copy to temp location for mod
 
 			Move.L		A2,A0					; current style
 			Move.L		D3,D0					; selStart, selEnd
@@ -14903,7 +14903,7 @@ iGetStylScrap
 			Lea			2(A0),A0				; skip over stCount to stHeight		<C971/RWW102387>
 
 			Move.L		#scrpRecSize-4,D0		; amount to copy					<C971/RWW102387>
-			_BlockMove							; from NullStRec to StScrpRec		<C971/RWW102387>
+			_BlockMoveData						; from NullStRec to StScrpRec		<C971/RWW102387>
 			Bra.S		EndGet					; we're outta here					<C971/RWW102387>
 @05												;									<C971/RWW102387>
 

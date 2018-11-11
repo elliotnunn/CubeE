@@ -530,7 +530,7 @@ LaunchCom
 			move.w	(a3)+,CurPageOption 	;											<28Oct85>
 			LEA		CurApName,A1			;get address to stuff the name
 			MOVEQ 	#32,D0					;move 32 bytes worth
-			_BlockMove						;move it in
+			_BlockMoveData					;move it in
 			
 			MOVEQ	#0,D3					;<A284> assume all flags are zero
 			CMP.W	#'LC',(A3)+				;<A284> extension code around?
@@ -570,7 +570,7 @@ SkipClose
 		  MOVE.L	SP,A1					 ;set up destination for move
 		  MOVE.L	(A0),A0 				 ;set up source for move
 		  MOVE.L	D0,-(SP)				 ;remember the size
-		  _BlockMove						 ;move it!
+		  _BlockMoveData					 ;move it!
 
 ; re-init the application heap zone, destroying the world...
 ; ...but just before, flush any vbl tasks executing out of that doomed land!		 <27Mar85>
@@ -608,7 +608,7 @@ GoInitAZone
 		  MOVE.L	D1,D0					 ;get size for blockMove
 		  MOVE.L	(A0),A1 				 ;get destination pointer
 		  MOVE.L	SP,A0					 ;get source pointer
-		  _BlockMove						 ;move it in!
+		  _BlockMoveData					 ;move it in!
 
 		  ADD.L 	D1,SP					 ;deallocate scrap save buffer
 
@@ -836,7 +836,7 @@ GetAppParms
 
 			   LEA		 CurApName,A0	;point to name in low memory
 			   MOVEQ	 #32,D0 		;move 32 bytes
-			   _BlockMove				;move it!
+			   _BlockMoveData			;move it!
 
 			   RTS						;return to caller (params already stripped)
 

@@ -667,7 +667,7 @@ EDiskPrime								; all regs saved by Device Manager
 
 @ReadWrite
 		move.l	d1,d0					; get the byte count
-		_BlockMove						; move the data
+		_BlockMoveData					; move the data
 		move.l	d1,d4					; indicate all bytes moved
 		bra.s	@PrimeDone				; return with success
 		title	'EDisk Driver - Read processing'
@@ -1026,7 +1026,7 @@ statDrvSts
 		clr.w	(a1)+					; return zero for track
 		lea		WriteProtected(a3),a0	; start copy with write protected flag
 		moveq.l	#(DQE-WriteProtected)+dQDrvSz2+2,d0	; number of bytes to copy
-		_BlockMove						; copy the drive info, and return noErr
+		_BlockMoveData					; copy the drive info, and return noErr
 @Done	rts								; all done
 
 
@@ -1070,7 +1070,7 @@ IconCommon
 		lea		IconBuffer(a2),a1		; get buffer address (dest address)
 		move.l	a1,(a4)					; return buffer pointer
 		move.l	#IconAndMaskSize,d0		; setup byte count for icon and mask
-		_BlockMove						; copy the icon into the buffer
+		_BlockMoveData					; copy the icon into the buffer
 
 ;	copy the "Where String" into the buffer
 
@@ -1085,7 +1085,7 @@ IconCommon
 		bls.s	@CopyString				; if in range just copy it
 		moveq.l	#WhereStringSize,d0		; otherwise truncate to max size
 @CopyString
-		_BlockMove						; copy the string into the buffer
+		_BlockMoveData					; copy the string into the buffer
 
 @Done	rts								; all done (d0 is noErr from _BlockMove)
 		title	'EDisk Driver - FindDQE - Find Drive Queue Element'

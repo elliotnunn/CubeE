@@ -441,7 +441,7 @@ DoGet
 			MOVE.L		D5,A2					; get scrapHandle
 			MOVE.L		(A2),A0 				; set up source for move
 			ADD.L		D3,A0					; add in offset
-			_BlockMove
+			_BlockMoveData
 			BRA 		goHome0 				; return zero
 
 ; Get the data from the file

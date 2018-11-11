@@ -853,7 +853,7 @@ GotStorage
 			MOVEQ		#30, D0 				; Copy 30 bytes of parameters
 			SUB.L		D0, SP					; Subtract for stack frame
 			MOVE.L		SP, A1					; Copy to the stack
-			_BlockMove							; Copy all parameters except Items
+			_BlockMoveData						; Copy all parameters except Items
 			TST.L		D5
 			BEQ.S		@useOldWindow
 			_NewCWindow
@@ -1131,7 +1131,7 @@ ValidDS											; not an osEvt													<9>
 			MOVE.L		DSEvent(A6), A0 		; Copy the passed event in DSEvent
 			LEA 		theEvent(A6), A1		; to theEvent for easy decomposition
 			MOVEQ		#EvtBlkSize,D0
-			_BlockMove							; theEvent is the first event.
+			_BlockMoveData						; theEvent is the first event.
 
 			BSR 		EventAD 				; Handle event--result in D3
 			TST.W		D3						; Check to see if my event or not
@@ -1861,7 +1861,7 @@ GetIText
 okStrLength
 			MOVE.B		D0,(A1)+				; set dest string length
 			MOVE.L		(A0), A0				; Dereference
-			_BlockMove							; Copy those bytes!
+			_BlockMoveData						; Copy those bytes!
 
 			BRA.S		TwoLongExit 			; ...and exit
 
