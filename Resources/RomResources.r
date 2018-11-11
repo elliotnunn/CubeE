@@ -1215,3 +1215,15 @@ resource 'rrsc' (605, "ATAMgr") {
 		{ 53 /*.ATADisk*/, -20175 /*.ATALoad*/ };
 	}
 };
+
+resource 'rrsc' (607, "NativeNub -- for Power Mac Debugger?") {
+	hasMixedMode,
+	AllCombos,
+	{MiscDir},
+	"NativeNub.rsrc",
+
+	{
+		'ncod',
+		{ 50 /*NativeNub*/ };
+	}
+};
