@@ -1267,3 +1267,15 @@ resource 'rrsc' (630, "MediaBay") {
 		{ -20164 /*Main*/ };
 	}
 };
+
+resource 'rrsc' (640, "Native ATAMgr") {
+	hasMixedMode,
+	AllCombos,
+	{MiscDir},
+	"ATAMgr.rsrc",
+
+	{
+		'nlib',
+		{ -20186 /*ATAManager*/ };
+	}
+};
