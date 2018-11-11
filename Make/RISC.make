@@ -244,6 +244,7 @@ ResourceFiles	=	"{RsrcDir}CQD.rsrc"						∂
 					"{MiscDir}EmulatorAccelerations.rsrc"	∂
 					"{RsrcDir}MainCode.Rsrc"				∂
 					"{RsrcDir}MiscROMRsrcs.rsrc" 			∂
+					"{MiscDir}PowerMgr.rsrc" 				∂
 					"{RsrcDir}ROMFonts.rsrc" 				∂
 					"{RsrcDir}RomLayout.Rsrc"				∂
 					"{RsrcDir}InSaneNFPU.rsrc" 				∂
