@@ -237,6 +237,7 @@ Features		=	hasRISCV0ResMgrPatches					∂
 
 ResourceFiles	=	"{RsrcDir}CQD.rsrc"						∂
 					"{RsrcDir}DeclData"						∂
+					"{MiscDir}DriverServices.rsrc"			∂
 					"{RsrcDir}EDisk.rsrc"					∂
 					"{RsrcDir}Gibbly.rsrc"					∂
 					"{MiscDir}GoNativeResources"			∂

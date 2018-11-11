@@ -1173,3 +1173,18 @@ resource 'rraa' (110, "TNT error beep") {
 	
 	0x00220000			 /* ROM Address */
 };
+
+resource 'rrsc' (503, "DriverServices") {
+	hasMixedMode,
+	AllCombos,
+	{MiscDir},
+	"DriverServices.rsrc",
+
+	{
+		'ntrb',
+		{ -16400 /*NameRegistryTraps*/ };
+
+		'nlib',
+		{ -16400 /*NameRegistryLib*/, -16407 /*DSLGlobalsLib*/, -16401 /*DriverServicesLib*/, -16402 /*DriverLoaderLib*/, -16404 /*PCILib*/, -16403 /*VideoServicesLib*/, -16405 /*VideoServicesGlobals*/ };
+	}
+};
