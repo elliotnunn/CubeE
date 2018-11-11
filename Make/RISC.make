@@ -247,6 +247,7 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{RsrcDir}MiscROMRsrcs.rsrc" 			∂
 					"{MiscDir}NativeItt.rsrc" 				∂
 					"{MiscDir}NativeNub.rsrc" 				∂
+					"{MiscDir}PCCard.rsrc" 					∂
 					"{MiscDir}PowerMgr.rsrc" 				∂
 					"{RsrcDir}ROMFonts.rsrc" 				∂
 					"{RsrcDir}RomLayout.Rsrc"				∂
