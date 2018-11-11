@@ -240,6 +240,7 @@ ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
 					"{RsrcDir}DeclData"						∂
 					"{MiscDir}DriverServices.rsrc"			∂
 					"{RsrcDir}EDisk.rsrc"					∂
+					"{MiscDir}FireWire.rsrc"				∂
 					"{RsrcDir}Gibbly.rsrc"					∂
 					"{MiscDir}GoNativeResources"			∂
 					"{MiscDir}EmulatorAccelerations.rsrc"	∂
