@@ -1305,3 +1305,23 @@ resource 'rrsc' (650, "USB") {
 		{ -20781 /*USBMassStorageClassDriver*/, -20782 /*USBMassStorageVSDriver*/ };
 	}
 };
+
+resource 'rrsc' (660, "FireWire") {
+	kUniversal,
+	AllCombos,
+	{MiscDir},
+	"FireWire.rsrc",
+
+	{
+		'ndrv',
+		{ -21143 /*fw609e,10483*/ };
+		'fexp',
+		{ -21140 /*ComponentDriverExpert*/, -21141 /*GenericDriverFamilyExpert*/ };
+		'frag',
+		{ -21140 /*FWPCIScanner*/, -21141 /*FWExpertRegistration*/, -21142 /*sbp609e,104d8*/ };
+		'gpch',
+		{ 1207 /*Main*/ };
+		'ndrv',
+		{ -20994 /*sbp609e,104d8*/ };
+	}
+};
