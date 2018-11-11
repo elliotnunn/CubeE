@@ -1254,6 +1254,7 @@ AddrTable	DC.W		iTEStylPaste-AddrTable				; 0
 			DC.W		iTECustomHook-AddrTable				; 12
 			DC.W		iTENumStyles-AddrTable				; 13
 			DC.W		iTEFeatureFlag-AddrTable			; 14
+			DC.W		iTEGetHiliteRgn-AddrTable			; 15
 
 ;-------------------------------------------------------------------------------------------------
 
@@ -15495,6 +15496,55 @@ ContGuts
 			Rts
 
 			EndWith		;contArgs
+
+;formFeed
+;----------------------------------------------------------------------
+;
+;			PROCEDURE TEGetHiliteRgn( region: RgnHandle; hTE: TEHandle ): OSErr;
+;
+;			Obtains the highlight region for the specified edit structure.
+;
+;----------------------------------------------------------------------
+iTEGetHiliteRgn
+			Move		$20(A3), D0
+			Cmp			$22(A3), D0
+			BLT.B		@L1
+			Move.L		(A2)+, -(SP)
+			_SetEmptyRgn
+			Bra.B		@L3
+@L1			Move.L		$56(A3), -(SP)
+			Lea.L		DT0, A0
+			Move.L		A0, $56(A3)
+			_OpenRgn
+			Move		$24(A3), -(SP)
+			OrI			#$FF00, $24(A3)
+			Pea.L		$10(A3)
+			Move.L		A4, -(SP)
+			_TEUpdate
+			Move		(SP)+, $24(A3)
+			Move.L		(A2), -(SP)
+			_CloseRgn
+			SubQ		#4, SP
+			_NewRgn
+			Move.L		(SP)+, D0
+			BEQ.B		@L2
+			Move.L		D0, -(SP)
+			Move.L		D0, -(SP)
+			Move.L		(A2), -(SP)
+			Move.L		(A2), -(SP)
+			Move.L		D0, -(SP)
+			Pea.L		$8(A3)
+			_RectRgn
+			_SectRgn
+			_DisposeRgn
+@L2			AddQ		#4, A2
+			Move.L		(SP)+, $56(A3)
+@L3			Clr			(A2)
+			MoveQ.L		#10, D0
+			Bra			StdExit2
+
+DT0			_FrameRect
+			Rts
 
 
 ; *************************************************************************************************
