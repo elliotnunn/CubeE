@@ -175,25 +175,17 @@ RomBase			=	$40800000
 
 Features		=	hasRISCV0ResMgrPatches					∂
 					hasDoubleByte							∂
-					hasAMIC									∂
 					SupportNativeComponents					∂
 					Script_Char_Extra						∂
 					hasPenFraction							∂
 					hasFullKerning							∂
 					hasGlyphState							∂
-					hasNewHeapMgr							∂
 					hasPDMMaceEnet							∂
-					hasAppleTalkInROM						∂
 					hasMixedMode							∂
 					nonSerializedIO							∂
 					hasSCSIDiskModeFeature					∂
-					hasSysSevenResources					∂
-					hasDataAccessPACK						∂
-					hasYMCA									∂
 					hasCPUIDRegister						∂
-					hasHMC									∂
 					has2MegROMOrMore						∂
-					hasVideoIn								∂
 					hasAsyncSCSI							∂
 					BadBlockSparingEnabled					∂
 					CubeE									∂
@@ -206,59 +198,32 @@ Features		=	hasRISCV0ResMgrPatches					∂
 					forADBKeyboards 						∂
 					forAppleTalk20							∂
 					forLocalizability						∂
-					has040MMU								∂
 					hasADBKeyLayouts						∂
-					hasASC									∂
 					hasAliasMgr 							∂
-					hasApple2Fonts							∂
 					hasAppleEventMgr						∂
 					hasBalloonHelp							∂
 					hasBattery								∂
 					hasCommToolbox							∂
 					hasCQD									∂
-					hasDAFB									∂
-					hasDJMEMC								∂
-					hasDataAccessMgr						∂
 					hasDisplayMgr 							∂
 					hasDisplayMgrWindows 					∂
 					hasEDisk								∂
-					hasEclipseVIA2							∂
-					hasEditionMgr							∂
 					hasEgret								∂
 					hasExtendedCharacterSet					∂
-					hasFMC									∂
 					hasGDU									∂
-					hasGlue									∂
-					hasGrandCentral							∂
 					hasIdle 								∂
-					hasIopScc								∂
-					hasIopSwim								∂
-					hasJaws 								∂
-					hasMDU									∂
-					hasMMU									∂
-					hasMSC									∂
-					hasMac2VIA2 							∂
-					hasNetBoot								∂
-					hasNiagra								∂
-					hasOrwell								∂
-					hasOss									∂
-					hasPratt								∂
 					hasProtectedPRAM						∂
 					hasSCSI96								∂
 					hasSWIM2								∂
-					hasSwim3								∂
 					hasSlotMgr								∂
-					hasSonora								∂
 					hasSplineFonts							∂
 					hasVDAC									∂
 					hasVIAClock								∂
 					hasVISA2								∂
-					hasVISADecoder							∂
 					hasWaimeaVIA2							∂
 					isUniversal								∂
 					hasPwrControls							∂
 					hasPwrMgrClock							∂
-					hasRBV									∂
 					hasSplineFonts							∂
 					hasVIAClock 							∂
 					hasWaimeaVIA2							∂
@@ -270,49 +235,17 @@ Features		=	hasRISCV0ResMgrPatches					∂
 					ForROM
 
 
-ResourceFiles	=	"{RsrcDir}ATBoot.RSRC"					∂
-					"{MiscDir}AppleTalk.ROM.rsrc"			∂
-					"{RsrcDir}AppleEventMgr.rsrc"			∂
-					"{RsrcDir}CQD.rsrc"						∂
-					"{RsrcDir}ColorPicker.rsrc"				∂
-					"{RsrcDir}CommToolbox.rsrc"				∂
-					"{RsrcDir}ControlMgr.rsrc"				∂
-					"{RsrcDir}DataAccessMgr.rsrc"			∂
-					"{RsrcDir}DictionaryMgr.rsrc"			∂
+ResourceFiles	=	"{RsrcDir}CQD.rsrc"						∂
 					"{RsrcDir}DeclData"						∂
 					"{RsrcDir}EDisk.rsrc"					∂
-					"{RsrcDir}EditionMgr.rsrc"				∂
 					"{RsrcDir}Gibbly.rsrc"					∂
 					"{MiscDir}GoNativeResources"			∂
 					"{MiscDir}EmulatorAccelerations.rsrc"	∂
-					"{RsrcDir}HelpMgr.rsrc"					∂
-					"{RsrcDir}InSane.rsrc"					∂
-					"{RsrcDir}I2CC.rsrc"					∂
-					"{RsrcDir}I2CT.rsrc"					∂
-					"{RsrcDir}ListMgr.rsrc"					∂
 					"{RsrcDir}MainCode.Rsrc"				∂
-					"{RsrcDir}MenuMgr.rsrc"					∂
 					"{RsrcDir}MiscROMRsrcs.rsrc" 			∂
-					"{RsrcDir}NetBoot.rsrc"					∂
-					"{RsrcDir}PDMENET.rsrc"					∂
-					"{RsrcDir}PPC.rsrc"						∂
-					"{RsrcDir}PictUtilities.rsrc"			∂
-					"{RsrcDir}ROMApple2Fonts.rsrc"			∂
 					"{RsrcDir}ROMFonts.rsrc" 				∂
 					"{RsrcDir}RomLayout.Rsrc"				∂
-					"{RsrcDir}SCCIOP.rsrc"					∂
-					"{RsrcDir}SWIMIOP.rsrc"					∂
 					"{RsrcDir}InSaneNFPU.rsrc" 				∂
-					"{RsrcDir}Sane.rsrc" 					∂
-					"{RsrcDir}Serial.rsrc"					∂
-					"{RsrcDir}SerialDMA.rsrc"				∂
-					"{RsrcDir}Sony.rsrc" 					∂
-					"{RsrcDir}SoundMgr.rsrc" 				∂
-					"{RsrcDir}StandardFile.rsrc" 			∂
-					"{RsrcDir}VDigC.rsrc"					∂
-					"{RsrcDir}VDigT.rsrc"					∂
-					"{MiscDir}VM.RSRC"						∂
-					"{RsrcDir}WindowMgr.rsrc"				∂
 					"{RsrcDir}kbd.rsrc"
 
 

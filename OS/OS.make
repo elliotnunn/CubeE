@@ -80,21 +80,15 @@ OSObjs	= 							"{ObjDir}clock.a.o"								∂
 									"{ObjDir}CudaMgr.a.o"							∂
 									"{ObjDir}DeferredTaskMgr.a.o"					∂
 									"{ObjDir}DeviceMgr.a.o"							∂
-									"{ObjDir}DockingMgr.a.o"						∂
 									"{ObjDir}EgretMgr.a.o"							∂
 									"{ObjDir}HwPriv.a.o"							∂
-									"{ObjDir}I2C.a.o"							∂
 									"{ObjDir}Universal.a.o"							∂
-									"{ObjDir}InterruptHandlers.a.o"					∂
-									"{ObjDir}IOPMgr.a.o"							∂
 									"{ObjDir}OSEventMgr.a.o"						∂
 									"{ObjDir}queue.a.o"								∂
 									"{ObjDir}sysUtil.a.o"							∂
 									"{ObjDir}VerticalRetraceMgr.a.o"				∂
 									"{ObjDir}MiscPatches.a.o"						∂
-									"{ObjDir}MagicData.a.o"							∂
 									"{ObjDir}PowerMgr.o"							∂
-									"{ObjDir}PwrControlsPatches.o"					∂
 									"{ObjDir}VMPatches.a.o"							∂
 									"{ObjDir}Dispatch.a.o"							∂
 									"{ObjDir}UniversalTables.a.o"
