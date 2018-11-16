@@ -458,13 +458,16 @@ IUStringOrder
 ;   convert a string into a number using Jerome's routine
 ;
 StringToNum     PROC EXPORT
-                IMPORT    	Exit8
+                EXPORT    	Exit8
 
                MOVE.L	    8(SP),A0
                PackCall	    #1,_Pack7	   ;LDec2Bin
                MOVE.L	    4(SP),A0
                MOVE.L	    D0,(A0)
-               JMP	    	Exit8
+
+Exit8          MOVE.L       (SP)+,A0
+               ADDQ         #8,SP
+               JMP          (A0)
 
 
 ;
@@ -473,15 +476,14 @@ StringToNum     PROC EXPORT
 ;   convert a number to a string using anonymous routine
 ;
 NumToString     PROC EXPORT
-                EXPORT    	Exit8
 
-               MOVE.L	 	4(SP),A0
-               MOVE.L	 	8(SP),D0
+               MOVE.L       (SP)+,A1
+               MOVE.L       (SP)+,A0
+               MOVE.L       (SP)+,D0
+               MOVE.L       A1,-(SP)
                PackCall	    #0,_Pack7	    ;LBin2Dec
 
-Exit8	       MOVE.L	 	(SP)+,A0
-               ADDQ	 		#8,SP
-               JMP	 		(A0)
+               RTS
 
 
          END

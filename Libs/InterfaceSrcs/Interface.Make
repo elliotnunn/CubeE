@@ -28,21 +28,21 @@ CTTermDir		=	{CTDir}TerminalMgr:
 
 InterfaceObjs							=	"{IfObjDir}"Copyright.a.o					∂
 											"{IfObjDir}"OSTraps.a.o						∂
-											"{IfObjDir}"BitMapToRegion.a.o 				∂
+											"{IfObjDir}"Strings.a.o						∂
+											"{IfObjDir}"PackTraps.a.o					∂
 											"{IfObjDir}"HFSGlue.c.o						∂
-											"{IfObjDir}"FoldersGlue.c.o					∂
 											"{IfObjDir}"ToolTraps.a.o					∂
+											"{IfObjDir}"nAppleTalk.a.o					∂
+											"{IfObjDir}"ENet.a.o						∂
+											"{IfObjDir}"piMAIN.a.o						∂
+											"{IfObjDir}"BitMapToRegion.a.o 				∂
+											"{IfObjDir}"FoldersGlue.c.o					∂
 											"{IfObjDir}"EnvironsGlue.a.o				∂
 											"{IfObjDir}"GestaltGlue.a.o					∂
-											"{IfObjDir}"PackTraps.a.o					∂
 											"{IfObjDir}"ListTraps.a.o					∂
 											"{IfObjDir}"PrintCalls.a.o					∂
 											"{IfObjDir}"Graf3DAsm.a.o					∂
 											"{IfObjDir}"SlotTraps.a.o					∂
-											"{IfObjDir}"Strings.a.o						∂
-											"{IfObjDir}"nAppleTalk.a.o					∂
-											"{IfObjDir}"ENet.a.o						∂
-											"{IfObjDir}"piMAIN.a.o						∂
 											"{IfObjDir}"controls.a.o					∂
 											"{IfObjDir}"desk.a.o						∂
 											"{IfObjDir}"devices.a.o						∂
