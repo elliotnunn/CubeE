@@ -226,7 +226,6 @@ fsdelete
 p2cstr
 clock
 getpid
-strlen
 fclose
 dec2str
 str2dec

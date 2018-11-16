@@ -39,7 +39,7 @@ C2PStr		proc	EXPORT
 			
 			cmpi.l	#255,d0
 			ble.s	@2
-			move.l	#255,d0
+			moveq	#-1,d0
 @2			move.b  d0,(a0)					; Pascal string length
 
 @4			MOVE.L	(SP)+,A1				; return address
@@ -69,7 +69,7 @@ C2PStrProc	proc	EXPORT
 			
 			cmpi.l	#255,d0
 			ble.s	@2
-			move.l	#255,d0
+			moveq	#-1,d0
 @2			move.b  d0,(a0)					; Pascal string length
 
 @4			MOVE.L	(SP)+,A1				; return address

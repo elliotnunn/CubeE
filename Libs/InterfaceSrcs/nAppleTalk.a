@@ -414,7 +414,7 @@ MoveAstring
 				ADDQ.L		#1,D0				;adj for str len byte
 				MOVEA.L		32(SP),A1			;setup dest addr
 				ADD.L		D0,32(SP)			;update dest addr
-				_BlockMove
+				_BlockMoveData
 				RTS
 				ENDPROC
 

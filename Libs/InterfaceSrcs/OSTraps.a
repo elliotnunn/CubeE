@@ -579,21 +579,25 @@ BlockMoveData	PROC  EXPORT
 ;
 OpenDriver		FUNC	EXPORT
 
-				MOVEQ	#(ioQElSize/2)-1,D0
-@1				CLR.W	-(SP)
+				MOVE.L	(SP)+,D2			;return address
+				MOVE.L	(SP)+,A1			;ptr to refNum return
+				MOVE.L	(SP)+,D1			;driver name
+				LINK.W	A6,#0				;we like A6 chains
+
+				MOVEQ	#(ioQElSize/4)-1,D0
+@1				CLR.L	-(SP)
 				DBRA	D0,@1
 
-				MOVE.L	ioQElSize+8(sp),ioFileName(SP)	;set up name
 				MOVE.L	SP,A0				;point to it
+				MOVE.L	D1,ioFileName(A0)	;set up name
 				_Open						;open the driver
 
-				MOVE.L	ioQElSize+4(SP),a0	;get place to put result
-				MOVE.W	ioRefNum(SP),(a0)	;store result
+				MOVE.W	ioRefNum(a0),(a1)	;store result
 
-				MOVE.L	ioQElSize(SP),A0	;get return address
-				LEA 	ioQElSize+12(SP),SP ;get rid of param. block and parameters
+				UNLK	A6
 				MOVE.W	D0,(SP) 			;store error code
-				JMP 	(A0)				;return
+				MOVE.L	D2,A1				;use return addr to...
+				JMP 	(A1)				;return
 
 ;
 ; PROCEDURE CloseDriver(refNum: INTEGER):OsErr;
@@ -807,7 +811,7 @@ DriveStatus FUNC	EXPORT
 		MOVE.L	8(A6),A1				; ptr to where to put the status bytes
 		LEA 	csParam(A0),A0			;ptr from where to get status bytes
 		MOVEQ	#22,D0					;number of bytes to move
-		_BlockMove
+		_BlockMoveData
 
 		UNLK	A6
 		MOVE.L	(SP)+,A1				; return address
@@ -1360,15 +1364,16 @@ OpenDF
 
 FSClose FUNC  EXPORT
 
+		MOVE.L	(SP)+,A1				; pop return address
+		MOVE	(SP)+,D0				; and argument before linking
+
 		LINK	 A6,#-ioQElSize 		; make room on stack for cmd block
 		MOVE.L	SP,A0					; address of cmd block
-		MOVE	8(A6),ioRefNum(A0)		; get the refnum param
+		MOVE	D0,ioRefNum(A0)			; get the refnum param
 		_Close
-		MOVE	D0,10(A6)				; return the result code
 		UNLK	A6
-		MOVE.L	(SP)+,A0				; return address
-		ADDQ.L	#2,SP					; fix up stack
-		JMP 	(A0)
+		MOVE	D0,(SP)					; return the result code
+		JMP 	(A1)
 
 ;FUNCTION FSRead(refNum: INTEGER; VAR count: LongInt; buffPtr: Ptr): OsErr;
 ;FUNCTION FSWrite(refNum: INTEGER; VAR count: LongInt; buffPtr: Ptr): OsErr;
@@ -1423,7 +1428,7 @@ Control FUNC  EXPORT
 		LEA 	csParam(A0),A1			; dest address of op specific params
 		MOVE.L	8(A6),A0				; src address of op specific params
 		MOVEQ	#22,D0					; max number of bytes to be moved
-		_BlockMove						; copy the op specific params
+		_BlockMoveData					; copy the op specific params
 		LEA 	-ioQElSize(A6),A0		; put cmd block addr back into A0
 
 @1		_CONTROL
@@ -1449,7 +1454,7 @@ Status	FUNC  EXPORT					;analogous to MacControl but returns
 		LEA 	csParam-ioQElSize(A6),A0 ;ptr to the status information
 		MOVE.L	8(A6),A1				; ptr to where to put this information
 		MOVEQ	#22,D0					; max number of bytes to be moved
-		_BlockMove						; copy the op specific params
+		_BlockMoveData					; copy the op specific params
 
 		UNLK	A6
 		MOVE.L	(SP)+,A1				; return address
@@ -1523,7 +1528,7 @@ GetFInfo FUNC	 EXPORT
 		LEA 	ioFlUsrWds(A0),A0		;where to copy from
 		MOVE.L	8(A6),A1				;where to copy to
 		MOVEQ	#16,D0					; 16 bytes of information
-		_BlockMove
+		_BlockMoveData
 
 		UNLK	A6
 		MOVE.L	(SP)+,A1				; return address
@@ -1723,7 +1728,7 @@ SetFInfo FUNC  EXPORT
 		LEA 	ioFlUsrWds(A0),A1		;where to copy user words
 		MOVE.L	8(A6),A0				;where the user words are now
 		MOVEQ	#16,D0					; 16 bytes of information
-		_BlockMove
+		_BlockMoveData
 		MOVE.L 	SP,A0					;restore A0
 
 		_SetFileInfo
@@ -2311,7 +2316,7 @@ notIntrupt
 		  MOVEQ 	#12,D0	   ;number of bytes to copy
 		  SUB		D0,A1
 		  LEA		4(SP),A0	   ;ptr to the args
-		  _BlockMove
+		  _BlockMoveData
 		  BRA.S 	quit	   ;done queueing up, exit
 
 			; Index off of ioResult(A1) instead of A0, bug called in to
@@ -2432,7 +2437,7 @@ more	  MOVE.L	A0,A1	   ;make a copy of it
 		  EXT.L 	D0		   ;clear top half for block move
 		  MOVE.L	A0,A1	   ;A0 points to next queue entry
 		  SUB		#12,A1	   ;A1 points to first queue entry
-		  _BlockMove		   ;shift the bytes up in the queue
+		  _BlockMoveData	   ;shift the bytes up in the queue
 		  ADD		#blkSize,D1    ;get back the new size
 		  BRA.S 	setSize
 
@@ -2540,7 +2545,7 @@ getLoop 	BLT.S		getEnd			;are we done?
 			AND 		#$FFFE,D0		;evenize it
 			ADDQ		#8,D0			;also move refnum,type,versNum
 			ADD 		D0,A2			;move to next
-			_BlockMove
+			_BlockMoveData
 			SUBQ		#1,D1
 			BRA.S		getLoop
 

@@ -340,7 +340,7 @@ gsLoop			SUBQ.W	#1,D1					;decrement the index
 
 gsCopy			MOVE.B	(A0),D0 				;get the length of this string
 				ADDQ	#1,D0					;add one for the length byte
-				_BlockMove						;copy it into the string
+				_BlockMoveData					;copy it into the string
 
 gsret			UNLK	A6
 				MOVE.L	(SP)+,A0				;return addr
