@@ -168,8 +168,8 @@ PLibraries		=	{Sources}Libs:PLibraries:
 
 
 MAOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$D4C1 -wb -d SubRelease=3 -blksize 62
-MCOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$D4C1 -b3 -mbg full -mc68020 -blksize 62 -opt full
-MPOpts			=	-mbg full -mc68020
+MCOpts			=	-d TRUE=1 -d FALSE=0 -d Alignment=8 -d CPU=20 -d ROMRelease=$D4C1 -b3 -mbg off -mc68020 -blksize 62 -opt full
+MPOpts			=	-mbg off -mc68020
 
 RomBase			=	$40800000
 
