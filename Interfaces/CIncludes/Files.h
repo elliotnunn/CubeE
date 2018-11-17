@@ -856,168 +856,168 @@ typedef DrvQEl *DrvQElPtr;
 #ifdef __cplusplus
 extern "C" {
 #endif
-pascal OSErr PBOpen(ParmBlkPtr paramBlock,Boolean async); 
+#define PBOpen(pb, async) ((async) ? PBOpenAsync(pb) : PBOpenSync(pb)) 
 #pragma parameter __D0 PBOpenSync(__A0)
 pascal OSErr PBOpenSync(ParmBlkPtr paramBlock)
  = 0xA000; 
 #pragma parameter __D0 PBOpenAsync(__A0)
 pascal OSErr PBOpenAsync(ParmBlkPtr paramBlock)
  = 0xA400; 
-pascal OSErr PBClose(ParmBlkPtr paramBlock,Boolean async); 
+#define PBClose(pb, async) ((async) ? PBCloseAsync(pb) : PBCloseSync(pb)) 
 #pragma parameter __D0 PBCloseSync(__A0)
 pascal OSErr PBCloseSync(ParmBlkPtr paramBlock)
  = 0xA001; 
 #pragma parameter __D0 PBCloseAsync(__A0)
 pascal OSErr PBCloseAsync(ParmBlkPtr paramBlock)
  = 0xA401; 
-pascal OSErr PBRead(ParmBlkPtr paramBlock,Boolean async); 
+#define PBRead(pb, async) ((async) ? PBReadAsync(pb) : PBReadSync(pb)) 
 #pragma parameter __D0 PBReadSync(__A0)
 pascal OSErr PBReadSync(ParmBlkPtr paramBlock)
  = 0xA002; 
 #pragma parameter __D0 PBReadAsync(__A0)
 pascal OSErr PBReadAsync(ParmBlkPtr paramBlock)
  = 0xA402; 
-pascal OSErr PBWrite(ParmBlkPtr paramBlock,Boolean async); 
+#define PBWrite(pb, async) ((async) ? PBWriteAsync(pb) : PBWriteSync(pb)) 
 #pragma parameter __D0 PBWriteSync(__A0)
 pascal OSErr PBWriteSync(ParmBlkPtr paramBlock)
  = 0xA003; 
 #pragma parameter __D0 PBWriteAsync(__A0)
 pascal OSErr PBWriteAsync(ParmBlkPtr paramBlock)
  = 0xA403; 
-pascal OSErr PBGetVInfo(ParmBlkPtr paramBlock,Boolean async); 
+#define PBGetVInfo(pb, async) ((async) ? PBGetVInfoAsync(pb) : PBGetVInfoSync(pb)) 
 #pragma parameter __D0 PBGetVInfoSync(__A0)
 pascal OSErr PBGetVInfoSync(ParmBlkPtr paramBlock)
  = 0xA007; 
 #pragma parameter __D0 PBGetVInfoAsync(__A0)
 pascal OSErr PBGetVInfoAsync(ParmBlkPtr paramBlock)
  = 0xA407; 
-pascal OSErr PBGetVol(ParmBlkPtr paramBlock,Boolean async); 
+#define PBGetVol(pb, async) ((async) ? PBGetVolAsync(pb) : PBGetVolSync(pb)) 
 #pragma parameter __D0 PBGetVolSync(__A0)
 pascal OSErr PBGetVolSync(ParmBlkPtr paramBlock)
  = 0xA014; 
 #pragma parameter __D0 PBGetVolAsync(__A0)
 pascal OSErr PBGetVolAsync(ParmBlkPtr paramBlock)
  = 0xA414; 
-pascal OSErr PBSetVol(ParmBlkPtr paramBlock,Boolean async); 
+#define PBSetVol(pb, async) ((async) ? PBSetVolAsync(pb) : PBSetVolSync(pb)) 
 #pragma parameter __D0 PBSetVolSync(__A0)
 pascal OSErr PBSetVolSync(ParmBlkPtr paramBlock)
  = 0xA015; 
 #pragma parameter __D0 PBSetVolAsync(__A0)
 pascal OSErr PBSetVolAsync(ParmBlkPtr paramBlock)
  = 0xA415; 
-pascal OSErr PBFlushVol(ParmBlkPtr paramBlock,Boolean async); 
+#define PBFlushVol(pb, async) ((async) ? PBFlushVolAsync(pb) : PBFlushVolSync(pb)) 
 #pragma parameter __D0 PBFlushVolSync(__A0)
 pascal OSErr PBFlushVolSync(ParmBlkPtr paramBlock)
  = 0xA013; 
 #pragma parameter __D0 PBFlushVolAsync(__A0)
 pascal OSErr PBFlushVolAsync(ParmBlkPtr paramBlock)
  = 0xA413; 
-pascal OSErr PBCreate(ParmBlkPtr paramBlock,Boolean async); 
+#define PBCreate(pb, async) ((async) ? PBCreateAsync(pb) : PBCreateSync(pb)) 
 #pragma parameter __D0 PBCreateSync(__A0)
 pascal OSErr PBCreateSync(ParmBlkPtr paramBlock)
  = 0xA008; 
 #pragma parameter __D0 PBCreateAsync(__A0)
 pascal OSErr PBCreateAsync(ParmBlkPtr paramBlock)
  = 0xA408; 
-pascal OSErr PBDelete(ParmBlkPtr paramBlock,Boolean async); 
+#define PBDelete(pb, async) ((async) ? PBDeleteAsync(pb) : PBDeleteSync(pb)) 
 #pragma parameter __D0 PBDeleteSync(__A0)
 pascal OSErr PBDeleteSync(ParmBlkPtr paramBlock)
  = 0xA009; 
 #pragma parameter __D0 PBDeleteAsync(__A0)
 pascal OSErr PBDeleteAsync(ParmBlkPtr paramBlock)
  = 0xA409; 
-pascal OSErr PBOpenDF(ParmBlkPtr paramBlock,Boolean async); 
+#define PBOpenDF(pb, async) ((async) ? PBOpenDFAsync(pb) : PBOpenDFSync(pb)) 
 #pragma parameter __D0 PBOpenDFSync(__A0)
 pascal OSErr PBOpenDFSync(ParmBlkPtr paramBlock)
  = {0x701A,0xA060}; 
 #pragma parameter __D0 PBOpenDFAsync(__A0)
 pascal OSErr PBOpenDFAsync(ParmBlkPtr paramBlock)
  = {0x701A,0xA460}; 
-pascal OSErr PBOpenRF(ParmBlkPtr paramBlock,Boolean async); 
+#define PBOpenRF(pb, async) ((async) ? PBOpenRFAsync(pb) : PBOpenRFSync(pb)) 
 #pragma parameter __D0 PBOpenRFSync(__A0)
 pascal OSErr PBOpenRFSync(ParmBlkPtr paramBlock)
  = 0xA00A; 
 #pragma parameter __D0 PBOpenRFAsync(__A0)
 pascal OSErr PBOpenRFAsync(ParmBlkPtr paramBlock)
  = 0xA40A; 
-pascal OSErr PBRename(ParmBlkPtr paramBlock,Boolean async); 
+#define PBRename(pb, async) ((async) ? PBRenameAsync(pb) : PBRenameSync(pb)) 
 #pragma parameter __D0 PBRenameSync(__A0)
 pascal OSErr PBRenameSync(ParmBlkPtr paramBlock)
  = 0xA00B; 
 #pragma parameter __D0 PBRenameAsync(__A0)
 pascal OSErr PBRenameAsync(ParmBlkPtr paramBlock)
  = 0xA40B; 
-pascal OSErr PBGetFInfo(ParmBlkPtr paramBlock,Boolean async); 
+#define PBGetFInfo(pb, async) ((async) ? PBGetFInfoAsync(pb) : PBGetFInfoSync(pb)) 
 #pragma parameter __D0 PBGetFInfoSync(__A0)
 pascal OSErr PBGetFInfoSync(ParmBlkPtr paramBlock)
  = 0xA00C; 
 #pragma parameter __D0 PBGetFInfoAsync(__A0)
 pascal OSErr PBGetFInfoAsync(ParmBlkPtr paramBlock)
  = 0xA40C; 
-pascal OSErr PBSetFInfo(ParmBlkPtr paramBlock,Boolean async); 
+#define PBSetFInfo(pb, async) ((async) ? PBSetFInfoAsync(pb) : PBSetFInfoSync(pb)) 
 #pragma parameter __D0 PBSetFInfoSync(__A0)
 pascal OSErr PBSetFInfoSync(ParmBlkPtr paramBlock)
  = 0xA00D; 
 #pragma parameter __D0 PBSetFInfoAsync(__A0)
 pascal OSErr PBSetFInfoAsync(ParmBlkPtr paramBlock)
  = 0xA40D; 
-pascal OSErr PBSetFLock(ParmBlkPtr paramBlock,Boolean async); 
+#define PBSetFLock(pb, async) ((async) ? PBSetFLockAsync(pb) : PBSetFLockSync(pb)) 
 #pragma parameter __D0 PBSetFLockSync(__A0)
 pascal OSErr PBSetFLockSync(ParmBlkPtr paramBlock)
  = 0xA041; 
 #pragma parameter __D0 PBSetFLockAsync(__A0)
 pascal OSErr PBSetFLockAsync(ParmBlkPtr paramBlock)
  = 0xA441; 
-pascal OSErr PBRstFLock(ParmBlkPtr paramBlock,Boolean async); 
+#define PBRstFLock(pb, async) ((async) ? PBRstFLockAsync(pb) : PBRstFLockSync(pb)) 
 #pragma parameter __D0 PBRstFLockSync(__A0)
 pascal OSErr PBRstFLockSync(ParmBlkPtr paramBlock)
  = 0xA042; 
 #pragma parameter __D0 PBRstFLockAsync(__A0)
 pascal OSErr PBRstFLockAsync(ParmBlkPtr paramBlock)
  = 0xA442; 
-pascal OSErr PBSetFVers(ParmBlkPtr paramBlock,Boolean async); 
+#define PBSetFVers(pb, async) ((async) ? PBSetFVersAsync(pb) : PBSetFVersSync(pb)) 
 #pragma parameter __D0 PBSetFVersSync(__A0)
 pascal OSErr PBSetFVersSync(ParmBlkPtr paramBlock)
  = 0xA043; 
 #pragma parameter __D0 PBSetFVersAsync(__A0)
 pascal OSErr PBSetFVersAsync(ParmBlkPtr paramBlock)
  = 0xA443; 
-pascal OSErr PBAllocate(ParmBlkPtr paramBlock,Boolean async); 
+#define PBAllocate(pb, async) ((async) ? PBAllocateAsync(pb) : PBAllocateSync(pb)) 
 #pragma parameter __D0 PBAllocateSync(__A0)
 pascal OSErr PBAllocateSync(ParmBlkPtr paramBlock)
  = 0xA010; 
 #pragma parameter __D0 PBAllocateAsync(__A0)
 pascal OSErr PBAllocateAsync(ParmBlkPtr paramBlock)
  = 0xA410; 
-pascal OSErr PBGetEOF(ParmBlkPtr paramBlock,Boolean async); 
+#define PBGetEOF(pb, async) ((async) ? PBGetEOFAsync(pb) : PBGetEOFSync(pb)) 
 #pragma parameter __D0 PBGetEOFSync(__A0)
 pascal OSErr PBGetEOFSync(ParmBlkPtr paramBlock)
  = 0xA011; 
 #pragma parameter __D0 PBGetEOFAsync(__A0)
 pascal OSErr PBGetEOFAsync(ParmBlkPtr paramBlock)
  = 0xA411; 
-pascal OSErr PBSetEOF(ParmBlkPtr paramBlock,Boolean async); 
+#define PBSetEOF(pb, async) ((async) ? PBSetEOFAsync(pb) : PBSetEOFSync(pb)) 
 #pragma parameter __D0 PBSetEOFSync(__A0)
 pascal OSErr PBSetEOFSync(ParmBlkPtr paramBlock)
  = 0xA012; 
 #pragma parameter __D0 PBSetEOFAsync(__A0)
 pascal OSErr PBSetEOFAsync(ParmBlkPtr paramBlock)
  = 0xA412; 
-pascal OSErr PBGetFPos(ParmBlkPtr paramBlock,Boolean async); 
+#define PBGetFPos(pb, async) ((async) ? PBGetFPosAsync(pb) : PBGetFPosSync(pb)) 
 #pragma parameter __D0 PBGetFPosSync(__A0)
 pascal OSErr PBGetFPosSync(ParmBlkPtr paramBlock)
  = 0xA018; 
 #pragma parameter __D0 PBGetFPosAsync(__A0)
 pascal OSErr PBGetFPosAsync(ParmBlkPtr paramBlock)
  = 0xA418; 
-pascal OSErr PBSetFPos(ParmBlkPtr paramBlock,Boolean async); 
+#define PBSetFPos(pb, async) ((async) ? PBSetFPosAsync(pb) : PBSetFPosSync(pb)) 
 #pragma parameter __D0 PBSetFPosSync(__A0)
 pascal OSErr PBSetFPosSync(ParmBlkPtr paramBlock)
  = 0xA044; 
 #pragma parameter __D0 PBSetFPosAsync(__A0)
 pascal OSErr PBSetFPosAsync(ParmBlkPtr paramBlock)
  = 0xA444; 
-pascal OSErr PBFlushFile(ParmBlkPtr paramBlock,Boolean async); 
+#define PBFlushFile(pb, async) ((async) ? PBFlushFileAsync(pb) : PBFlushFileSync(pb)) 
 #pragma parameter __D0 PBFlushFileSync(__A0)
 pascal OSErr PBFlushFileSync(ParmBlkPtr paramBlock)
  = 0xA045; 
@@ -1037,7 +1037,7 @@ pascal OSErr PBEject(ParmBlkPtr paramBlock)
 pascal OSErr PBOffLine(ParmBlkPtr paramBlock)
  = 0xA035; 
 
-pascal OSErr PBCatSearch(CSParamPtr paramBlock,Boolean async); 
+#define PBCatSearch(pb, async) ((async) ? PBCatSearchAsync(pb) : PBCatSearchSync(pb)) 
 #pragma parameter __D0 PBCatSearchSync(__A0)
 pascal OSErr PBCatSearchSync(CSParamPtr paramBlock)
  = {0x7018,0xA260}; 
@@ -1088,70 +1088,70 @@ pascal OSErr GetFPos(short refNum,long *filePos);
 pascal OSErr SetFPos(short refNum,short posMode,long posOff); 
 pascal OSErr GetVRefNum(short fileRefNum,short *vRefNum); 
 
-pascal OSErr PBOpenWD(WDPBPtr paramBlock,Boolean async); 
+#define PBOpenWD(pb, async) ((async) ? PBOpenWDAsync(pb) : PBOpenWDSync(pb)) 
 #pragma parameter __D0 PBOpenWDSync(__A0)
 pascal OSErr PBOpenWDSync(WDPBPtr paramBlock)
  = {0x7001,0xA260}; 
 #pragma parameter __D0 PBOpenWDAsync(__A0)
 pascal OSErr PBOpenWDAsync(WDPBPtr paramBlock)
  = {0x7001,0xA660}; 
-pascal OSErr PBCloseWD(WDPBPtr paramBlock,Boolean async); 
+#define PBCloseWD(pb, async) ((async) ? PBCloseWDAsync(pb) : PBCloseWDSync(pb)) 
 #pragma parameter __D0 PBCloseWDSync(__A0)
 pascal OSErr PBCloseWDSync(WDPBPtr paramBlock)
  = {0x7002,0xA260}; 
 #pragma parameter __D0 PBCloseWDAsync(__A0)
 pascal OSErr PBCloseWDAsync(WDPBPtr paramBlock)
  = {0x7002,0xA660}; 
-pascal OSErr PBHSetVol(WDPBPtr paramBlock,Boolean async); 
+#define PBHSetVol(pb, async) ((async) ? PBHSetVolAsync(pb) : PBHSetVolSync(pb)) 
 #pragma parameter __D0 PBHSetVolSync(__A0)
 pascal OSErr PBHSetVolSync(WDPBPtr paramBlock)
  = 0xA215; 
 #pragma parameter __D0 PBHSetVolAsync(__A0)
 pascal OSErr PBHSetVolAsync(WDPBPtr paramBlock)
  = 0xA615; 
-pascal OSErr PBHGetVol(WDPBPtr paramBlock,Boolean async); 
+#define PBHGetVol(pb, async) ((async) ? PBHGetVolAsync(pb) : PBHGetVolSync(pb)) 
 #pragma parameter __D0 PBHGetVolSync(__A0)
 pascal OSErr PBHGetVolSync(WDPBPtr paramBlock)
  = 0xA214; 
 #pragma parameter __D0 PBHGetVolAsync(__A0)
 pascal OSErr PBHGetVolAsync(WDPBPtr paramBlock)
  = 0xA614; 
-pascal OSErr PBCatMove(CMovePBPtr paramBlock,Boolean async); 
+#define PBCatMove(pb, async) ((async) ? PBCatMoveAsync(pb) : PBCatMoveSync(pb)) 
 #pragma parameter __D0 PBCatMoveSync(__A0)
 pascal OSErr PBCatMoveSync(CMovePBPtr paramBlock)
  = {0x7005,0xA260}; 
 #pragma parameter __D0 PBCatMoveAsync(__A0)
 pascal OSErr PBCatMoveAsync(CMovePBPtr paramBlock)
  = {0x7005,0xA660}; 
-pascal OSErr PBDirCreate(HParmBlkPtr paramBlock,Boolean async); 
+#define PBDirCreate(pb, async) ((async) ? PBDirCreateAsync(pb) : PBDirCreateSync(pb)) 
 #pragma parameter __D0 PBDirCreateSync(__A0)
 pascal OSErr PBDirCreateSync(HParmBlkPtr paramBlock)
  = {0x7006,0xA260}; 
 #pragma parameter __D0 PBDirCreateAsync(__A0)
 pascal OSErr PBDirCreateAsync(HParmBlkPtr paramBlock)
  = {0x7006,0xA660}; 
-pascal OSErr PBGetWDInfo(WDPBPtr paramBlock,Boolean async); 
+#define PBGetWDInfo(pb, async) ((async) ? PBGetWDInfoAsync(pb) : PBGetWDInfoSync(pb)) 
 #pragma parameter __D0 PBGetWDInfoSync(__A0)
 pascal OSErr PBGetWDInfoSync(WDPBPtr paramBlock)
  = {0x7007,0xA260}; 
 #pragma parameter __D0 PBGetWDInfoAsync(__A0)
 pascal OSErr PBGetWDInfoAsync(WDPBPtr paramBlock)
  = {0x7007,0xA660}; 
-pascal OSErr PBGetFCBInfo(FCBPBPtr paramBlock,Boolean async); 
+#define PBGetFCBInfo(pb, async) ((async) ? PBGetFCBInfoAsync(pb) : PBGetFCBInfoSync(pb)) 
 #pragma parameter __D0 PBGetFCBInfoSync(__A0)
 pascal OSErr PBGetFCBInfoSync(FCBPBPtr paramBlock)
  = {0x7008,0xA260}; 
 #pragma parameter __D0 PBGetFCBInfoAsync(__A0)
 pascal OSErr PBGetFCBInfoAsync(FCBPBPtr paramBlock)
  = {0x7008,0xA660}; 
-pascal OSErr PBGetCatInfo(CInfoPBPtr paramBlock,Boolean async); 
+#define PBGetCatInfo(pb, async) ((async) ? PBGetCatInfoAsync(pb) : PBGetCatInfoSync(pb)) 
 #pragma parameter __D0 PBGetCatInfoSync(__A0)
 pascal OSErr PBGetCatInfoSync(CInfoPBPtr paramBlock)
  = {0x7009,0xA260}; 
 #pragma parameter __D0 PBGetCatInfoAsync(__A0)
 pascal OSErr PBGetCatInfoAsync(CInfoPBPtr paramBlock)
  = {0x7009,0xA660}; 
-pascal OSErr PBSetCatInfo(CInfoPBPtr paramBlock,Boolean async); 
+#define PBSetCatInfo(pb, async) ((async) ? PBSetCatInfoAsync(pb) : PBSetCatInfoSync(pb)) 
 #pragma parameter __D0 PBSetCatInfoSync(__A0)
 pascal OSErr PBSetCatInfoSync(CInfoPBPtr paramBlock)
  = {0x700A,0xA260}; 
@@ -1159,56 +1159,56 @@ pascal OSErr PBSetCatInfoSync(CInfoPBPtr paramBlock)
 pascal OSErr PBSetCatInfoAsync(CInfoPBPtr paramBlock)
  = {0x700A,0xA660}; 
 
-pascal OSErr PBAllocContig(ParmBlkPtr paramBlock,Boolean async); 
+#define PBAllocContig(pb, async) ((async) ? PBAllocContigAsync(pb) : PBAllocContigSync(pb)) 
 #pragma parameter __D0 PBAllocContigSync(__A0)
 pascal OSErr PBAllocContigSync(ParmBlkPtr paramBlock)
  = 0xA210; 
 #pragma parameter __D0 PBAllocContigAsync(__A0)
 pascal OSErr PBAllocContigAsync(ParmBlkPtr paramBlock)
  = 0xA610; 
-pascal OSErr PBLockRange(ParmBlkPtr paramBlock,Boolean async); 
+#define PBLockRange(pb, async) ((async) ? PBLockRangeAsync(pb) : PBLockRangeSync(pb)) 
 #pragma parameter __D0 PBLockRangeSync(__A0)
 pascal OSErr PBLockRangeSync(ParmBlkPtr paramBlock)
  = {0x7010,0xA260}; 
 #pragma parameter __D0 PBLockRangeAsync(__A0)
 pascal OSErr PBLockRangeAsync(ParmBlkPtr paramBlock)
  = {0x7010,0xA660}; 
-pascal OSErr PBUnlockRange(ParmBlkPtr paramBlock,Boolean async); 
+#define PBUnlockRange(pb, async) ((async) ? PBUnlockRangeAsync(pb) : PBUnlockRangeSync(pb)) 
 #pragma parameter __D0 PBUnlockRangeSync(__A0)
 pascal OSErr PBUnlockRangeSync(ParmBlkPtr paramBlock)
  = {0x7011,0xA260}; 
 #pragma parameter __D0 PBUnlockRangeAsync(__A0)
 pascal OSErr PBUnlockRangeAsync(ParmBlkPtr paramBlock)
  = {0x7011,0xA660}; 
-pascal OSErr PBSetVInfo(HParmBlkPtr paramBlock,Boolean async); 
+#define PBSetVInfo(pb, async) ((async) ? PBSetVInfoAsync(pb) : PBSetVInfoSync(pb)) 
 #pragma parameter __D0 PBSetVInfoSync(__A0)
 pascal OSErr PBSetVInfoSync(HParmBlkPtr paramBlock)
  = {0x700B,0xA260}; 
 #pragma parameter __D0 PBSetVInfoAsync(__A0)
 pascal OSErr PBSetVInfoAsync(HParmBlkPtr paramBlock)
  = {0x700B,0xA660}; 
-pascal OSErr PBHGetVInfo(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHGetVInfo(pb, async) ((async) ? PBHGetVInfoAsync(pb) : PBHGetVInfoSync(pb)) 
 #pragma parameter __D0 PBHGetVInfoSync(__A0)
 pascal OSErr PBHGetVInfoSync(HParmBlkPtr paramBlock)
  = 0xA207; 
 #pragma parameter __D0 PBHGetVInfoAsync(__A0)
 pascal OSErr PBHGetVInfoAsync(HParmBlkPtr paramBlock)
  = 0xA607; 
-pascal OSErr PBHOpen(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHOpen(pb, async) ((async) ? PBHOpenAsync(pb) : PBHOpenSync(pb)) 
 #pragma parameter __D0 PBHOpenSync(__A0)
 pascal OSErr PBHOpenSync(HParmBlkPtr paramBlock)
  = 0xA200; 
 #pragma parameter __D0 PBHOpenAsync(__A0)
 pascal OSErr PBHOpenAsync(HParmBlkPtr paramBlock)
  = 0xA600; 
-pascal OSErr PBHOpenRF(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHOpenRF(pb, async) ((async) ? PBHOpenRFAsync(pb) : PBHOpenRFSync(pb)) 
 #pragma parameter __D0 PBHOpenRFSync(__A0)
 pascal OSErr PBHOpenRFSync(HParmBlkPtr paramBlock)
  = 0xA20A; 
 #pragma parameter __D0 PBHOpenRFAsync(__A0)
 pascal OSErr PBHOpenRFAsync(HParmBlkPtr paramBlock)
  = 0xA60A; 
-pascal OSErr PBHOpenDF(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHOpenDF(pb, async) ((async) ? PBHOpenDFAsync(pb) : PBHOpenDFSync(pb)) 
 #pragma parameter __D0 PBHOpenDFSync(__A0)
 pascal OSErr PBHOpenDFSync(HParmBlkPtr paramBlock)
  = {0x701A,0xA260}; 
@@ -1216,49 +1216,49 @@ pascal OSErr PBHOpenDFSync(HParmBlkPtr paramBlock)
 pascal OSErr PBHOpenDFAsync(HParmBlkPtr paramBlock)
  = {0x701A,0xA660}; 
 
-pascal OSErr PBHCreate(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHCreate(pb, async) ((async) ? PBHCreateAsync(pb) : PBHCreateSync(pb)) 
 #pragma parameter __D0 PBHCreateSync(__A0)
 pascal OSErr PBHCreateSync(HParmBlkPtr paramBlock)
  = 0xA208; 
 #pragma parameter __D0 PBHCreateAsync(__A0)
 pascal OSErr PBHCreateAsync(HParmBlkPtr paramBlock)
  = 0xA608; 
-pascal OSErr PBHDelete(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHDelete(pb, async) ((async) ? PBHDeleteAsync(pb) : PBHDeleteSync(pb)) 
 #pragma parameter __D0 PBHDeleteSync(__A0)
 pascal OSErr PBHDeleteSync(HParmBlkPtr paramBlock)
  = 0xA209; 
 #pragma parameter __D0 PBHDeleteAsync(__A0)
 pascal OSErr PBHDeleteAsync(HParmBlkPtr paramBlock)
  = 0xA609; 
-pascal OSErr PBHRename(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHRename(pb, async) ((async) ? PBHRenameAsync(pb) : PBHRenameSync(pb)) 
 #pragma parameter __D0 PBHRenameSync(__A0)
 pascal OSErr PBHRenameSync(HParmBlkPtr paramBlock)
  = 0xA20B; 
 #pragma parameter __D0 PBHRenameAsync(__A0)
 pascal OSErr PBHRenameAsync(HParmBlkPtr paramBlock)
  = 0xA60B; 
-pascal OSErr PBHRstFLock(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHRstFLock(pb, async) ((async) ? PBHRstFLockAsync(pb) : PBHRstFLockSync(pb)) 
 #pragma parameter __D0 PBHRstFLockSync(__A0)
 pascal OSErr PBHRstFLockSync(HParmBlkPtr paramBlock)
  = 0xA242; 
 #pragma parameter __D0 PBHRstFLockAsync(__A0)
 pascal OSErr PBHRstFLockAsync(HParmBlkPtr paramBlock)
  = 0xA642; 
-pascal OSErr PBHSetFLock(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHSetFLock(pb, async) ((async) ? PBHSetFLockAsync(pb) : PBHSetFLockSync(pb)) 
 #pragma parameter __D0 PBHSetFLockSync(__A0)
 pascal OSErr PBHSetFLockSync(HParmBlkPtr paramBlock)
  = 0xA241; 
 #pragma parameter __D0 PBHSetFLockAsync(__A0)
 pascal OSErr PBHSetFLockAsync(HParmBlkPtr paramBlock)
  = 0xA641; 
-pascal OSErr PBHGetFInfo(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHGetFInfo(pb, async) ((async) ? PBHGetFInfoAsync(pb) : PBHGetFInfoSync(pb)) 
 #pragma parameter __D0 PBHGetFInfoSync(__A0)
 pascal OSErr PBHGetFInfoSync(HParmBlkPtr paramBlock)
  = 0xA20C; 
 #pragma parameter __D0 PBHGetFInfoAsync(__A0)
 pascal OSErr PBHGetFInfoAsync(HParmBlkPtr paramBlock)
  = 0xA60C; 
-pascal OSErr PBHSetFInfo(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHSetFInfo(pb, async) ((async) ? PBHSetFInfoAsync(pb) : PBHSetFInfoSync(pb)) 
 #pragma parameter __D0 PBHSetFInfoSync(__A0)
 pascal OSErr PBHSetFInfoSync(HParmBlkPtr paramBlock)
  = 0xA20D; 
@@ -1266,7 +1266,7 @@ pascal OSErr PBHSetFInfoSync(HParmBlkPtr paramBlock)
 pascal OSErr PBHSetFInfoAsync(HParmBlkPtr paramBlock)
  = 0xA60D; 
 
-pascal OSErr PBMakeFSSpec(HParmBlkPtr paramBlock,Boolean async); 
+#define PBMakeFSSpec(pb, async) ((async) ? PBMakeFSSpecAsync(pb) : PBMakeFSSpecSync(pb)) 
 #pragma parameter __D0 PBMakeFSSpecSync(__A0)
 pascal OSErr PBMakeFSSpecSync(HParmBlkPtr paramBlock)
  = {0x701B,0xA260}; 
@@ -1307,70 +1307,70 @@ pascal OSErr OpenWD(short vRefNum,long dirID,long procID,short *wdRefNum);
 pascal OSErr CloseWD(short wdRefNum); 
 pascal OSErr GetWDInfo(short wdRefNum,short *vRefNum,long *dirID,long *procID); 
 /*  shared environment  */
-pascal OSErr PBHGetVolParms(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHGetVolParms(pb, async) ((async) ? PBHGetVolParmsAsync(pb) : PBHGetVolParmsSync(pb)) 
 #pragma parameter __D0 PBHGetVolParmsSync(__A0)
 pascal OSErr PBHGetVolParmsSync(HParmBlkPtr paramBlock)
  = {0x7030,0xA260}; 
 #pragma parameter __D0 PBHGetVolParmsAsync(__A0)
 pascal OSErr PBHGetVolParmsAsync(HParmBlkPtr paramBlock)
  = {0x7030,0xA660}; 
-pascal OSErr PBHGetLogInInfo(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHGetLogInInfo(pb, async) ((async) ? PBHGetLogInInfoAsync(pb) : PBHGetLogInInfoSync(pb)) 
 #pragma parameter __D0 PBHGetLogInInfoSync(__A0)
 pascal OSErr PBHGetLogInInfoSync(HParmBlkPtr paramBlock)
  = {0x7031,0xA260}; 
 #pragma parameter __D0 PBHGetLogInInfoAsync(__A0)
 pascal OSErr PBHGetLogInInfoAsync(HParmBlkPtr paramBlock)
  = {0x7031,0xA660}; 
-pascal OSErr PBHGetDirAccess(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHGetDirAccess(pb, async) ((async) ? PBHGetDirAccessAsync(pb) : PBHGetDirAccessSync(pb)) 
 #pragma parameter __D0 PBHGetDirAccessSync(__A0)
 pascal OSErr PBHGetDirAccessSync(HParmBlkPtr paramBlock)
  = {0x7032,0xA260}; 
 #pragma parameter __D0 PBHGetDirAccessAsync(__A0)
 pascal OSErr PBHGetDirAccessAsync(HParmBlkPtr paramBlock)
  = {0x7032,0xA660}; 
-pascal OSErr PBHSetDirAccess(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHSetDirAccess(pb, async) ((async) ? PBHSetDirAccessAsync(pb) : PBHSetDirAccessSync(pb)) 
 #pragma parameter __D0 PBHSetDirAccessSync(__A0)
 pascal OSErr PBHSetDirAccessSync(HParmBlkPtr paramBlock)
  = {0x7033,0xA260}; 
 #pragma parameter __D0 PBHSetDirAccessAsync(__A0)
 pascal OSErr PBHSetDirAccessAsync(HParmBlkPtr paramBlock)
  = {0x7033,0xA660}; 
-pascal OSErr PBHMapID(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHMapID(pb, async) ((async) ? PBHMapIDAsync(pb) : PBHMapIDSync(pb)) 
 #pragma parameter __D0 PBHMapIDSync(__A0)
 pascal OSErr PBHMapIDSync(HParmBlkPtr paramBlock)
  = {0x7034,0xA260}; 
 #pragma parameter __D0 PBHMapIDAsync(__A0)
 pascal OSErr PBHMapIDAsync(HParmBlkPtr paramBlock)
  = {0x7034,0xA660}; 
-pascal OSErr PBHMapName(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHMapName(pb, async) ((async) ? PBHMapNameAsync(pb) : PBHMapNameSync(pb)) 
 #pragma parameter __D0 PBHMapNameSync(__A0)
 pascal OSErr PBHMapNameSync(HParmBlkPtr paramBlock)
  = {0x7035,0xA260}; 
 #pragma parameter __D0 PBHMapNameAsync(__A0)
 pascal OSErr PBHMapNameAsync(HParmBlkPtr paramBlock)
  = {0x7035,0xA660}; 
-pascal OSErr PBHCopyFile(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHCopyFile(pb, async) ((async) ? PBHCopyFileAsync(pb) : PBHCopyFileSync(pb)) 
 #pragma parameter __D0 PBHCopyFileSync(__A0)
 pascal OSErr PBHCopyFileSync(HParmBlkPtr paramBlock)
  = {0x7036,0xA260}; 
 #pragma parameter __D0 PBHCopyFileAsync(__A0)
 pascal OSErr PBHCopyFileAsync(HParmBlkPtr paramBlock)
  = {0x7036,0xA660}; 
-pascal OSErr PBHMoveRename(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHMoveRename(pb, async) ((async) ? PBHMoveRenameAsync(pb) : PBHMoveRenameSync(pb)) 
 #pragma parameter __D0 PBHMoveRenameSync(__A0)
 pascal OSErr PBHMoveRenameSync(HParmBlkPtr paramBlock)
  = {0x7037,0xA260}; 
 #pragma parameter __D0 PBHMoveRenameAsync(__A0)
 pascal OSErr PBHMoveRenameAsync(HParmBlkPtr paramBlock)
  = {0x7037,0xA660}; 
-pascal OSErr PBHOpenDeny(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHOpenDeny(pb, async) ((async) ? PBHOpenDenyAsync(pb) : PBHOpenDenySync(pb)) 
 #pragma parameter __D0 PBHOpenDenySync(__A0)
 pascal OSErr PBHOpenDenySync(HParmBlkPtr paramBlock)
  = {0x7038,0xA260}; 
 #pragma parameter __D0 PBHOpenDenyAsync(__A0)
 pascal OSErr PBHOpenDenyAsync(HParmBlkPtr paramBlock)
  = {0x7038,0xA660}; 
-pascal OSErr PBHOpenRFDeny(HParmBlkPtr paramBlock,Boolean async); 
+#define PBHOpenRFDeny(pb, async) ((async) ? PBHOpenRFDenyAsync(pb) : PBHOpenRFDenySync(pb)) 
 #pragma parameter __D0 PBHOpenRFDenySync(__A0)
 pascal OSErr PBHOpenRFDenySync(HParmBlkPtr paramBlock)
  = {0x7039,0xA260}; 
@@ -1378,28 +1378,28 @@ pascal OSErr PBHOpenRFDenySync(HParmBlkPtr paramBlock)
 pascal OSErr PBHOpenRFDenyAsync(HParmBlkPtr paramBlock)
  = {0x7039,0xA660}; 
 
-pascal OSErr PBExchangeFiles(HParmBlkPtr paramBlock,Boolean async); 
+#define PBExchangeFiles(pb, async) ((async) ? PBExchangeFilesAsync(pb) : PBExchangeFilesSync(pb)) 
 #pragma parameter __D0 PBExchangeFilesSync(__A0)
 pascal OSErr PBExchangeFilesSync(HParmBlkPtr paramBlock)
  = {0x7017,0xA260}; 
 #pragma parameter __D0 PBExchangeFilesAsync(__A0)
 pascal OSErr PBExchangeFilesAsync(HParmBlkPtr paramBlock)
  = {0x7017,0xA660}; 
-pascal OSErr PBCreateFileIDRef(HParmBlkPtr paramBlock,Boolean async); 
+#define PBCreateFileIDRef(pb, async) ((async) ? PBCreateFileIDRefAsync(pb) : PBCreateFileIDRefSync(pb)) 
 #pragma parameter __D0 PBCreateFileIDRefSync(__A0)
 pascal OSErr PBCreateFileIDRefSync(HParmBlkPtr paramBlock)
  = {0x7014,0xA260}; 
 #pragma parameter __D0 PBCreateFileIDRefAsync(__A0)
 pascal OSErr PBCreateFileIDRefAsync(HParmBlkPtr paramBlock)
  = {0x7014,0xA660}; 
-pascal OSErr PBResolveFileIDRef(HParmBlkPtr paramBlock,Boolean async); 
+#define PBResolveFileIDRef(pb, async) ((async) ? PBResolveFileIDRefAsync(pb) : PBResolveFileIDRefSync(pb)) 
 #pragma parameter __D0 PBResolveFileIDRefSync(__A0)
 pascal OSErr PBResolveFileIDRefSync(HParmBlkPtr paramBlock)
  = {0x7016,0xA260}; 
 #pragma parameter __D0 PBResolveFileIDRefAsync(__A0)
 pascal OSErr PBResolveFileIDRefAsync(HParmBlkPtr paramBlock)
  = {0x7016,0xA660}; 
-pascal OSErr PBDeleteFileIDRef(HParmBlkPtr paramBlock,Boolean async); 
+#define PBDeleteFileIDRef(pb, async) ((async) ? PBDeleteFileIDRefAsync(pb) : PBDeleteFileIDRefSync(pb)) 
 #pragma parameter __D0 PBDeleteFileIDRefSync(__A0)
 pascal OSErr PBDeleteFileIDRefSync(HParmBlkPtr paramBlock)
  = {0x7015,0xA260}; 
@@ -1407,14 +1407,14 @@ pascal OSErr PBDeleteFileIDRefSync(HParmBlkPtr paramBlock)
 pascal OSErr PBDeleteFileIDRefAsync(HParmBlkPtr paramBlock)
  = {0x7015,0xA660}; 
 
-pascal OSErr PBGetForeignPrivs(HParmBlkPtr paramBlock,Boolean async); 
+#define PBGetForeignPrivs(pb, async) ((async) ? PBGetForeignPrivsAsync(pb) : PBGetForeignPrivsSync(pb)) 
 #pragma parameter __D0 PBGetForeignPrivsSync(__A0)
 pascal OSErr PBGetForeignPrivsSync(HParmBlkPtr paramBlock)
  = {0x7060,0xA260}; 
 #pragma parameter __D0 PBGetForeignPrivsAsync(__A0)
 pascal OSErr PBGetForeignPrivsAsync(HParmBlkPtr paramBlock)
  = {0x7060,0xA660}; 
-pascal OSErr PBSetForeignPrivs(HParmBlkPtr paramBlock,Boolean async); 
+#define PBSetForeignPrivs(pb, async) ((async) ? PBSetForeignPrivsAsync(pb) : PBSetForeignPrivsSync(pb)) 
 #pragma parameter __D0 PBSetForeignPrivsSync(__A0)
 pascal OSErr PBSetForeignPrivsSync(HParmBlkPtr paramBlock)
  = {0x7061,0xA260}; 
@@ -1428,84 +1428,84 @@ pascal OSErr PBDTGetPath(DTPBPtr paramBlock)
 #pragma parameter __D0 PBDTCloseDown(__A0)
 pascal OSErr PBDTCloseDown(DTPBPtr paramBlock)
  = {0x7021,0xA260}; 
-pascal OSErr PBDTAddIcon(DTPBPtr paramBlock,Boolean async); 
+#define PBDTAddIcon(pb, async) ((async) ? PBDTAddIconAsync(pb) : PBDTAddIconSync(pb)) 
 #pragma parameter __D0 PBDTAddIconSync(__A0)
 pascal OSErr PBDTAddIconSync(DTPBPtr paramBlock)
  = {0x7022,0xA260}; 
 #pragma parameter __D0 PBDTAddIconAsync(__A0)
 pascal OSErr PBDTAddIconAsync(DTPBPtr paramBlock)
  = {0x7022,0xA660}; 
-pascal OSErr PBDTGetIcon(DTPBPtr paramBlock,Boolean async); 
+#define PBDTGetIcon(pb, async) ((async) ? PBDTGetIconAsync(pb) : PBDTGetIconSync(pb)) 
 #pragma parameter __D0 PBDTGetIconSync(__A0)
 pascal OSErr PBDTGetIconSync(DTPBPtr paramBlock)
  = {0x7023,0xA260}; 
 #pragma parameter __D0 PBDTGetIconAsync(__A0)
 pascal OSErr PBDTGetIconAsync(DTPBPtr paramBlock)
  = {0x7023,0xA660}; 
-pascal OSErr PBDTGetIconInfo(DTPBPtr paramBlock,Boolean async); 
+#define PBDTGetIconInfo(pb, async) ((async) ? PBDTGetIconInfoAsync(pb) : PBDTGetIconInfoSync(pb)) 
 #pragma parameter __D0 PBDTGetIconInfoSync(__A0)
 pascal OSErr PBDTGetIconInfoSync(DTPBPtr paramBlock)
  = {0x7024,0xA260}; 
 #pragma parameter __D0 PBDTGetIconInfoAsync(__A0)
 pascal OSErr PBDTGetIconInfoAsync(DTPBPtr paramBlock)
  = {0x7024,0xA660}; 
-pascal OSErr PBDTAddAPPL(DTPBPtr paramBlock,Boolean async); 
+#define PBDTAddAPPL(pb, async) ((async) ? PBDTAddAPPLAsync(pb) : PBDTAddAPPLSync(pb)) 
 #pragma parameter __D0 PBDTAddAPPLSync(__A0)
 pascal OSErr PBDTAddAPPLSync(DTPBPtr paramBlock)
  = {0x7025,0xA260}; 
 #pragma parameter __D0 PBDTAddAPPLAsync(__A0)
 pascal OSErr PBDTAddAPPLAsync(DTPBPtr paramBlock)
  = {0x7025,0xA660}; 
-pascal OSErr PBDTRemoveAPPL(DTPBPtr paramBlock,Boolean async); 
+#define PBDTRemoveAPPL(pb, async) ((async) ? PBDTRemoveAPPLAsync(pb) : PBDTRemoveAPPLSync(pb)) 
 #pragma parameter __D0 PBDTRemoveAPPLSync(__A0)
 pascal OSErr PBDTRemoveAPPLSync(DTPBPtr paramBlock)
  = {0x7026,0xA260}; 
 #pragma parameter __D0 PBDTRemoveAPPLAsync(__A0)
 pascal OSErr PBDTRemoveAPPLAsync(DTPBPtr paramBlock)
  = {0x7026,0xA660}; 
-pascal OSErr PBDTGetAPPL(DTPBPtr paramBlock,Boolean async); 
+#define PBDTGetAPPL(pb, async) ((async) ? PBDTGetAPPLAsync(pb) : PBDTGetAPPLSync(pb)) 
 #pragma parameter __D0 PBDTGetAPPLSync(__A0)
 pascal OSErr PBDTGetAPPLSync(DTPBPtr paramBlock)
  = {0x7027,0xA260}; 
 #pragma parameter __D0 PBDTGetAPPLAsync(__A0)
 pascal OSErr PBDTGetAPPLAsync(DTPBPtr paramBlock)
  = {0x7027,0xA660}; 
-pascal OSErr PBDTSetComment(DTPBPtr paramBlock,Boolean async); 
+#define PBDTSetComment(pb, async) ((async) ? PBDTSetCommentAsync(pb) : PBDTSetCommentSync(pb)) 
 #pragma parameter __D0 PBDTSetCommentSync(__A0)
 pascal OSErr PBDTSetCommentSync(DTPBPtr paramBlock)
  = {0x7028,0xA260}; 
 #pragma parameter __D0 PBDTSetCommentAsync(__A0)
 pascal OSErr PBDTSetCommentAsync(DTPBPtr paramBlock)
  = {0x7028,0xA660}; 
-pascal OSErr PBDTRemoveComment(DTPBPtr paramBlock,Boolean async); 
+#define PBDTRemoveComment(pb, async) ((async) ? PBDTRemoveCommentAsync(pb) : PBDTRemoveCommentSync(pb)) 
 #pragma parameter __D0 PBDTRemoveCommentSync(__A0)
 pascal OSErr PBDTRemoveCommentSync(DTPBPtr paramBlock)
  = {0x7029,0xA260}; 
 #pragma parameter __D0 PBDTRemoveCommentAsync(__A0)
 pascal OSErr PBDTRemoveCommentAsync(DTPBPtr paramBlock)
  = {0x7029,0xA660}; 
-pascal OSErr PBDTGetComment(DTPBPtr paramBlock,Boolean async); 
+#define PBDTGetComment(pb, async) ((async) ? PBDTGetCommentAsync(pb) : PBDTGetCommentSync(pb)) 
 #pragma parameter __D0 PBDTGetCommentSync(__A0)
 pascal OSErr PBDTGetCommentSync(DTPBPtr paramBlock)
  = {0x702A,0xA260}; 
 #pragma parameter __D0 PBDTGetCommentAsync(__A0)
 pascal OSErr PBDTGetCommentAsync(DTPBPtr paramBlock)
  = {0x702A,0xA660}; 
-pascal OSErr PBDTFlush(DTPBPtr paramBlock,Boolean async); 
+#define PBDTFlush(pb, async) ((async) ? PBDTFlushAsync(pb) : PBDTFlushSync(pb)) 
 #pragma parameter __D0 PBDTFlushSync(__A0)
 pascal OSErr PBDTFlushSync(DTPBPtr paramBlock)
  = {0x702B,0xA260}; 
 #pragma parameter __D0 PBDTFlushAsync(__A0)
 pascal OSErr PBDTFlushAsync(DTPBPtr paramBlock)
  = {0x702B,0xA660}; 
-pascal OSErr PBDTReset(DTPBPtr paramBlock,Boolean async); 
+#define PBDTReset(pb, async) ((async) ? PBDTResetAsync(pb) : PBDTResetSync(pb)) 
 #pragma parameter __D0 PBDTResetSync(__A0)
 pascal OSErr PBDTResetSync(DTPBPtr paramBlock)
  = {0x702C,0xA260}; 
 #pragma parameter __D0 PBDTResetAsync(__A0)
 pascal OSErr PBDTResetAsync(DTPBPtr paramBlock)
  = {0x702C,0xA660}; 
-pascal OSErr PBDTGetInfo(DTPBPtr paramBlock,Boolean async); 
+#define PBDTGetInfo(pb, async) ((async) ? PBDTGetInfoAsync(pb) : PBDTGetInfoSync(pb)) 
 #pragma parameter __D0 PBDTGetInfoSync(__A0)
 pascal OSErr PBDTGetInfoSync(DTPBPtr paramBlock)
  = {0x702D,0xA260}; 
@@ -1515,7 +1515,7 @@ pascal OSErr PBDTGetInfoAsync(DTPBPtr paramBlock)
 #pragma parameter __D0 PBDTOpenInform(__A0)
 pascal OSErr PBDTOpenInform(DTPBPtr paramBlock)
  = {0x702E,0xA060}; 
-pascal OSErr PBDTDelete(DTPBPtr paramBlock,Boolean async); 
+#define PBDTDelete(pb, async) ((async) ? PBDTDeleteAsync(pb) : PBDTDeleteSync(pb)) 
 #pragma parameter __D0 PBDTDeleteSync(__A0)
 pascal OSErr PBDTDeleteSync(DTPBPtr paramBlock)
  = {0x702F,0xA060}; 
@@ -1562,14 +1562,14 @@ pascal OSErr FSpCatMove(const FSSpec *source,const FSSpec *dest)
 pascal OSErr FSpExchangeFiles(const FSSpec *source,const FSSpec *dest)
  = {0x303C,0x000F,0xAA52}; 
 /* Obsoolete names for PBGetForeignPrivs and PBSetForeignPrivs */
-pascal OSErr PBGetAltAccess(HParmBlkPtr paramBlock,Boolean async); 
+#define PBGetAltAccess(pb, async) ((async) ? PBGetAltAccessAsync(pb) : PBGetAltAccessSync(pb)) 
 #pragma parameter __D0 PBGetAltAccessSync(__A0)
 pascal OSErr PBGetAltAccessSync(HParmBlkPtr paramBlock)
  = {0x7060,0xA060}; 
 #pragma parameter __D0 PBGetAltAccessAsync(__A0)
 pascal OSErr PBGetAltAccessAsync(HParmBlkPtr paramBlock)
  = {0x7060,0xA460}; 
-pascal OSErr PBSetAltAccess(HParmBlkPtr paramBlock,Boolean async); 
+#define PBSetAltAccess(pb, async) ((async) ? PBSetAltAccessAsync(pb) : PBSetAltAccessSync(pb)) 
 #pragma parameter __D0 PBSetAltAccessSync(__A0)
 pascal OSErr PBSetAltAccessSync(HParmBlkPtr paramBlock)
  = {0x7061,0xA060}; 

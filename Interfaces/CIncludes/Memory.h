@@ -71,7 +71,7 @@ Created: Saturday, July 27, 1991 at 4:28 PM
 
 enum {
 
- maxSize = 0x800000,	/*Max data block size is 8 megabytes*/
+ maxSize = 0x7FFFFFF0,	/*Max data block size is 8 megabytes*/
  defaultPhysicalEntryCount = 8,
 
 /* values returned from the GetPageState function */
@@ -132,9 +132,12 @@ extern "C" {
 #pragma parameter __A0 GetZone
 pascal THz GetZone(void)
  = 0xA11A; 
-#define SystemZone() (* (THz*) 0x02A6)
-#define ApplicZone() (* (THz*) 0x02AA)
-#define ApplicationZone() (* (THz*) 0x02AA)
+pascal THz SystemZone(void)
+ = {0x2EB8,0x02A6};
+pascal THz ApplicZone(void)
+ = {0x2EB8,0x02AA};
+pascal THz ApplicationZone(void)
+ = {0x2EB8,0x02AA};
 #pragma parameter __A0 NewHandle(__D0)
 pascal Handle NewHandle(Size byteCount)
  = {__GenOSTrapCode(0xA122)}; 
@@ -171,7 +174,8 @@ pascal Ptr NewPtrSysClear(Size byteCount)
 #pragma parameter __A0 PtrZone(__A0)
 pascal THz PtrZone(Ptr p)
  = 0xA148; 
-#define GZSaveHnd() (* (Handle*) 0x0328)
+pascal Handle GZSaveHnd(void)
+ = {0x2EB8,0x0328};
 #define TopMem() (* (Ptr*) 0x0108)
 #pragma parameter __D0 MaxBlock
 pascal long MaxBlock(void)
@@ -204,7 +208,7 @@ pascal void HNoPurge(Handle h)
 pascal void HLockHi(Handle h)
  = {0xA064,0xA029}; 
 
-#ifdef	Supports24Bit
+#if	Supports24Bit
 	#if SystemSixOrLater
 	#pragma parameter __D0 StripAddress(__D0)
 	pascal Ptr StripAddress(void *theAddress)
@@ -344,7 +348,8 @@ pascal void BlockMove(const void *srcPtr,void *destPtr,Size byteCount)
 #pragma parameter BlockMoveData(__A0,__A1,__D0)
 pascal void BlockMoveData(const void *srcPtr,void *destPtr,Size byteCount)
  = {__GenOSTrapCode(0xA22E)}; 
-#define MemError() (* (OSErr*) 0x0220)
+pascal OSErr MemError(void)
+ = {0x3EB8,0x0220};
 pascal void PurgeSpace(long *total,long *contig); 
 #pragma parameter __D0 HGetState(__A0)
 pascal char HGetState(Handle h)

@@ -494,6 +494,9 @@ void CHECK_CONTOUR(fnt_LocalGraphicStateType* gs, fnt_ElementType* elem, int ctr
 #define ADJUSTBASE 0x8F							/* <15> base opcode for adjust instruction */
 #define PIXEL 64
 #define LG2PIXEL 6
+#undef HALF
+#undef HALFM
+#undef HALFP
 #define HALF (PIXEL >> 1)
 #define HALFM (HALF-1)
 #define HALFP (HALF+1)
