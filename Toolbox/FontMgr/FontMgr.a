@@ -3361,35 +3361,11 @@ LoadSplineFontResource
 			_SizeRsrc							; get the size of the resource
 			move.l	(sp)+,d0					; pop the resource size
 			cmp.l	#128*1024,d0				; is the spline size greater than 128k?
-			bgt.s	@LoadEmptySplineIntoSystemHeap	; yes, load an empty spline into the system heap
+			bgt.s	@Exit						; yes, so just leave an empty spline handle
+												; (old code would force this hdl to system heap)
 
 			move.l	resourceHandle(a6),-(sp)	; push empty resource handle
 			_LoadResource						; load the resource into memory
-			bra.s	@Exit						; return
-
-; The spline font is bigger than 128K, so don’t load it into memory, but create an empty
-; handle for it in it’s resource reference entry.  We can probably get rid of the call to
-; ReleaseResource and the zone mucking, since it’s pretty unlikely for a font to be loaded
-; in the application heap these days.  For example, fonts from the system and the Fonts
-; folder automatically load in the system heap.  Fonts will go in the application heap
-; if the application is carrying the font around.  But at this point in the code, the
-; 'sfnt' is larger than 128K, and it’s unlikely that applications will be carrying around
-; fonts of this size.  But I’m too chicken to get rid of these lines at this point in
-; 7.1’s schedule.
-
-@LoadEmptySplineIntoSystemHeap
-			move.l	resourceHandle(a6),-(sp)	; push resource handle
-			_ReleaseResource					; get rid of empty spline from some application heap
-			
-			move.w	#MapFALSE,ROMMapInsert		; don't load sfnt into memory
-			move.l	TheZone,-(sp)				; save the current zone
-			move.l	SysZone,TheZone				; make the system heap current
-			subq	#4,sp						; reserve space for function result
-			move.l	#'sfnt',-(sp)				; push resource type
-			move.w	resourceID(a6),-(sp)		; push the resource id
-			_GetResource						; grab the resource handle			
-			move.l	(sp)+,resourceHandle(a6)	; pop the spline handle
-			move.l	(sp)+,TheZone				; restore the saved heap zone
 						
 @Exit
 			_SetResLoad							; <15> Old ResLoad is still on the stack.  Restore it before we leave.
