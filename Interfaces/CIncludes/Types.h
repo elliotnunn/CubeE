@@ -72,6 +72,14 @@
 
 #define noErr 0			/*All is well*/
 
+/* hacked in from Universal Interfaces 3.4 */
+typedef unsigned char                   UInt8;
+typedef signed char                     SInt8;
+typedef unsigned short                  UInt16;
+typedef signed short                    SInt16;
+typedef unsigned long                   UInt32;
+typedef signed long                     SInt32;
+
 /* common aliases for C unsigned types */
 typedef unsigned char	uchar;
 typedef unsigned short	ushort;

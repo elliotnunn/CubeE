@@ -19,7 +19,7 @@
 #define __SETJMP__
 
 
-typedef long *jmp_buf[12];		/*	D2-D7,PC,A2-A4,A6,SP  */
+typedef long *jmp_buf[16];		/*	new 68K: D2-D7,PC,A2-A4,A6,SP,FLAGS,A5,RESVD,RESVD  */
 
 #ifdef __cplusplus
 extern "C" {

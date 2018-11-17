@@ -191,6 +191,9 @@ pascal void SetResourceSize(Handle theResource,long newSize)
 pascal Handle GetNextFOND(Handle fondHandle)
  = {0x700A,0xA822};
 
+pascal void TempInsertROMMap(Boolean tempResLoad)
+ = {0x70FF,0x4A1F,0x56C0,0x31C0,0x0B9E};
+
 short openrfperm(char *fileName,short vRefNum,char permission);
 short openresfile(char *fileName);
 void createresfile(char *fileName);

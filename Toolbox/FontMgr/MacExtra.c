@@ -137,6 +137,7 @@ extern pascal EncodingTablePointer		GetEncodingTable( short fondID, uint16 *scri
 #define FIXONEHALF		0x00008000
 #define HIGHWORDMASK	0xFFFF0000
 
+#undef FIXROUND
 #define FIXROUND(n)		FixRound(n)
 #define ROUND(n)		(((n) + FIXONEHALF) & HIGHWORDMASK)
 

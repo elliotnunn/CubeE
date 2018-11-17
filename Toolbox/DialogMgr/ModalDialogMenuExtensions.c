@@ -126,6 +126,7 @@
 #include <Processes.h>
 #include <TextUtils.h>
 #include <Windows.h>
+#include <Types.h>
 
 #include <DialogsPriv.h>
 #include <MenuMgrPriv.h>
@@ -139,16 +140,16 @@
 
 typedef struct
 	{
-	short		lastMenu;
-	short		lastRight;
-	short		reserved;
+	UInt16		lastMenu;
+	UInt16		lastRight;
+	UInt16		reserved;
 	}
 MenuListHeader;
 
 typedef struct
 	{
 	MenuHandle	handle;
-	short		left;
+	UInt16		left;
 	}
 MenuListEntry;
 
@@ -186,7 +187,7 @@ enum
 	kApplicationHandlesMenus,
 	kHandleSystemMenusDisabled,
 	kHandleMenusEditMenuDisabled,
-	kHandleMenusEditMenuEnabled,
+	kHandleMenusEditMenuEnabled
 	};
 typedef short TAnalyzedWindowState;
 

@@ -56,6 +56,8 @@ Created: Saturday, July 27, 1991 at 3:22 PM
 #include "ROMFastTraps.h"
 #endif
 
+typedef UInt16                          EventKind; /* from UI 3.4 */
+typedef UInt16                          EventMask;
 enum {
 
  nullEvent = 0,
@@ -81,6 +83,7 @@ enum {
  highLevelEventMask = 1024,
  osMask = -32768
 };
+typedef UInt16                          EventModifiers;
 enum {
  everyEvent = -1,
 
@@ -124,11 +127,11 @@ enum {
 };
 
 struct EventRecord {
- short what;
- long message;
- long when;
- Point where;
- short modifiers;
+  EventKind           what;
+  UInt32              message;
+  UInt32              when;
+  Point               where;
+  EventModifiers      modifiers;
 };
 
 typedef struct EventRecord EventRecord;

@@ -713,7 +713,7 @@ pascal Component __RegisterComponent(ComponentDescription *td, ComponentRoutine 
 	saveZone = (THz)GetZone();
 
 	if (global & registerComponentGlobal)
-		SetZone(*(THz *)SysZone);
+		SetZone(SystemZone());
 	new->rtNameHand = cmHandToHand( ComponentName );
 	new->rtInfoHand = cmHandToHand( ComponentInfo );
 	new->rtIconHand = cmHandToHand( ComponentIcon );
@@ -1349,7 +1349,7 @@ pascal long __LoadComponent( long componentID )
 
 				saveZone = (THz)GetZone();
 				if (!rt->rtLocalA5)
-					SetZone(*(THz *)SysZone);
+					SetZone(SystemZone());
 				if (entryPoint = Get1Resource(resSpec.resType, resSpec.resID))
 					{
 					LoadResource(entryPoint);
@@ -1752,7 +1752,7 @@ pascal OSErr __GetComponentInfoPrivate( Component aComponent, Handle  nameHand, 
 			short saveRes = CurResFile();
 			short resRef;
 
-			SetZone(*(THz *)SysZone);
+			SetZone(SystemZone());
 
 			resRef = OpenComponentResFile(aComponent);
 			if (resRef != -1) {

@@ -137,14 +137,13 @@ typedef struct {
 
 #define	BufPtr			(*(Ptr *) 0x10C)
 #define	UnitTable		(*(DCtlHandle **) 0x11C)
-#define	Ticks			(*(long *) 0x16A)
+#define	Ticks			(TickCount())
 #define	AlarmState		(*(char *) 0x21F)
 #define	ROM85			(*(unsigned short *) 0x28E)
-#define	SysZone			(*(THz *) 0x2A6)
-#define	ApplZone		(*(THz *) 0x2AA)
+#define	SysZone			(SystemZone())
+#define	ApplZone		(ApplicZone())
 #define WMgrPort		(*(GrafPtr *) 0x9DE)
 #define MenuList		(*(MenuLHdl *) 0xA1C)
-#define	ROMMapInsert	(*(short *) 0xB9E)
 #define	MBarHeight		(*(short *) 0xBAA)
 #define WMgrCPort		(*(GrafPtr *) 0xD2C)
 
@@ -243,7 +242,7 @@ AddrInRange(Ptr theAddr, Ptr low, Ptr high)
 short
 GetPID(void)
 {
-	if (NGetTrapAddress(0x8F, ToolTrap) != NGetTrapAddress(0x9F, ToolTrap)) {
+	if (GetToolTrapAddress(0xA88F) != GetToolTrapAddress(0xA89F)) {
 		/* MultiFinder active */
 		return TWGetPID();
 	}
@@ -303,7 +302,7 @@ short InApplicationMenu(short thePID, short theMarkID)
 			ResType			dType;
 			Str255			dName;
 
-			ROMMapInsert = MapTRUE;
+			TempInsertROMMap(true);
 			GetResInfo(GetResource('DRVR', ~theMarkID), &dID, &dType, dName);
 			theItem = FindItem(theApplicationMenu, dName);
 		}
@@ -448,7 +447,7 @@ OSErr
 _NMInstall(NMRecPtr theNMRec)
 {
 	if (theNMRec->qType != nmType) return nmTypErr;
-	if (NGetTrapAddress(0xA085,OSTrap) != NGetTrapAddress(0xA89F,ToolTrap)) 
+	if (GetOSTrapAddress(0xA085) != GetToolTrapAddress(0xA89F)) 
 		IdleUpdate();
 	theNMRec->nmFlags = 0;
 	theNMRec->nmPrivate = 0;
@@ -576,7 +575,7 @@ NMCallMBarProc(short message, short param1, long param2)
 	}
 	else return 0;
 
-	ROMMapInsert = MapTRUE;
+	TempInsertROMMap(true);
 	if (MBDFHndl = (MBarProcHandle) GetResource('MBDF', mbResID)) {
 		register short	flags = HGetState((Handle)MBDFHndl);
 		register long	result;
@@ -794,7 +793,7 @@ NMGNEFilter(void)
 			/* It's not, turn it on */
 			register Handle	theSIcon;
 
-			ROMMapInsert = MapTRUE;
+			TempInsertROMMap(true);
 			if (theSIcon = GetResource('SICN', AlarmSICN)) {
 				/* Build theAlarmRec and copy the alarm icon into the sys heap */
 				register Size	iconSize = GetHandleSize(theSIcon);

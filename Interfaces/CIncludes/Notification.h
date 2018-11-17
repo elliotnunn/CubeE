@@ -63,10 +63,12 @@ typedef NMRec *NMRecPtr;
 #ifdef __cplusplus
 extern "C" {
 #endif
+#pragma parameter __D0 NMInstall(__A0)
 pascal OSErr NMInstall(NMRecPtr nmReqPtr)
- = {0x205F,0xA05E,0x3E80}; 
+ = {0xA05E}; 
+#pragma parameter __D0 NMRemove(__A0)
 pascal OSErr NMRemove(NMRecPtr nmReqPtr)
- = {0x205F,0xA05F,0x3E80}; 
+ = {0xA05F}; 
 #ifdef __cplusplus
 }
 #endif
