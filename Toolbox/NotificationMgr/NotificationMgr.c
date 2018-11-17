@@ -231,8 +231,7 @@ typedef struct NMHdr {
 Boolean
 AddrInRange(Ptr theAddr, Ptr low, Ptr high)
 {
-	theAddr = StripAddress(theAddr);
-	return (StripAddress(low) <= theAddr) && (theAddr <= StripAddress(high));
+	return (low <= theAddr) && (theAddr <= high);
 }
 #define	InSysZone(theAddr)	AddrInRange(theAddr, (Ptr) SysZone, SysZone->bkLim)
 #define	InApplZone(theAddr)	AddrInRange(theAddr, (Ptr) ApplZone, BufPtr)
