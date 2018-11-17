@@ -4737,7 +4737,7 @@ BWRealFont
 			move.l	(sp)+,d0
 			move.l	(sp)+,a1				; Restore A1
 			move.l	d0,-(sp)				; <60> Save the candidate list
-			beq.s	@oldKindOfFont
+			beq		@oldKindOfFont
 			
 ; GetCandidateFONDs returns a list of available sizes for this font family.  Scan this
 ; list for the requested size.
@@ -4757,7 +4757,7 @@ BWRealFont
 @nextCandidate
 			add.w	#kFONDListSize,A0		; skip to next entry
 			DBRA	D0,@nrfLoop				; check em all out
-			BRA.S	@notReal 				; it must not be real...
+			BRA		@notReal 				; it must not be real...
 
 ; <50> We’ve got an entry for a TrueType font.  Instead of automatically
 ; returning true, call fs_LowestPPEM to see if the TrueType font will be
