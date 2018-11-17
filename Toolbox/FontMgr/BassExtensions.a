@@ -357,6 +357,7 @@ INSTALLBASSCOMMON	Proc	Export
 		import		fs_GetGlyphInfo, fs_GetGlyphData
 		import		fs_GetBitMapInfo, fs_GetBitMapData
 	endif
+		import		DOINITPARTIALFONTS
 		case		obj
 
 ;——————————————————————————————————————————————————————————————————————————————————————————
@@ -490,11 +491,13 @@ INSTALLBASSCOMMON	Proc	Export
 		MOVE.L		expandMem, A0				; get low mem expand
 		MOVE.L		ExpandMemRec.emSplineKey(A0),A0		; Handle to splineKey
 		_HUnlock						; Unlock splineKey globals
+		BSR			DOINITPARTIALFONTS	; Init partial fonts
 		rts							; Exit anyway
 	
 @bailOut
 		MOVE.L	expandMem, A2				; get low mem expand
 		CLR.L	ExpandMemRec.emSplineKey(A2)		; Handle to splineKey
+		BSR		DOINITPARTIALFONTS
 		RTS							; <=== in any case
 
 ;——————————————————————————————————————————————————————————————————————————————————————————
@@ -546,6 +549,16 @@ INITZONEGLUE	PROC  EXPORT
 		_InitZone
 		Add 	#14,SP			;strip parameters
 		JMP 	(A1)			;return via A1
+
+;——————————————————————————————————————————————————————————————————————————————————————————
+; Init partial font (TrueType) support -- puts big locked block in sys heap, so do early
+;——————————————————————————————————————————————————————————————————————————————————————————
+DOINITPARTIALFONTS	Proc	Export
+		SUBQ	#2,SP
+		MOVE.L	#48*1024,-(SP)		; size of partial-font heap zone in system heap
+		_InitializePartialFonts
+		ADDQ	#2,SP
+		RTS
 ;•••••••••••••••••••••••••••••••••••••••
 ;——————————————————————————————————————————————————————————————————————————————————————————
 ;								END Spline_PatcheeTail.a!!!
