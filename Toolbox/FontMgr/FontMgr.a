@@ -1943,13 +1943,9 @@ LookForColor
 
 			MOVE.L	FOutFontHandle,A0		; could be a 1 bit ROM font
 			BSR		DerefResource			; get a pointer to it
-			MOVE.L	A0,D0
-			_StripAddress					; but only look at the valid part of the address
-			MOVE.L	D0,A0
 			MOVE.L	ROMBase,D0				; do the same to the ROM base pointer
-			_StripAddress
 			CMP.L	D0,A0					; is it below the ROM?
-			BLT.S	@noEntry				; if so, skip looking for a expanded font in the ROM
+			BCS.S	@noEntry				; if so, skip looking for a expanded font in the ROM
 			MOVE	D5,D0
 			BSR		LoadNewStrike			; then look in ROM
 			BEQ.S	@noEntry
