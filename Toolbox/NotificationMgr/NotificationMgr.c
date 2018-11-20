@@ -478,13 +478,6 @@ _NMRemove(NMRecPtr theNMRec)
 	return rValue;
 }
 
-/* Copies Pascal style strings. */
-pascal void
-CopyString(StringPtr srcString, StringPtr dstString)
-{
-	BlockMove(srcString, dstString, *srcString + 1);
-}
-
 /* Called by InitApplZone via the IAZNotify vector.  Removes all requests that
  * are in the application zone.
  */
@@ -714,7 +707,7 @@ DoDialog(NMRecPtr theNMRec, int procLevel)
 		theNMRec->nmFlags |= fDlogDisp | fReqLocked;
 
 		/* Copy the string */
-		CopyString(theNMRec->nmStr, alertStr);
+		BlockMoveData(theNMRec->nmStr, alertStr, *(theNMRec->nmStr) + 1);
 
 		spl(procLevel);
 
