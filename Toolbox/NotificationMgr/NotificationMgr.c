@@ -503,36 +503,21 @@ FLUSHAPPLNM(void)
 }
 
 /* This dialog filter proc is almost identical to the default, except that it will
- * also return if aborted by NMRemove.
+ * also return if aborted by NMRemove. Now calls default rather than including it.
  */
 pascal Boolean
 NMFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
 {
-	if (theEvent->what == keyDown) {
-		register unsigned char	theChar = theEvent->message & 0xFF;
-
-		if ((theChar == 3)  || (theChar == 0xD)) {
-			/* It's a return or enter. */
-			short	itemType;
-			ControlHandle	item;
-			Rect	junk;
-
-			GetDItem(theDialog, buttonItem, &itemType, (Handle*)&item, &junk);
-			if (itemType == (ctrlItem+btnCtrl)) {
-				/* It's an enabled button - highlight it */
-				HiliteControl(item, inButton);
-				Delay(8, (long*)&junk);
-				HiliteControl(item, 0);
-			}
-			*itemHit = buttonItem;
-			return true;
-		}
+	register Boolean	rValue = false;
+	ModalFilterProcPtr filter;
+	if (!GetStdFilterProc(&filter)) {
+		rValue = filter(theDialog, theEvent, itemHit);
 	}
 	if (NMQHdr->requests.qFlags & fDlogInval) {
 		/* The request was removed - punt the dialog */
-		return true;
+		rValue = true;
 	}
-	return false;
+	return rValue;
 }
 
 /* This is the user item procedure which displays the default button roundRect. */
