@@ -201,10 +201,12 @@ typedef struct NMHdr {
 	Handle		copyIcon;
 	long		lastMoveTime;
 	Boolean		useNewIcon;
+	Boolean		shouldClearMarks;
 	/* the following fields were added after the Portable and IIci ROMs */
 	IconRecPtr	curPMIconRec;
 	QHdr		pmIcons;
 	Boolean		appleMenu;
+	Boolean		shouldRedrawMbar;
 } NMHdr, *NMHdrPtr;
 
 #define	NMQHdr	(*(NMHdrPtr *) 0xB60)
@@ -473,6 +475,12 @@ _NMRemove(NMRecPtr theNMRec)
 		/* See if we have a dialog up */
 		if ((theNMRec->nmFlags & (fDlogDisp | fDlogCompl)) == fDlogDisp) NMQHdr->requests.qFlags |= fDlogInval;
 		UnLinkAuxRecs(theNMRec);
+		if (theNMRec->nmFlags & fIconinRot) {
+			NMQHdr->shouldClearMarks = true;
+			if (theNMRec->nmIcon != 0) {
+				NMQHdr->shouldRedrawMbar = true;
+			}
+		}
 	}
 
 	return rValue;
@@ -804,25 +812,15 @@ NMGNEFilter(void)
 pascal void
 NMTask(void)
 {
-	register int	procLevel;
-	short	selector[4];
-	
-	/* NOTE: If this code seems buggy, take this 'if' statement and move it below after the call to AddIconRec() */
-	if (NMQHdr->requests.qHead == nil)
-		return;
+	register NMHdrPtr	theNMHdr = NMQHdr;
+	register NMRecPtr	theNMRec = theNMHdr->requests.qHead;
 
-	selector[0] = MoveSICNToPM;
-	selector[1] = MoveICSToPM;
-	selector[2] = MoveSICNToAM;
-	selector[3] = MoveICSToAM;
-	
-	procLevel = disable();
+	if (theNMRec != nil) {
+		register int procLevel = disable();
  
-	{
 		/* Find the first queue element that needs attention.
 		 * Note that the response proc is the last thing done.
 		 */
-		register NMRecPtr	theNMRec = NMQHdr->requests.qHead;
 		while ((theNMRec != nil) && (theNMRec->nmFlags & fReqLocked)) theNMRec = (NMRecPtr) theNMRec->qLink;	/* 1.5 type coersion */
 
 		/* Determine the next thing to be done and call the procedure to do it */
@@ -836,74 +834,96 @@ NMTask(void)
 			else if (!(nmFlags & fRespCompl)) DoRespProc(theNMRec, procLevel);
 			else theNMRec->nmFlags |= fReqLocked | fReqDone;
 		}
+
+		spl(procLevel);
 	}
 
-	spl(procLevel);
-
-	AddMarkRec();
-	AddIconRec();
+	AddAuxRec(sizeof(MarkRec), &theNMHdr->marks);			/* AddMarkRec */
+	AddAuxRec(sizeof(IconRec), &theNMHdr->amIcons);			/* AddIconRec -- apple menu */
+	AddAuxRec(sizeof(IconRec), &theNMHdr->pmIcons);			/* AddIconRec -- process menu*/
 
 	/* Now go through the marks queue, deleting entries and updating menu marks
 	 * as needed.
 	 */
 	{
-		register MenuHandle	theApplicationMenu = GetApplicationMenu();
-		register MarkRecPtr	theMarkRec = NMQHdr->marks.qHead;
+		register MenuHandle	theApplicationMenu = nil;
+		register MarkRecPtr	theMarkRec;
 
-		if (theApplicationMenu && (NMQHdr->lastMenuUsed != theApplicationMenu)) ClearMarks(theApplicationMenu);
+		if (theNMHdr->shouldClearMarks) {
+			theApplicationMenu = GetApplicationMenu();
 
-		while (theMarkRec != nil) {
-			register MarkRecPtr	nextMarkRec = theMarkRec->hdr.qLink;
+			if (theApplicationMenu && (theNMHdr->lastMenuUsed != theApplicationMenu)) ClearMarks(theApplicationMenu);
 
-			if (theMarkRec->hdr.qType) {
-				if (!theMarkRec->hdr.aRefCount) {
-					/* Remove the mark and delete this record */
-					UnMarkApp(theMarkRec);
-					Dequeue((QElemPtr)theMarkRec, &NMQHdr->marks);
-					DisposPtr((Ptr)theMarkRec);
-				}
-				else if (theApplicationMenu && NMQHdr->lastMenuUsed != theApplicationMenu) MarkApp(theMarkRec);
+			if (theNMHdr->shouldRedrawMbar) {
+				NMCallMBarProc(0, 0, 0);					/* Draw selector, last arg means "all": see StandardMBDF.a */
+				theNMHdr->shouldRedrawMbar = 0;
 			}
-			theMarkRec = nextMarkRec;
+
+			theNMHdr->shouldClearMarks = 0;
 		}
-		NMQHdr->lastMenuUsed = theApplicationMenu;
+
+		theMarkRec = (MarkRecPtr)theNMHdr->marks.qHead;
+		if (theMarkRec != nil) {
+			while (theMarkRec != nil) {
+				register MarkRecPtr	nextMarkRec = theMarkRec->hdr.qLink;
+
+				if (theMarkRec->hdr.qType) {
+					if (!theMarkRec->hdr.aRefCount) {
+						/* Remove the mark and delete this record */
+						UnMarkApp(theMarkRec);
+						Dequeue((QElemPtr)theMarkRec, &theNMHdr->marks);
+						DisposPtr((Ptr)theMarkRec);
+					}
+					else if ((theApplicationMenu = GetApplicationMenu()) && theNMHdr->lastMenuUsed != theApplicationMenu) MarkApp(theMarkRec);
+				}
+				theMarkRec = nextMarkRec;
+			}
+		}
+		theNMHdr->lastMenuUsed = theApplicationMenu;
 	}
 
-	{
+	if (theNMHdr->requests.qHead != nil) {
 		/* Get the icon to be displayed for the menu bar defproc */
-		register long	curTime = Ticks, timeSince = curTime - NMQHdr->lastMoveTime;
+		register long	curTime = Ticks, timeSince = curTime - theNMHdr->lastMoveTime;
 		register IconRecPtr	*curIconRec;
 
-		curIconRec = (NMQHdr->appleMenu ? &NMQHdr->curAMIconRec : &NMQHdr->curPMIconRec);
+		curIconRec = (theNMHdr->appleMenu ? &theNMHdr->curAMIconRec : &theNMHdr->curPMIconRec);
 
 		if (timeSince >= MoveSThresh) {
 			register IconRecPtr	theIconRec = *curIconRec;
+	 		register long selector;
 
-			if (NMQHdr->useNewIcon) {
+			if (theNMHdr->useNewIcon) {
 				/* Get the next icon from the queue.  If not enough time has elapsed,
 				 * or the new icon is the same as the old, get out.
 				 */
-				if (timeSince >= WaitSThresh(NMQHdr->amIcons, NMQHdr->pmIcons)) {
-					register IconRecPtr	newIconRec = ValidIconRec(theIconRec,  (NMQHdr->appleMenu ? &NMQHdr->amIcons : &NMQHdr->pmIcons));
+				if (timeSince >= WaitSThresh(theNMHdr->amIcons, theNMHdr->pmIcons)) {
+					register IconRecPtr	newIconRec = ValidIconRec(theIconRec,  (theNMHdr->appleMenu ? &theNMHdr->amIcons : &theNMHdr->pmIcons));
 
 					if (newIconRec == theIconRec) {
-						NMQHdr->appleMenu = !(NMQHdr->appleMenu);
+						theNMHdr->appleMenu = !(theNMHdr->appleMenu);
 						return;
 					}
 					else {
 						*curIconRec = theIconRec = newIconRec;
 						if (theIconRec)
-							BlockMove(*(theIconRec->iSIcon), *(NMQHdr->copyIcon), (theIconRec->iconSuite ? sizeof(IconSuite) : SICNsize));
+							BlockMoveData(*(theIconRec->iSIcon), *(theNMHdr->copyIcon), (theIconRec->iconSuite ? sizeof(IconSuite) : SICNsize));
 					}
 				}
 				else return;
 			}
 
-			NMQHdr->lastMoveTime = curTime;
-			NMQHdr->useNewIcon = NMCallMBarProc(selector[(NMQHdr->appleMenu << 1) + (theIconRec ? theIconRec->iconSuite : 0)],
+			selector = (theNMHdr->appleMenu << 1) + (theIconRec ? theIconRec->iconSuite : 0);
+			if (selector == 0) selector = MoveSICNToPM;
+			else if (selector == 1) selector = MoveICSToPM;
+			else if (selector == 2) selector = MoveSICNToAM;
+			else selector = MoveICSToAM;
+
+			theNMHdr->lastMoveTime = curTime;
+			theNMHdr->useNewIcon = NMCallMBarProc(selector,
 													MoveSDist,
-													(long) (theIconRec ? NMQHdr->copyIcon: nil));
-			NMQHdr->appleMenu = !(NMQHdr->appleMenu);
+													(long) (theIconRec ? theNMHdr->copyIcon: nil));
+			theNMHdr->appleMenu = !(theNMHdr->appleMenu);
 		}
 	}
 }
