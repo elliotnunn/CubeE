@@ -103,6 +103,7 @@ typedef struct
 	unsigned short	type;
 	unsigned short	label;
 	Handle			table[IconSpace];
+	char			padding[36]; /* struct enlarged, says notification manager */
 } IconSuite;
 
 typedef IconSuite *IconSuitePtr;
