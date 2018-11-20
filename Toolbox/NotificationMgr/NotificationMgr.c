@@ -713,8 +713,7 @@ DoDialog(NMRecPtr theNMRec, int procLevel)
 		theDialog = GetNewDialog(NMDialog, nil, (WindowPtr) -1);
 		UseResFile(saveResFile);
 
-		GetDItem(theDialog, defButItem, &itemType, &item, &box);
-		SetDItem(theDialog, defButItem, itemType, (Handle) DefButProc, &box);	/* 1.5 type coersion */
+		SetDialogDefaultItem(theDialog, 1);
 
 		GetDItem(theDialog, textItem, &itemType, &item, &box);
 		SetIText(item, alertStr);
