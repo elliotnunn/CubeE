@@ -236,7 +236,7 @@ AddrInRange(Ptr theAddr, Ptr low, Ptr high)
 	return (low <= theAddr) && (theAddr <= high);
 }
 #define	InSysZone(theAddr)	AddrInRange(theAddr, (Ptr) SysZone, SysZone->bkLim)
-#define	InApplZone(theAddr)	AddrInRange(theAddr, (Ptr) ApplZone, BufPtr)
+#define	InApplZone(theAddr)	AddrInRange(theAddr, (Ptr) ApplZone, (Ptr) ApplZone < BufPtr ? ApplZone->bkLim : BufPtr)
 
 
 /* Gets a process ID, or returns -1 if none is available (MultiFinder not active) */
