@@ -28,6 +28,7 @@
 			LOAD		'StandardEqu.d'		;										<v1.2>
 			INCLUDE		'HardwarePrivateEqu.a'
 			INCLUDE		'UniversalEqu.a'
+			INCLUDE		'PowerPrivEqu.a'
 			CASE	OBJ
 			STRING	ASIS
 
@@ -35,16 +36,6 @@
 __NMINSTALL	PROC	EXPORT
 			MOVE.L	A0, -(SP)			; Put A0 on stack
 			IMPORT	_NMInstall
-
-	if forROM then						; <5>
-
-			TestFor	SupportsIdle
-			BEQ.S	@notsupported
-
-			_IdleUpdate					; this is activity, stay at full speed
-@notsupported
-
-	endif								; forROM
 
 			BSR		_NMInstall			; Call the C routine
 			ADDQ.L	#4, SP				; Clean up stack
@@ -60,7 +51,9 @@ __NMREMOVE	PROC	EXPORT
 			TestFor	SupportsIdle
 			BEQ.S	@notsupported
 
-			_IdleUpdate					; this is activity, stay at full speed
+			MOVE.L	D0,-(SP)
+			_IdleUpdateDispatch			; this is activity, stay at full speed
+			MOVE.L	(SP)+,D0
 @notsupported
 
 	endif								; forROM
