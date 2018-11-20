@@ -224,8 +224,10 @@ typedef struct NMHdr {
 
 /* The MPW GetDCtlEntry has a bug.  This is my substitute.  It returns a handle
  * to the DCE of the driver having the given refnum.
+ * CDG5 addendum: this now actually incorrect (treats UnitTable as byte array),
+ *                but (?)8.6+ put desk acc's in the app menu so no worries
  */
-#define	MyGetDCtlEntry(refNum)	UnitTable[~refNum]
+#define	MyGetDCtlEntry(refNum)	((char *)UnitTable)[~refNum]
 
 /* Returns true iff theAddr is in the range specified by low & high.  Uses StripAddress. */
 Boolean
