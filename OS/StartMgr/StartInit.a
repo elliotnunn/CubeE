@@ -1216,6 +1216,9 @@ GOOFYDoEject
 			BRA.L	DoEject							; branch island to eject code
 
 
+			STRING	AsIs
+			DC.L	'Copyright (c) 1983-2002 Apple Computer, Inc.  All Rights Reserved.'
+
 
 *************************************************************************************************
 *																								*
