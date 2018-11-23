@@ -61,6 +61,7 @@ WindowMgrDir 				= "{ToolBoxDir}WindowMgr:"
 ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 									"{ObjDir}SegmentLoader.a.o"						∂
 									"{ObjDir}ShutDownMgr.a.o"						∂
+									"{ObjDir}ShutDownMgr.c.o"						∂
 									"{ObjDir}Munger.a.o"							∂
 									"{ObjDir}DeskMgr.a.o"							∂
 									"{ObjDir}GetMgr.a.o"							∂
@@ -85,6 +86,9 @@ ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 
 "{ObjDir}ShutDownMgr.a.o"			ƒ	"{ToolboxDir}ShutDownMgr:ShutDownMgr.a"
 	Asm {StdAOpts} -o "{Targ}" "{ToolboxDir}ShutDownMgr:ShutDownMgr.a"
+
+"{ObjDir}ShutDownMgr.c.o"			ƒ	"{ToolboxDir}ShutDownMgr:ShutDownMgr.c"
+	C {StdCOpts} -o "{Targ}" "{ToolboxDir}ShutDownMgr:ShutDownMgr.c"
 
 "{ObjDir}Munger.a.o"				ƒ	"{ToolboxDir}Munger:Munger.a"
 	Asm {StdAOpts} -o "{Targ}" "{ToolboxDir}Munger:Munger.a"
