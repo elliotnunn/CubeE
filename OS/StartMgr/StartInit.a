@@ -1231,51 +1231,7 @@ TCOff		dc.l	0								; for turning off MMU below
 Start
 StartBoot	MOVE	#$2700,SR						; Disable processor interrupts.
 
-	IF NOT ROMinRAM THEN							; 														<SM52>
-			sub.l	d0,d0							; D0 = 0
-			bset	#CACR_DE_040,d0					; set Data Cache Enable bit on 040s						<T22>
-			movec	d0,CACR							; attempt to enable data cache (temporarily)
-			movec	CACR,d0							; check and see if it's still there
-			btst	#CACR_DE_040,d0					; see if the bit exists in CACR							<T22>
-			beq.s	@not040							; IF we're on a 68040 THEN
-			
-			MACHINE	MC68040							;	need this for the MOVEC D0,TC below
-
-			cinva	bc								;	make sure caches are invalidated
-			sub.l	d0,d0							;	clear d0
-			movec	d0,CACR							;	disable both instruction and data caches
-			movec	d0,TC							;	make sure that the MMU is disabled
-			move.l	#nuBusTTxlat,D0					;	get value to translate upper nuBus space			<T18>
-			movec	d0,DTT0							;	use serialized writes on this space 				<T18>
-			move.l	#ioNuBusTTxlat,D0				;	get value to translate i/o and nuBus space			<T18>
-			movec	d0,DTT1							;	use serialized writes on this space 				<T18>
-			bra.s	@not030							;	step around the rest of the 020/030 cache/tc stuff
-
-			MACHINE	MC68030							;	set it back to what works for 020/030
-@not040												; ELSE
-			move.l	#(1<<CACR_WA_030),d0			;	CACR value w/WA bit for 030
-			movec	d0,CACR							;	disable both instruction & data caches
-			movec	CACR,d0							;	hmmm, maybe we are an 030
-			tst.l	d0								;	see if WA bit is still on
-			beq.s	@not030							;	IF we are an 030 processor
-			lea		TCOff,a0						;     point to TC value that disabled the MMU
-			pmove	(a0),tc							;     turn off MMU
-													;	ENDIF
-@not030
-
-		  IF	forRomulator THEN
-			TestInRam	A0
-			bne.s	@dontReset						; don't reset if running in RAM
-		  ENDIF
-
-;	NOTE: The MMU must be disabled before doing a RESET if the MMU tables are in RAM, especially
-;	on machines with Overlay bits.  RESET will cause the hardware to enter Overlay Mode, and RAM
-;	will go away, and ROM data will be returned instead, so the MMU will not be able to access
-;	the translation tables.
-
 			RESET									; ***** Reset The World *****
-@dontReset
-	ENDIF											; 														<SM52>
 
 ; <60>, check what WakeUp does, does it return here again after changing clock ?
 
