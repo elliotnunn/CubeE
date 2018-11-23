@@ -549,6 +549,14 @@ LLOut
 		Add.w	#IOQElSize,sp			; Strip parameter block
 		Move.w	d0,PrintVars+iPrErr		; Set return code
 GlueOut
+		Move.l	sp,-(sp)				; Let the Blue Box know right after
+		Moveq.l	#0,d0					; every print call is made (CDG5)
+		Move.b	FuncByt(a6),d0
+		Lsr.b	#3,d0
+		Move.l	d0,-(sp)
+		Import	BlueBoxPrintHook
+		Bsr		BlueBoxPrintHook
+		Addq	#8,sp
 ;
 ; Get the number of bytes of parameter to this entry in d1
 		Moveq	#0,d1

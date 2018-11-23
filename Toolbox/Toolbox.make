@@ -67,6 +67,7 @@ ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 									"{ObjDir}TextEdit.a.o"							∂
 									"{ObjDir}ScrapMgr.a.o"							∂
 									"{ObjDir}PrintGlue.a.o"							∂
+									"{ObjDir}BlueBoxPrintHook.c.o"					∂
 									"{ObjDir}SexyDate.a.o"							∂
 
 
@@ -108,3 +109,6 @@ ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 										"{AIncludes}PrPrivate.a"					∂
 										"{PrintingDir}PrintGlue.a"
 	Asm {StdAOpts} -o "{Targ}" "{PrintingDir}PrintGlue.a"
+
+"{ObjDir}BlueBoxPrintHook.c.o"		ƒ	"{PrintingDir}BlueBoxPrintHook.c"
+	C {StdCOpts} -o "{Targ}" "{PrintingDir}BlueBoxPrintHook.c"
