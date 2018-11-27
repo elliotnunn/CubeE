@@ -116,8 +116,7 @@ MDJGNEFilter	Proc 	Export
 				movem.l	(sp)+,d0-d2/a0-a2
 
 		IF forROM THEN
-				import	NMGNEFilter				; from NotificationMgr.c
-				pea		NMGNEFilter				; call NMGNEFilter
+				; No longer pass on to the Notification Mgr (it does not do modal any more)
 		ELSE
 				peaOld							; call the old filter
 												; note: we can use peaOld here because
