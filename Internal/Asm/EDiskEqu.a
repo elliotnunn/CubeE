@@ -219,7 +219,7 @@ slimNoWrites	equ		3				; bit 3 = 1 if software write protected
 
 bRamDisk		EQU		$70000000		; base of Ram Disk area (32 bit mode)				<T7>
 
-MinRamDiskSize	EQU		$00030000		; minimum disk size is 192k							<T6>
+MinRamDiskSize	EQU		$00068000		; minimum disk size is 416k							<T6>
 MaxRamDiskSize	EQU		$0FF00000		; maximum disk size is 255MB 						<MC4>
 MinHeapSize		EQU		$00260000		; must have at least ≈2.5 megs free for heap		<LW5>
 
