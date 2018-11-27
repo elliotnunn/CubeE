@@ -359,8 +359,8 @@ eventMeta	EQU 		theEvent+14 			; Meta keys
 ; ——————————————————————————————————————————————————————————————————————————————————
 colorDctb	EQU			theEvent-4				; handle to color table for dialog item list
 colorWctb	EQU			colorDctb-4				; handle to color table for alert/dialog
-unused		EQU			colorWctb-1				;
-oldVis		EQU			unused-1				; byte set if window is to be visible
+useShowWind	EQU			colorWctb-1				; setUpCDialog to use _ShowWindow vs _ShowHide
+oldVis		EQU			useShowWind-1			; byte set if window is to be visible
 returnAddr	EQU			oldVis-4				; saved address so common code can access stack frame
 saveFColor	EQU			returnAddr-6			; space for port fore rgb
 saveBColor	EQU			saveFColor-6			; space for port back rgb
@@ -590,6 +590,7 @@ DoAlert
 			TST.L		colorWctb(A6)			; colors?
 			BEQ.S		@useoldDialog
 			ST			oldVis(A6)				; make it visible later
+			ST			useShowWind(A6)			; all alerts get a _ShowWindow (all are frontmost)
 			BSR			setUpCDialog
 			BRA.S		@commonDlg
 
@@ -773,6 +774,13 @@ GetNewDialog
 			MOVE.L		A0, -(SP)				; Push copy back on.
 			TST.L		colorWctb(A6)			; try for color resource
 			BEQ.S		@noDialogColors
+
+			SF			useShowWind(A6)			; dialogs are only frontmost if
+			MOVEQ		#-1,D0					; -1 is passed instead of a
+			CMP.L		8(A6),D0				; window ptr
+			BNE.S		@notFrontmost
+			ST			useShowWind(A6)
+@notFrontmost
 			BSR.S		setUpCDialog
 			BRA.S		@getnewDlogCommon
 
@@ -804,9 +812,8 @@ setUpCDialog
 			TST.B		oldVis(A6)				; should it be visible?
 			BEQ.S		@notVisible
 			MOVE.L		(SP),-(SP)				; pass the window
-			MOVEQ		#-1,D0
-			CMP.L		8(A6),D0				; is it the front window?
-			BEQ.S		@useShowWindow
+			TST.B		useShowWind(A6)			; use _ShowWindow instead of _ShowHide
+			BNZ.S		@useShowWindow
 			ST			-(SP)					; make it visisble
 			_ShowHide
 			BRA.S		@notVisible
