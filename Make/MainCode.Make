@@ -54,25 +54,16 @@ MainCodeLibs = 												∂
 				"{MiscDir}GoNativeROMLib.o"					∂
 				"{LibDir}SlotMgr.lib"						∂
 				"{LibDir}SCSI.lib"							∂
-				"{LibDir}SCSI4pt3.lib"						∂
 				"{LibDir}HFS.lib"							∂
-				"{LibDir}PPC.lib"							∂
 				"{LibDir}ADBMgr.lib"						∂
-				"{LibDir}TimeMgr.lib"						∂
 				"{LibDir}Toolbox.lib"						∂
-				"{LibDir}CommToolboxPatch.Lib"				∂
 				"{LibDir}MemoryMgr.lib"						∂
 				"{LibDir}AliasMgr.lib"						∂
 				"{LibDir}ComponentMgr.lib"					∂
 				"{LibDir}DataAccessMgr.lib"					∂
-				"{LibDir}EditionMgr.lib"					∂
 				"{LibDir}ExpansionBusMgr.lib"				∂
-				"{LibDir}HelpMgr.lib"						∂
-				"{LibDir}SoundMgr.lib"						∂
 				"{LibDir}Gestalt.lib"						∂
-				"{LibDir}IconUtils.lib"						∂
 				"{LibDir}NotificationMgr.lib"				∂
-				"{LibDir}PictUtilities.lib"					∂
 				"{LibDir}ToolboxEventMgr.lib"				∂
 				"{LibDir}ControlMgr.lib"					∂
 				"{LibDir}DisplayMgr.lib"					∂
@@ -89,15 +80,10 @@ MainCodeLibs = 												∂
 				"{LibDir}ResourceMgr.lib"					∂
 				"{LibDir}ScriptMgr.lib"						∂
 				"{LibDir}CQD.lib"							∂
-				"{LibDir}TextServicesMgr.lib"				∂
 				"{LibDir}FontMgr.lib"						∂
 				"{LibDir}RomInterface.Lib"					∂
 				"{LibDir}RomStandardLib.lib"				∂
 				"{LibDir}StartTest.lib"						∂
-				"{LibDir}VideoDriver.lib"					∂
-				"{ObjDir}WallyWorld.a.o"					∂
-				"{ObjDir}FPEmulation.a.o"					∂
-				"{LibDir}Beep.lib"							∂
 #															∂
 #	Keep DispTable at end									∂
 #															∂
