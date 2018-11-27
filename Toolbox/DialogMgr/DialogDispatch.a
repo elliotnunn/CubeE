@@ -98,7 +98,9 @@ DialogMgrDispatch	BeginDispatcher	_DialogDispatch
 
 DMgrPushMenuState	PROC		EXPORT
 				IMPORT PushMenuState
-				JMP PushMenuState
+				JSR PushMenuState
+				MOVE.L (SP)+,4(SP)
+				RTS
 				ENDPROC
 
 ;————————————————————————————————————————————————————————————————————————————————————————————————————
