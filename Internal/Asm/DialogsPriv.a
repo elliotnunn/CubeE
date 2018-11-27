@@ -67,10 +67,10 @@ selectDMgrCite4						EQU			-5
 paramWordsDMgrCite4					EQU			10
 
 selectDMgrCitationsSH				EQU			-4
-paramWordsDMgrCitationsSH			EQU			7
+paramWordsDMgrCitationsSH			EQU			5
 
 selectDMgrCitationsCH				EQU			-3
-paramWordsDMgrCitationsCH			EQU			5
+paramWordsDMgrCitationsCH			EQU			7
 
 selectDMgrPopMenuState				EQU			-2
 paramWordsDMgrPopMenuState			EQU			0

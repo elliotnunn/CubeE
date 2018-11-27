@@ -67,9 +67,9 @@ pascal OSErr Cite4(StringHandle baseString,ConstStr255Param p0,ConstStr255Param 
 	= { 0x303C, 0x0AFB, 0xAA68 };
 
 pascal OSErr CitationsSH(StringHandle baseString,short numCitations,CiteListPtr citations)
-	= { 0x303C, 0x07FC, 0xAA68 };
+	= { 0x303C, 0x05FC, 0xAA68 };
 
 pascal OSErr CitationsCH(CharsHandle baseString,long offset,short numCitations,CiteListPtr citations)
-	= { 0x303C, 0x05FD, 0xAA68 };
+	= { 0x303C, 0x07FD, 0xAA68 };
 
 #endif		/* __DIALOGSPRIV__ */

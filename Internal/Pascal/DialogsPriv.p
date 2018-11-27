@@ -94,11 +94,11 @@ TYPE
 
 	FUNCTION CitationsSH(baseString: StringHandle;
 					numCitations: INTEGER; citations: CiteListPtr): OSErr;
-		INLINE $303C, $07FC, $AA68;
+		INLINE $303C, $05FC, $AA68;
 
 	FUNCTION CitationsCH(baseString: CharsHandle;offset: LONGINT;
 					numCitations: INTEGER; citations: CiteListPtr): OSErr;
-		INLINE $303C, $05FD, $AA68;
+		INLINE $303C, $07FD, $AA68;
 
 
 {$IFC NOT UsingIncludes}
