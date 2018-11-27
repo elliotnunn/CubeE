@@ -652,10 +652,14 @@ SystemTask
 
 ; begin roll-in HMSystemTaskPatch patch												<11>
 
-				IMPORT	ptchHMGetBalloons		;									<11>
+				MOVE.L	ExpandMem,A0			; (This rolled-in HelpMgr patch code has
+				MOVE.L	ExpandMemRec.emHelpGlobals(A0),D0	; been protected by a check
+				BEQ.S	@BalloonsOff			; of HelpMgr presence in CDG5)
 
-				JSR		ptchHMGetBalloons		; what is the state of What Is? mode?		<11>
-				BEQ.S	@BalloonsOff			; no, let's not scan for a content window	<11>
+				CLR		-(SP)					; (ptchHMGetBalloons becomes trap in CDG5)
+				_HMGetBalloons
+				TST.B	(SP)+					; what is the state of What Is? mode?
+				BEQ.S	@BalloonsOff			; no, let's not scan for a content window
 
 				SUBQ	#2,SP					; make room for a dummy OSErr		<11>
 				_HMBalloonBulk					;									<11>

@@ -966,12 +966,13 @@ IsDialogEvent
 
 			IMPORT		NotOwnActivator			; from DialogMgrExtensions.a									<9>
 			IMPORT		FakeUpEvent				; from DialogMgrExtensions.a									<9>
-			IMPORT		ptchHMGetBalloons		; <SM12> rb
 			
 			BSR 		StdEntry				; Link A6, save regs.
 
-			JSR			ptchHMGetBalloons		; what is the state of What Is? mode?				<SM12> rb, start
-			BEQ.S		@BalloonsOff			; no, let's not scan for a content window
+			CLR		-(SP)						; (ptchHMGetBalloons becomes trap in CDG5)
+			_HMGetBalloons
+			TST.B	(SP)+						; what is the state of What Is? mode?
+			BEQ.S	@BalloonsOff				; no, let's not scan for a content window
 
 			SUBQ		#2,SP					; make space for OsErr
 			_HMTrackModalHelpItems
@@ -1181,10 +1182,11 @@ ModalDialog
 ; begin roll-in ModalDialogSetFlagsAndAddFilter patch													<9>
 
 			IMPORT	StdFilter				; from DialogDispatch.a										<9>
-			IMPORT	ptchHMGetBalloons		;														<SM12> rb
 			
-			JSR		ptchHMGetBalloons		; what is the state of What Is? mode?					<SM12> rb
-			BEQ.S	@BalloonsOff			; no, let's not scan for a content window				<SM12> rb
+			CLR		-(SP)						; (ptchHMGetBalloons becomes trap in CDG5)
+			_HMGetBalloons
+			TST.B	(SP)+						; what is the state of What Is? mode?
+			BEQ.S	@BalloonsOff				; no, let's not scan for a content window
 
 			SUBQ	#2,SP					; make space for OsErr									<SM12> rb
 			_HMTrackModalHelpItems			;														<SM12> rb
