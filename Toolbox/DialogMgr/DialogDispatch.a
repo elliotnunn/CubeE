@@ -608,8 +608,6 @@ kBOCorner		 EQU 	16			; Radius for outline frame
 				tst.b		defaultBtn.kind+1(a6)	; is default button enabled?
 				bpl.s		@patSet					; if so,l just draw
 
-				cmp.w		#$3FFF,ROM85			; if (not on a color system)
-				bhi.s		@bwGrafPort				; 	    or
 				move.w		portVersion(a4),d0 		;
 				and.w		#$C000,d0			 	; 	 (not a color grafport)
 				bne.s		@colorGrafport			;
