@@ -115,7 +115,18 @@ VBLCore 	proc	export
 ; Registers Used: D0,D1,D2,A0,A1													<30Apr85>
 ;_______________________________________________________________________
 
-VInstall	lea 	VBLQueue,a1 		; get address of queue				<1.4>
+VInstall
+
+			lea 	VBLQueue+2,a1
+@loop		move.l	(a1),d1
+			beq.s	@dontflunk
+			move.l	d1,a1
+			cmp.l	a0,a1
+			bne.s	@loop
+			moveq.l	#0,d0
+			rts
+
+@dontflunk	lea 	VBLQueue,a1 		; get address of queue				<1.4>
 
 VInstallCommon							; common code shared with SlotVInstall
 			cmpi.w 	#vType,VBLType(a0)	; is it the proper type?
@@ -197,7 +208,6 @@ PseudoVBLInt
 			jsr		(a1)				; restart time manager task
 			bra.s	BumpTicks			
 VBLInt
-		eieioSTP
 			move.b	#1<<ifCA1,vIFR(a1)	; clear and re-enable vertical retrace interrupts
 		eieioSTP
 BumpTicks
@@ -297,13 +307,36 @@ RunVBLs		lea		qHead-vblink(a1),a0	; setup to fetch head of list
 GetSlotVBLQHdr
 			ext.w	d0					; ignore high byte
 			cmpi.w	#sLastSlot,d0		; check for valid slot #
-			bgt.s	@slotTooBig			; return error if too big
+			bhi.s	@slotTooBig			; return error if too big
 			movea.l	([SlotQDT],d0.w*4,slotVBLPtrs),a1	; point to the VBL queue header
+@return
 			rts							; return with success
 
-@slotTooBig	move.w	#smSlotOOBErr,d0	; return with slot # error
+@slotTooBig	
+			move.l	([$2b6],$260),a1
+			move.l	a1,d1
+			beq.s	@skipthis
+
+			move.l	(a1),d1
+			beq.s	@skipthis
+
+			movem.l	d0/d2/a0,-(sp)
+
+			sub.l	a0,a0
+			move.l	d1,a1
+			move.l	#'vbl ',d1
+			jsr		(a1)
+
+			move.l	a0,a1
+			movem.l	(sp)+,d0/d2/a0
+			move.l	a1,d1
+			bne.s	@return
+
+@skipthis
 			addq.w	#4,sp				; pop the return address
+			move.w	#smSlotOOBErr,d0	; return with slot # error
 			rts							; return to callers caller
+
 			endwith
 
 ;_______________________________________________________________________
@@ -415,7 +448,7 @@ DoVBLTask	bsr.s	GetSlotVBLQHdr		; find the VBL Queue for the slot
 ; Registers Used: A0
 ;_______________________________________________________________________
 
-InitVBLQs		LEA		DoVBLTask,A0			; and save hook to  
+InitVBLQs		LEA.L	DoVBLTask,A0			; and save hook to  
 				MOVE.L	A0,JVBLTask				;  VBL task execute routine
 				CLR.L	ScrnVBLPtr				; init main screen ptr save global
 				RTS								; exit to caller

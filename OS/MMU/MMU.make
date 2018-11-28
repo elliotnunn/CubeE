@@ -22,7 +22,6 @@ MMUObjs 		=					"{ObjDir}MMU.a.o"								∂
 
 "{ObjDir}MMU.a.o"				ƒ	"{ObjDir}StandardEqu.d"							∂
 									"{IntAIncludes}HardwarePrivateEqu.a"			∂
-									"{IntAIncludes}SoundPrivate.a"					∂
 									"{AIncludes}HardwareEqu.a"						∂
 									"{IntAIncludes}MMUEqu.a"						∂
 									"{IntAIncludes}BootEqu.a"						∂

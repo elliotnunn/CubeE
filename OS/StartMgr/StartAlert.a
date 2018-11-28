@@ -396,7 +396,23 @@ DrawBox 	MOVE.L	DSDrawProc,D0			; is a custom dialog draw procedure specified?
 			BSET	#7,DSDrawProc			; make it a one-shot
 			RTS 							; go to it
 
-@StdProc	LEA 	DSAlertRect,A0			; pt A0 at rect
+@StdProc	MOVE	D6,D0
+			BSR.S	FindObject
+			BEQ.S	@old
+
+			CMPI	#12,-2(A0)
+			BLT.S	@old
+			MOVE	10(A0),D0
+			BSR.S	FindObject
+			BEQ.S	@old
+
+			MOVE.L	(A0)+,DSAlertRect
+			MOVE.L	(A0),DSAlertRect+4
+			PEA.L	DSAlertRect
+			BSR		NewAlertFunc
+			ADDQ	#4,SP
+
+@old		LEA 	DSAlertRect,A0			; pt A0 at rect
 			TST.B	(A0)					; is this a system alert? (vs system error?)
 			BPL.S	DrawSysAlert			; yes, draw normal, do _MovePortTo
 
@@ -463,6 +479,56 @@ DrawBox2	MOVE.L	A0, -(SP)				; rect for EraseRect
 			_InsetRect						; put the rect back to normal				<19Mar85>
 			_PenNormal						; put the pen back to normal
 NoButtons 	RTS
+
+
+
+
+NewAlertFunc
+			Link	A6, #-$8
+			MoveM.L	A1-A3, -(A7)
+			MoveA.L	$8(A6), A3
+			Lea.L	-$8(A6), A2
+			MoveA.L	(A5), A0
+			Lea.L	-$74(A0), A0
+			Move.L	(A0)+, (A2)
+			Move.L	(A0), $4(A2)
+			SubQ	#$2, A7
+			Move	(MBarHeight), (A7)
+			Move	(A7)+, D0
+			Add		D0, (A2)
+			Move.L	A3, -(A7)
+			Move	$6(A2), D0
+			Add		$2(A2), D0
+			AsR		#$1, D0
+			Move	D0, -(A7)
+			Move	$6(A3), D0
+			Add		$2(A3), D0
+			AsR		#$1, D0
+			Sub		D0, (A7)
+			Move	(A2), D0
+			Add		$4(A2), D0
+			AsR		#$1, D0
+			Move	D0, -(A7)
+			Move	(A3), D0
+			Add		$4(A3), D0
+			AsR		#$1, D0
+			Sub		D0, (A7)
+			_OffsetRect
+			Move	(A3), D0
+			Sub		(A2), D0
+			Ext.L	D0
+			Neg.L	D0
+			DivS	#$3, D0
+			Move.L	A3, -(A7)
+			Clr		-(A7)
+			Move	D0, -(A7)
+			_OffsetRect
+			MoveM.L	(A7)+, A1-A3
+			Unlk	A6
+			Rts
+
+
+
 
 
 ;---------------------------------------------------------------------------
@@ -683,6 +749,7 @@ CmdLoop		MOVE.L	SP,A0					; Point to event record on stack
 			_OffsetRect 					; offset it
 			BSR 	MBDoErase				; erase it
 
+			MOVE.B	#$20,(A6)
 			MOVE.W	D3,-(SP)				; char width
 			NEG.W	(SP)					; negative movement
 			CLR.W	-(SP)					; delta V = 0
@@ -791,7 +858,7 @@ DMCmd		MOVE.L	#$007001B0,-(SP)		; push BR
 			RTS 							; and return
 
 Print6Hx	SWAP	D0
-			BSR.S	Print2Hx
+			BSR.S	Print4Hx
 			SWAP	D0
 
 Print4Hx	MOVE.W	D0,-(SP)

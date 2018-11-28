@@ -726,7 +726,9 @@ ExitToShell 								 ;									<30Jan85>
 ;			 _CloseResFile
 ;			 CLR.W	 CurApRefNum
 
-			_PMgrExit					; Empty out the palette manager				< 7Jul89>
+			MOVE	#$C, D0				; Empty out the palette manager				< 7Jul89>
+			_PaletteDispatch
+
 			SUB.L	A0,A0				; clear out A0								<30Jan85>
 			_SetGrowZone				; disable application's growZone handler    <30Jan85>
 

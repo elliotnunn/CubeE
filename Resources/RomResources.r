@@ -195,9 +195,6 @@ resource 'rrsc' (10, "Gibbly Guts") {
 	"Gibbly.rsrc",
 
 	{
-		'boot',
-		{ 3 };
-
 		'rovm',
 		{ 0 };
 	}
@@ -247,11 +244,21 @@ resource 'rrsc' (30, "kbd") {
 		'KCHR',
 		{ 0 };
 
+		'vadb',
+		{
+			0 /*ISO Cosmo*/,
+			1 /*JIS Cosmo*/,
+			2 /*ANSI Cosmo*/,
+			3 /*ISO Andy*/,
+			4 /*JIS Andy*/,
+			5 /*ANSI Andy*/
+		};
+
 		'KMAP',
-		{ 0, 2 };
+		{ 0, 2, 27, 198, 199, 200, 204, 205, 206 };
 
 		'KCAP',
-		{ 1,2,4,5 };
+		{ 1,2,4,5,14,16,17,198,199,200,204,205,206 };
 	}
 };
 
@@ -302,16 +309,7 @@ resource 'rrsc' (60, "MiscROMRsrcs") {
 
 	{
 		'accl',
-		{ 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-
-		'pslt',
-		{ gestaltQuadra950,
-		  gestaltPowerBookDuo210, gestaltPowerBookDuo230,
-		  gestaltCyclone33,    gestaltTempest33,
-		  gestaltCentris660AV, gestaltQuadra840AV, 
-		  gestaltPDM50WLCD,    gestaltPDM66WLCD, gestaltPDM80WLCD,
-		  gestaltPDM50L,       gestaltPDM66L,    gestaltPDM80L,
-		  gestaltPDM66F,       gestaltPDM80F,    gestaltPDM100F};
+		{ 0, 1, 2, 4, 5, 6, 7, 8, 9 };
 
 		'ics#',
 		{ -16386 };
@@ -321,6 +319,9 @@ resource 'rrsc' (60, "MiscROMRsrcs") {
 
 		'ics8',
 		{ -16386 };
+
+		'cicn',
+		{ -20023, -20022, -20021, -20020 };
 
 		'clut',
 		{ 5, 9 };
@@ -549,18 +550,6 @@ resource 'rrsc' (200, "DataAccessMgr") {
 };
 
 
-resource 'rrsc' (500, "DictionaryMgr") {
-	kUniversal,
-	AllCombos,
-	{RsrcDir},
-	"DictionaryMgr.rsrc",
-
-	{
-		'dimg',
-		{ -16385 };
-	}
-};
-
 resource 'rrsc' (210, "HelpMgr") {
 	hasSysSevenResources,
 	AllCombos,
@@ -588,18 +577,6 @@ resource 'rrsc' (220, "PictUtilities") {
 	}
 };
 
-resource 'rrsc' (230, "Sony") {
-	kUniversal,
-	AllCombos,
-	{RsrcDir},
-	"Sony.rsrc",
-
-	{
-		'DRVR',
-		{ 4 };
-	}
-};
-
 resource 'rrsc' (240, "SCCIOP") {
 	hasIopScc,
 	AllCombos,
@@ -612,38 +589,14 @@ resource 'rrsc' (240, "SCCIOP") {
 	}
 };
 
-resource 'rrsc' (250, "Serial") {
+resource 'rrsc' (270, "SerialDMA") {
 	kUniversal,
 	AllCombos,
-	{RsrcDir},
-	"Serial.rsrc",
-
-	{
-		'SERD',									/* common IOP/Bypass serial driver */
-		{ 0 };
-	}
-};
-
-resource 'rrsc' (260, "SerialIOP") {
-	hasIopScc,
-	AllCombos,
-	{RsrcDir},
-	"Serial.rsrc",
-
-	{
-		'SERD',									/* port A, B IOP serial drivers */
-		{ 60, 61 };
-	}
-};
-
-resource 'rrsc' (270, "SerialDMA") {
-	hasPSC || hasAMIC,
-	AllCombos,
-	{RsrcDir},
+	{MiscDir},
 	"SerialDMA.rsrc",
 
 	{
-		'SERD',									/* universal driver */
+		'nsrd',
 		{ 1 };
 	}
 };
@@ -952,28 +905,6 @@ resource 'rrsc' (455, "I2CC") {
 	}
 };
 
-resource 'rrsc' (460, "Ethernet") {
-	kUniversal,
-	AllCombos,
-	{MiscDir},																					/* <LW18> */
-	"Ethernet.RSRC",
-
-	{
-/*		'DRVR',								DRVR from Ethernet.RSRC is out-of-date */
-/*		{ 127 };							We want the one from AppleTalk.ROM.RSRC */
-
-		'enet',								/* ENET Driver for LC Ethernet Card */
-		{ 46 };								/* ONLY in ROM to allow ELAN PSD enet card */
-											/* to work when netbooting, ie. before a system */
-											/* file is opened which has a good enet drvr in it,
-											/* on 030 cpus, LCII, etc. */
-
-		'ecfg',								    /* Enet Config resources for new Enet Driver */ /* <LW18> */
-		{ 19, 20, 22, 26, 27, 30, 35, 36,
-		  116,117,118,119,120,121,122,123};		/* Rsrc ID's are gestaltMachineType codes */	/* <LW18> */
-	}
-};
-
 resource 'rrsc' (461, "Ethernet2") {
 	hasMace,
 	AllCombos,
@@ -1011,95 +942,29 @@ resource 'rrsc' (480, "Backlight") {
 	}
 };
 
-// Sound Manager resources
-
-// sifter 'thng' resource IDs
-#define kRate8ResID				-16557
-#define kRate16ResID			-16558
-#define kConverterResID			-16559
-#define kSndSourceResID			-16560
-#define kMixerResID				-16561
-#define kASCResID				-16563
-#define kClassicResID			-16564
-#define kDSPResID				-16565
-#define kMace3ResID				-16566
-#define kMace6ResID				-16567
-#define kCDXAResID				-16576
-#define kAwacsResID				-16569
-#define kAwacsPhoneResID		-16570
-
-// component descriptor string IDs
-#define kRate8StringResID		-16577
-#define kRate16StringResID		-16578
-#define kConverterStringResID	-16579
-#define kSndSourceStringResID	-16580
-#define kMixerStringResID		-16581
-#define kASCStringResID			-16583
-#define kClassicStringResID		-16584
-#define kDSPStringResID			-16585
-#define kMace3StringResID		-16586
-#define kMace6StringResID		-16587
-#define kCDXAStringResID		-16588
-#define kAwacsStringResID		-16569
-#define kAwacsPhoneStringResID	-16571
-
-// sound 'proc' resource IDs
-#define kSoundInputResID		-16497
-#define kPlayFromDiskResID		-16498
-
-// Sound Manager resource IDs
-#define kMeterControlDefID		62
-#define kSoundDriverID			3
-#define kBatmanInputDriverID	-16499
-#define kAwacsInputDriverID		-16500
-#define kPreferenceNameID		-16568
-#define	iWrongOutputSampleRate	-16526
-
-resource 'rrsc' (490, "Sound") {
+resource 'rrsc' (335, "LANDisk") {
 	kUniversal,
 	AllCombos,
-	{RsrcDir},
-	"SoundMgr.rsrc",
+	{MiscDir},
+	"LANDisk.rsrc",
 
 	{
-		'CDEF',
-		{ kMeterControlDefID };
-		
-		'DRVR',
-		{ kSoundDriverID,kBatmanInputDriverID,kAwacsInputDriverID };
-
-		'proc',
-		{ kPlayFromDiskResID, kSoundInputResID };
-
-		'sift',
-		{ kRate8ResID, kRate16ResID, kConverterResID, kSndSourceResID,
-		  kMixerResID, kASCResID, kMace3ResID, kAwacsResID };
-
-		'adio',
-		{ kAwacsPhoneResID };
-
-		'thng',
-		{ kRate8ResID, kRate16ResID, kConverterResID, kSndSourceResID,
-		  kMixerResID, kASCResID, kMace3ResID, kMace6ResID, kAwacsResID, kAwacsPhoneResID };
-
-		'ICON',
-		{ kRate8ResID, kSndSourceResID, kMixerResID, kASCResID, kAwacsPhoneResID };
-
-
-/* re: we'll leave these resources in here so sound will work without a gibbly. They'll be on */
-/* disk too.																				  */
-
-		'STR ',
-		{ kRate8ResID, kRate16ResID, kConverterResID, kSndSourceResID, kMixerResID,
-		  kASCResID, kMace3ResID, kMace6ResID, kPreferenceNameID, kRate8StringResID,
-		  kRate16StringResID, kConverterStringResID, kMixerStringResID, kASCStringResID,
-		  kMace3StringResID, kMace6StringResID, kAwacsStringResID, kAwacsPhoneResID,
-		  kAwacsPhoneStringResID };
+		'dfrg',
+		{ -20722 };
 	}
 };
 
+resource 'rrsc' (435, "BCScreen") {
+	kUniversal,
+	AllCombos,
+	{MiscDir},
+	"BCScreen.rsrc",
 
-// End of SoundMgr items
+	{
+		'ndrv',
+		{ -16515 };
+	}
+};
 
 resource 'rrsc' (501, "EmulatorAccelerations") {
 	hasMixedMode,
@@ -1113,6 +978,20 @@ resource 'rrsc' (501, "EmulatorAccelerations") {
 	}
 };
 
+resource 'rrsc' (599, "Multiprocessing") {
+	hasMixedMode,
+	AllCombos,
+	{MiscDir},
+	"MultiprocessingServices.rsrc",
+
+	{
+		'ncod',
+		{ 2 /*MPLibrary*/ };
+		'nlib',
+		{ 3 /*MPSharedGlobals*/ };
+	}
+};
+
 resource 'rrsc' (502, "GoNative") {
 	hasMixedMode,
 	AllCombos,
@@ -1120,58 +999,24 @@ resource 'rrsc' (502, "GoNative") {
 	"GoNativeResources",
 
 	{
+		'cfrf',
+		{ 0 };
+
 		'ncod',
 		{ 0,1,8 };
 
 		'nlib',
-		{ 5,6,9,10,11,15,16,17,18,19,20 };
+		{
+			5 /*InterfaceLib*/,
+			6 /*PrivateInterfaceLib*/,
+			7 /*BootStdCLib*/,
+			8 /*MathLibGlobals*/,
+			9 /*MathLib*/,
+			10 /*StdCLib*/,
+			-16420 /*Math64Lib*/,
+			-20264 /*CursorDevicesLib*/
+		};
 	}
-};
-
-resource 'rrsc' (504, "Password") {
-	kUnused,
-	AllCombos,
-	{RsrcDir},
-	"MiscROMRsrcs.rsrc",
-
-	{
-		'ICON',
-		{29296}
-	}
-};
-
-resource 'rraa' (105, "TNT Boot beep") {
-
-	hasGrandCentral,
-
-	AllCombos,
-
-	{MiscDir},			/* Path Name */
-	
-	"BootBeep.rsrc",	/* File Name */
-	
-	'beep',				/* Resource Type */  
-	
-	0x0000,				/* Resource ID */
-	
-	0x00200000			 /* ROM Address */
-};
-
-resource 'rraa' (110, "TNT error beep") {
-
-	hasGrandCentral,
-
-	AllCombos,
-
-	{MiscDir},			/* Path Name */
-	
-	"ErrorBeep.rsrc",	/* File Name */
-	
-	'beep',				/* Resource Type */  
-	
-	0x0000,				/* Resource ID */
-	
-	0x00220000			 /* ROM Address */
 };
 
 resource 'rrsc' (503, "DriverServices") {

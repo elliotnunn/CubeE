@@ -27,18 +27,18 @@
 
 StartMgrObjs			=	"{ObjDir}StartTop.a.o"								∂
 							"{ObjDir}StartInit.a.o"								∂
+							"{ObjDir}OpenFirmware.c.o"							∂
+							"{ObjDir}PPCDebuggerNub.c.o"						∂
+							"{ObjDir}PPCDebuggerNub.a.o"						∂
 							"{ObjDir}StartSearch.a.o"							∂
+							"{ObjDir}StartLibGlue.c.o"							∂
 							"{ObjDir}StartBoot.a.o"								∂
 							"{ObjDir}StartFail.a.o"								∂
 							"{ObjDir}StartErr.a.o"								∂
 							"{ObjDir}StartAlert.a.o"
 
 
-StartTestObjs			=	"{ObjDir}USTStartTest.a.o"							∂
-							"{ObjDir}ExceptionSupport.a.o"						∂
-							"{ObjDir}UTEKernel.c.o"								∂
-							"{ObjDir}SONIC_Test.c.o"							∂
-							"{ObjDir}SizeMem.a.o"
+StartTestObjs			=	"{ObjDir}SizeMem.a.o"
 
 
 Boot3Objects			=	"{ObjDir}Boot3.a.o"									∂

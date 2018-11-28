@@ -42,7 +42,6 @@
 			PRINT	OFF
 			LOAD	'StandardEqu.d'
 			INCLUDE	'HardwarePrivateEqu.a'
-			INCLUDE	'SoundPrivate.a'
 			INCLUDE	'UniversalEqu.a'
 		IF PwrMgrADB THEN
 			INCLUDE	'PowerPrivEqu.a'
@@ -81,6 +80,7 @@ ADBPrimitives PROC	EXPORT
 
 		IF ViaADB THEN
 			EXPORT	ViaADBTable
+			DC.W	0									; flags
 			DC.W	(VIATableEnd-ViaADBTable)/4			; number of entries
 ViaADBTable
 			DC.L	VIAInitADB-ViaADBTable				; ADB initialization
@@ -95,6 +95,7 @@ VIATableEnd
 
 		IF PwrMgrADB THEN
 			EXPORT	PMgrADBTable
+			DC.W	0									; flags
 			DC.W	(PMGRTableEnd-PMgrADBTable)/4		; number of entries
 PMgrADBTable
 			DC.L	PMgrInitADB-PMgrADBTable			; ADB initialization
@@ -104,11 +105,24 @@ PMgrADBTable
 			DC.L	PMgrDebugPoll-PMgrADBTable			; DebugUtil ADB polling
 			DC.L	0									; not used
 PMGRTableEnd
+
+			EXPORT	PMgrADBTable2
+			DC.W	0									; flags
+			DC.W	(PMGRTableEnd2-PMgrADBTable2)/4		; number of entries
+PMgrADBTable2
+			DC.L	PMgrInitADB-PMgrADBTable2			; ADB initialization
+			DC.L	PMgrEnableKbdNMI-PMgrADBTable2		; not used
+			DC.L	0									; not used
+			DC.L	0									; not used
+			DC.L	PMgrDebugPoll2-PMgrADBTable2		; DebugUtil ADB polling
+			DC.L	0									; not used
+PMGRTableEnd2
 		ENDIF
 
 
 		IF hasEgret THEN
 			EXPORT	EgretADBTable
+			DC.W	0									; flags
 			DC.W	(EgretTableEnd-EgretADBTable)/4		; number of entries
 EgretADBTable
 			DC.L	EgretInitADB-EgretADBTable			; ADB initialization
@@ -120,6 +134,7 @@ EgretADBTable
 EgretTableEnd
 
 			EXPORT	CudaADBTable
+			DC.W	0									; flags
 			DC.W	(CudaTableEnd-CudaADBTable)/4		; number of entries
 CudaADBTable
 			DC.L	EgretInitADB-CudaADBTable			; ADB initialization
@@ -132,32 +147,43 @@ CudaTableEnd
 		ENDIF
 
 
-		IF IopADB THEN
-			EXPORT	IOPADBTable
-			DC.W	(IOPTableEnd-IOPADBTable)/4			; number of entries
-IOPADBTable
-			DC.L	IOPInitADB-IOPADBTable				; ADB initialization
-			DC.L	0									; not used
-			DC.L	IOPRunKBD-IOPADBTable				; DebugUtil enter
-			DC.L	0									; not used
-			DC.L	IOPRunKBD-IOPADBTable				; DebugUtil ADB polling
-			DC.L	0									; not used
-IOPTableEnd
+			EXPORT	AlphaADBTable
+			DC.W	0								; flags
+			DC.W	(AlphaTableEnd-AlphaADBTable)/4	; number of entries
+AlphaADBTable
+			DC.L	AlphaInitADB-AlphaADBTable		; ADB initialization
+			DC.L	0								; not used
+			DC.L	AlphaDebugEnter-AlphaADBTable	; DebugUtil enter
+			DC.L	AlphaDebugExit-AlphaADBTable	; DebugUtil exit
+			DC.L	AlphaDebugPoll-AlphaADBTable	; DebugUtil ADB polling
+			DC.L	0								; not used
+AlphaTableEnd
 
-		  IF hasOrwell THEN								;											<H2>
-			EXPORT	QuadraADBTable
-			DC.W	(QuadraADBTableEnd-QuadraADBTable)/4; number of entries
-QuadraADBTable
-			DC.L	IOPInitADB-QuadraADBTable			; ADB initialization
-			DC.L	0									; not used
-			DC.L	IOPRunKBD-QuadraADBTable			; DebugUtil enter
-			DC.L	0									; not used
-			DC.L	QuadraDebugPoll-QuadraADBTable		; DebugUtil ADB polling
-			DC.L	QuadraCheckSecure-QuadraADBTable	; check if keyswitch is in SECURE position
-QuadraADBTableEnd
-		  ENDIF
-		ENDIF
 
+			EXPORT	DummyADBTable
+			DC.W	0								; flags
+			DC.W	(DummyTableEnd-DummyADBTable)/4	; number of entries
+DummyADBTable
+			DC.L	DummyInitADB-DummyADBTable		; ADB initialization
+			DC.L	0								; not used
+			DC.L	0								; DebugUtil enter
+			DC.L	0								; DebugUtil exit
+			DC.L	0								; DebugUtil ADB polling
+			DC.L	0								; not used
+DummyTableEnd
+
+
+			EXPORT	BetaADBTable
+			DC.W	0								; flags
+			DC.W	(BetaTableEnd-BetaADBTable)/4	; number of entries
+BetaADBTable
+			DC.L	BetaInitADB-BetaADBTable		; ADB initialization
+			DC.L	0								; not used
+			DC.L	BetaDebugEnter-BetaADBTable		; DebugUtil enter
+			DC.L	BetaDebugExit-BetaADBTable		; DebugUtil exit
+			DC.L	BetaDebugPoll-BetaADBTable		; DebugUtil ADB polling
+			DC.L	0								; not used
+BetaTableEnd
 
 
 		IF ViaADB THEN
@@ -521,10 +547,8 @@ VIAReqDone	MOVE.B	FDBAuFlag(A3),D0		; get the flags
 ;________________________________________________________________________________________
 
 VIADebugPoll
-			JSR		([jCacheFlush])			; Temporary “fix” so that MacsBug works on Q700s. <SM4>
 EgretDebugPoll
 			MOVEA.L	VIA,A1					; point to the VIA
-		eieioSTP
 			BTST	#ifSR,vIFR(A1)			; is the shift register full?
 		eieioSTP
 			BEQ.S	@PollDone				; -> no, just return
@@ -608,7 +632,6 @@ PMgrEnableKbdNMI
 
 PMgrStartReq
 			MOVEA.L	VIA,A1					; point to the base of VIA1
-		eieioSTP
 			MOVE.B	#(0<<ifIRQ)|\
 					 (1<<ifCB1),vIER(A1)	;  and disable the interrupt since it's set
 
@@ -660,7 +683,6 @@ PMgrStartReq
 			_PmgrOp							; send the request to the PMGR
 @DontCall	LEA		pmRBuffer+4+12(SP),SP	; clean up the stack
 
-		eieioSTP
 			MOVE.B	#(1<<ifIRQ)|\
 					 (1<<ifCB1),vIER(A1)	; re-enable PMGR interrupts
 		eieioSTP
@@ -755,10 +777,34 @@ PMgrReqDone	MOVEA.L	ADBBase,A3				; point to ADB globals
 
 PMgrDebugPoll
 			MOVEA.L	VIA,A1					; point to the VIA
-		eieioSTP
 			BTST	#ifCB1,vIFR(A1)			; does the PMgr have some data?
 		eieioSTP
 			BEQ.S	@PollDone				; -> no, just return
+			MOVE.L	Lvl1DT+(4*ifCB1),-(SP)	; get the handler address
+@PollDone	RTS								;  and call the interrupt handler
+
+
+;________________________________________________________________________________________
+;
+; Routine:	PMgrDebugPoll2
+;
+; Inputs:	none
+;
+; Outputs:	none
+;
+; Trashes:	A1
+;
+; Function:	DebugUtil code to check if ADB data is available
+;________________________________________________________________________________________
+
+PMgrDebugPoll2
+			MOVE.L	VIA,D3					; point to the VIA
+			SUB.L	#$16000,D3				; mysterious data check, cf above
+			MOVE.L	D3,A1
+			MOVE.B	$59(A1),D3
+			AND.B	#2,D3
+		eieioSTP
+			BNZ.S	@PollDone				; -> no data, just return
 			MOVE.L	Lvl1DT+(4*ifCB1),-(SP)	; get the handler address
 @PollDone	RTS								;  and call the interrupt handler
 
@@ -850,14 +896,10 @@ EgretStartReq
 
 @ImplicitCompleted
 			MOVEQ	#(1<<EgSRQ),D3			; mask to test for SRQ pending
-		eieioSTP
 			AND.B	(A1)+,D3
-		eieioSTP
 			NEG.L	D3						; set bit 31 if SRQ pending
-		eieioSTP
 			MOVE.B	(A1)+,D3				; get the ADB command byte
 			MOVEQ	#0,D2					; zero extend the length
-		eieioSTP
 			MOVE.W	D0,D2
 			MOVEA.L	A1,A2					; get the buffer pointer
 			BSR		@FillInVars				; setup A3 and ADB globals for ADB Parser
@@ -906,6 +948,11 @@ EgretStartReq
 ;	Egret must check the ADB Device address against the Device Bitmap to see if the device exists.
 ;	If it does not, force Egret to poll the mouse as the MRU device and keyboard as the LRU device.
 ;	This fixes an Egret bug.
+
+			MOVE.L	#EgretFWMask,D1			; don't do this hack for a Cuda!
+			AND.L	UnivROMFlags,D1
+			CMP.L	#Cuda,D1
+			BEQ.S	@ExpDone
 
 			MOVE.W	Devmap(A3),D1			; get the ADB device Bitmap
 			btst.l	D0,D1					; does this device exist?
@@ -973,8 +1020,7 @@ CudaDebugEnter
 ;________________________________________________________________________________________
 
 EgretDebugEnter
-			MOVEQ	#0,D1					; turn off mode 3 clock data packets
-			BRA.S	EgretDebugCommon
+			RTS
 
 
 ;________________________________________________________________________________________
@@ -1012,17 +1058,6 @@ CudaDebugExit
 ;________________________________________________________________________________________
 
 EgretDebugExit
-			MOVEQ	#Mode3Clock,D1			; turn on mode 3 clock data packets
-EgretDebugCommon
-			MOVEQ	#EgretPBSize/2-1,D0
-@ClearPB	CLR.W	-(SP)					; zero all fields in the parameter block
-			DBRA	D0,@ClearPB				; (forces mode 0 and no completion vector)
-			MOVEA.L	SP,A0					; point to the parameter block
-			MOVE.W	#(pseudoPkt<<8)+\
-					 (Wr1SecMode<<0),pbCmdType(A0)	; set up the packet type and command
-			MOVE.B	D1,pbParam(A0)			; turn on/off Mode 3 clock data packets
-			_EgretDispatch					; turn on/off one-second interrupts
-			LEA		EgretPbSize(SP),SP		; clean up the stack
 			RTS
 
 
@@ -1058,232 +1093,633 @@ EgretDebugPDM
 
 
 
-		IF IopADB THEN
-;••••••••••••••••••••••••••••••••••••••••• IOP ••••••••••••••••••••••••••••••••••••••••••
+		IF 1 THEN
+;•••••••••••••••••••••••••••••••••••• Alpha •••••••••••••••••••••••••••••••••••••
 
-			WITH	IOPRequestInfo
 
-			IMPORT	IOPInterrupt
+AlphaNotSureWhatThisIs
+                move.b  ([ExpandMem],$2A0),d3
+                cmpi.b  #$FF,d3
+                beq.s   @return
+                movea.l #$12345678,a0
+                cmpa.l  a0,a1
+                beq.s   @normv
+                movea.l a1,a0
+                _RmvTime
+@normv
+                movem.l d4-d7/a4-a6,-(sp)
+                movea.l ADBBase,a3
+                moveq   #2,d2
+                moveq   #0,d3
+                move.b  ([ExpandMem],$2A0),d3
+                ror.w   #8,d3
+                move.b  #$FF,d3
+                move.w  d3,-(sp)
+                movea.l sp,a2
+                moveq   #0,d3
+                move.b  ([ExpandMem],$2A1),d3
+                ori.l   #$80000000,d3
+                bsr.l   IMPLICITREQUESTDONE
+                lea     2(sp),sp
+                move.b  #$FF,([ExpandMem],$2A0)
+                movem.l (sp)+,d4-d7/a4-a6
+@return
+                rts
+
+
+
+AlphaInitADB
+
+                lea     AlphaStartReq,a0
+                move.l  a0,StartReqProc(a3)
+                movea.l ([$68FFEFD0],$30),a0 ; HWInfo.ADB_Base
+                move.l  a0,DeviceBase(a3)
+                tst.l   a0
+                beq.w   @return
+                move.b  #$C,$100(a0)
+                eieioSTP
+
+
+                move.l  a1,-(sp)
+
+                lea     sub_72C6,a0
+                suba.l  a1,a1
+                moveq   #0,d0
+                move.w  ([$68FFEFD0],$84),d0 ; HWInfo.ADBIntVect
+
+                movem.l d1/a2,-(sp)
+                movea.l ([ExpandMem],$210),a2
+                lea     8(a2),a2
+                moveq   #$40,d1
+@loc_70BE
+                cmp.w   $18(a2),d0
+                beq.s   @loc_70CE
+                OPT NONE
+                adda.w	#32,a2
+                OPT ALL
+                dbra    d1,@loc_70BE
+                bra.s   @loc_70D4
+@loc_70CE
+                move.l  a0,(a2)
+                move.l  a1,4(a2)
+@loc_70D4
+                movem.l (sp)+,d1/a2
+
+                movem.l d0-d2/a0,-(sp)
+                movea.l ([$68FFEFD0],$18),a0
+                tst.l   a0
+                bne.s   @loc_7120
+                movea.l ([$68FFEFF0],$100),a0
+                move.l  #$80000000,d1
+                cmpi.l  #$1F,d0
+                bgt.s   @loc_710E
+                ror.l   d0,d1
+                or.l    d1,$14(a0)
+                eieioSTP
+                bra.w   @loc_7136
+@loc_710E
+                subi.l  #$20,d0
+                ror.l   d0,d1
+                or.l    d1,4(a0)
+                eieioSTP
+                bra.w   @loc_7136
+@loc_7120
+                adda.l  #$10000,a0
+                lsl.l   #5,d0
+                move.l  (a0,d0.w),d1
+                bclr    #7,d1
+                move.l  d1,(a0,d0.w)
+                eieioSTP
+@loc_7136
+                movem.l (sp)+,d0-d2/a0
+
+                movea.l (sp)+,a1
+
+                movea.l DeviceBase(a3),a0
+                clr.b   $E0(a0)
+                eieioSTP
+                bset    #0,$A0(a0)
+                eieioSTP
+@return         rts
 
 
 ;________________________________________________________________________________________
 ;
-; Routine:	IOPInitADB
+; Routine	AlphaStartReq
 ;
-; Inputs:	A3	-	pointer to ADBBase
-;
-; Outputs:	
-;
-; Trashes:	A0,A1
-;
-; Function:	initializes the ADB Manager for IOP based ADB
-;________________________________________________________________________________________
-
-IOPInitADB	LEA		IOPStartReq,A0			; setup the procedure to start an ADB request
-			MOVE.L	A0,StartReqProc(A3)
-
-;	initialize the XmtRequest message (all other fields remain zero)
-		eieioSTP
-			MOVE.B	#ADBIopNum,XmtRequest.irIOPNumber(A3)
-		eieioSTP
-			MOVE.B	#IOPRequestInfo.irSendXmtMessage,XmtRequest.irRequestKind(A3)
-		eieioSTP
-			MOVE.B	#ADBMsgNum,XmtRequest.irMsgNumber(A3)
-		eieioSTP
-			LEA		XmtMsg(A3),A0			; get pointer to message buffer
-		eieioSTP
-			MOVE.L	A0,XmtRequest.irMessagePtr(A3)
-		eieioSTP
-
-;	initialize the RcvRequest message (all other fields remain zero)
-
-		eieioSTP
-			MOVE.B	#ADBIopNum,RcvRequest.irIOPNumber(A3)
-		eieioSTP
-			MOVE.B	#IOPRequestInfo.irWaitRcvMessage,RcvRequest.irRequestKind(A3)
-		eieioSTP
-			MOVE.B	#ADBMsgNum,RcvRequest.irMsgNumber(A3)
-		eieioSTP
-			MOVE.B	#ADBMsg.ADBMsgSize,RcvRequest.irMessageLen(A3)
-		eieioSTP
-			LEA		RcvMsg(A3),A0			; get pointer to message buffer
-		eieioSTP
-			MOVE.L	A0,RcvRequest.irMessagePtr(A3)
-		eieioSTP
-			MOVE.L	A0,RcvRequest.irReplyPtr(A3)
-		eieioSTP
-			LEA		IOPReqDone,A0			; get handler pointer
-		eieioSTP
-			MOVE.L	A0,RcvRequest.irHandler(A3)
-		eieioSTP
-			LEA		RcvRequest(A3),A0		; setup pointer to param block
-		eieioSTP
-			_IOPMsgRequest					; install the Rcv message handler
-		eieioSTP
-			MOVE.B	#IOPRequestInfo.irSendRcvReply,RcvRequest.irRequestKind(A3)
-		eieioSTP
-			RTS
-
-
-;________________________________________________________________________________________
-;
-; Routine:	IOPStartReq
-;
-; Inputs:	A2	-	pointer to transmit data buffer
+; Inputs	A2	-	pointer to transmit data buffer
 ;			A3	-	pointer to ADBBase
 ;			D2	-	number of bytes of transmit data
 ;			D3	-	command byte (bits 0-7) + implicit flag (bit 31)
 ;
-; Outputs:	A3	-	pointer to ADBBase
-;
-; Trashes:	A0,A1,A2,D0,D1,D2
-;
-; Function:	sends an ADB request to the IOP and asynchronously waits for a reply
-;________________________________________________________________________________________
-
-IOPStartReq	MOVEQ	#ADBMsg.ADBData-ADBMsg+2,D0	; length of msg preceeding data +2 for implicit
-			ADD.B	D2,D0						; d0 := length of message buffer
-		eieioSTP
-			BCLR	#fDBUseRcvMsg,fDBAuFlag(A3)	; see which buffer/message to use
-		eieioSTP
-			BNE.S	@useRcv						; if rcv available, use it
-
-@useXmt		LEA		XmtRequest(A3),A0		; get the iop xmt request param block
-			LEA		XmtMsg(A3),A1			; use the xmt message buffer
-		eieioSTP
-			MOVE.B	D0,irMessageLen(A0)		; setup the message length
-		eieioSTP
-			BRA.S	@fillInReq				; fill in the remaining fields and exit
-
-@useRcv		LEA		RcvRequest(A3),A0		; get the iop rcv request param block
-			LEA		RcvMsg(A3),A1			; use the rcv message buffer
-		eieioSTP
-			MOVE.B	D0,irReplyLen(A0)		; setup the reply length
-		eieioSTP
-
-@fillInReq	
-		eieioSTP
-			MOVE.W	#(((1<<PollEnable)\		; setup ADBMsg.Flags, enable polling, assume implicit
-					+(1<<SetPollEnables))<<8)\	; indicate that DevMap is being passed
-					+2,Flags(A1)			; setup ADBMsg.DataCount = 2 (DevMap is 2 bytes long)
-		eieioSTP
-			TST.L	D3						; see if implicit
-		eieioSTP
-			BMI.S	@implicit				; if implicit, ADBCmd is ignored, send DevMap
-
-		eieioSTP
-			CLR.W	Flags(A1)				; setup ADBMsg.Flags, implicit, idle, DataCount
-		eieioSTP
-			BSET	#fDBExpActive,fDBAuFlag(A3)	; remember that an explicit command has been sent
-		eieioSTP
-			BNE.S	@SendToIOP				; if it had already been sent, just go idle
-
-		eieioSTP
-			MOVE.B	#(1<<ExplicitCmd),(A1)+	; setup ADBMsg.Flags, explicit command
-		eieioSTP
-			MOVE.B	D2,(A1)+				; setup ADBMsg.DataCount
-		eieioSTP
-			MOVE.B	D3,(A1)+				; setup ADBMsg.ADBCmd
-		eieioSTP
-			BRA.S	@copyStart				; start the copy
-		eieioSTP
-@copyLoop	
-		eieioSTP
-			MOVE.B	(A2)+,(A1)+				; copy into the message buffer one byte at a time
-		eieioSTP
-@copyStart	
-		eieioSTP
-			DBRA	D2,@copyLoop			; loop for all bytes
-		eieioSTP
-
-@SendToIOP	MOVEA.L	jIOPMsgRequest,A2		; get the OSTrap table entry
-			JMP		(A2)					; _IOPMsgRequest send the message (Asynchronously), return
-
-@implicit	
-		eieioSTP
-			MOVE.W	DevMap(A3),ADBData(A1)	; pass the Polling Enable bit map
-		eieioSTP
-			BRA.S	@SendToIOP				; pass it to the IOP
-
-
-;________________________________________________________________________________________
-;
-; Routine:	IOPReqDone
-;
-; Inputs:	A2	-	pointer to receive data buffer
+; Outputs	A1	-	pointer to base of VIA1
 ;			A3	-	pointer to ADBBase
-;			D2	-	number of bytes of receive data
-;			D3	-	command byte (bits 0-7) + SRQ flag (bit 31)
 ;
-; Outputs:	A3	-	pointer to ADBBase
-;
-; Trashes:	A0,A1,A2,A3,D0,D1,D2,D3
-;
-; Function:	completion routine for servicing messages received from the IOP
+; Function	starts an ADB request using the VIA interface to the ADB transceiver processor
 ;________________________________________________________________________________________
 
-IOPReqDone	MOVEA.L	ADBBase,A3			; point to ADB globals in low memory
-		eieioSTP
-			MOVE.B	RcvMsg.Flags(A3),D0	; get flags telling what interrupt occurred
-			MOVEQ	#(1<<SRQReq),D3		; mask to test for SRQ pending
-			AND.B	D0,D3				; isolate the bit
-			NEG.L	D3					; set bit 31 if SRQ pending
-		eieioSTP
-			MOVE.B	RcvMsg.ADBCmd(A3),D3; get command that completed
-		eieioSTP
 
-;	keep the ADB Parser program happy by updating the following variables
-;	They are not used by this implementation, but we fill them in with approximate
-;	values to make the tool happy.
+AlphaStartReq   movea.l DeviceBase(a3),a1
+                tst.l   a1
+                bnz.s   @have_adb_hardware
+                moveq   #0,d2
+                movea.l d2,a2
+                bset    #7,fDBAuFlag(a3)
+                tst.l   d3
+                bmi.s   @earlyreturn ; implicit request with no hardware
+                bra.l   EXPLICITREQUESTDONE
 
-		eieioSTP
-			MOVE.B	D3,fDBCmd(A3)		; last ADB command
-		eieioSTP
-			MOVE.B	D3,pollCmd(A3)		; assume that it was a poll command
-		eieioSTP
-			MOVE.B	D2,D2				; copy the command zzz should this be move.b d3,d2?
-			LSR.B	#4,D2				; get the address
-		eieioSTP
-			MOVE.B	D2,pollAddr(A3)		; assume that it was a poll address
+@have_adb_hardware
+                tst.l   d3
+                bpl.s   loc_71B8
+                btst    #2,fDBAuFlag(a3)
+                bne.s   @earlyreturn
+                bclr    #6,fDBAuFlag(a3)
+                beq.s   @loc_7194
+                move.b  PollAddr(a3),d3
+                lsl.b   #4,d3
+                ori.b   #$C,d3
+                moveq   #0,d2
+                bset    #1,fDBAuFlag(a3)
+                bra.s   loc_71B8
+@loc_7194
+                moveq   #0,d0
+                move.w  DevMap(a3),d0
+                move.b  d0,$100(a1)
+                eieioSTP
+                lsr.w   #8,d0
+                move.b  d0,$F0(a1)
+                eieioSTP
+                bset    #7,fDBAuFlag(a3)
+                bset    #0,$E0(a1)
+                eieioSTP
 
-			MOVEQ	#0,D2				; zero extend the length
-		eieioSTP
-			MOVE.B	RcvMsg.DataCount(A3),D2	; get length of receive data
-		eieioSTP
-			LEA		RcvMsg.ADBData(A3),A2	; point to the data buffer
-		eieioSTP
-			BSET	#fDBUseRcvMsg,fDBAuFlag(A3)	; use the receive buffer for the reply
-			BTST	#ExplicitCmd,D0		; see if explicit or implicit
-			BEQ.L	ImplicitRequestDone	; if implicit
-		eieioSTP
-			BCLR	#fDBExpActive,fDBAuFlag(A3)	; remember that it has completed
-		eieioSTP
-			BRA.L	ExplicitRequestDone	; if explicit
+@earlyreturn    rts
+
+loc_71B8
+
+                btst    #2,fDBAuFlag(a3)
+                bne.s   loc_7204
+                lea     $1A1(a3),a0
+                andi.w  #$FF,d2
+                addq.b  #1,d2
+                move.b  d2,(a0)+
+                move.b  d3,(a0)+
+                subq.b  #2,d2
+                bmi.s   loc_71D8
+
+loc_71D2
+                move.b  (a2)+,(a0)+
+                dbra    d2,loc_71D2
+
+loc_71D8
+                bset    #0,$D0(a1)
+                eieioSTP
+                bclr    #0,$E0(a1)
+                eieioSTP
+                bclr    #7,fDBAuFlag(a3)
+
+loc_71EE
+                btst    #1,(a1)
+                bne.s   loc_71FC
+                btst    #0,(a1)
+                beq.s   loc_71EE
+                rts
+
+loc_71FC
+                bset    #2,fDBAuFlag(a3)
+                bsr.s   sub_7242
+loc_7204
+
+; Spin for 2ms
+                moveq   #2,d1
+@two_msec       move.w  TimeDBRA,d0
+@one_msec       btst    #0,(a1)
+                bne.s   locret_7240
+                dbra    d0,@one_msec
+                dbra    d1,@two_msec
+
+
+                moveq   #0,d2
+                move.l  d2,d3
+                move.b  $1A2(a3),d3
+                movea.l d2,a2
+                bclr    #2,fDBAuFlag(a3)
+                btst    #1,fDBAuFlag(a3)
+                beq.l   EXPLICITREQUESTDONE
+                bclr    #1,fDBAuFlag(a3)
+                bra.l   IMPLICITREQUESTDONE
+
+locret_7240
+                rts
+
+
+
+sub_7242
+
+; FUNCTION CHUNK AT ROM0002B47E SIZE 00000036 BYTES
+
+                clr.b   $C0(a1)
+                eieioSTP
+                move.b  d3,d0
+                andi.b  #$F,d0
+                bne.s   loc_7282
+                bclr    #0,$D0(a1)
+                eieioSTP
+                bclr    #1,(a1)
+                eieioSTP
+                bset    #3,$D0(a1)
+                eieioSTP
+
+loc_7266
+                btst    #3,$D0(a1)
+                bne.s   loc_7266
+                lea     4(sp),sp
+
+loc_7272
+                moveq   #0,d2
+                movea.l d2,a2
+                bclr    #2,fDBAuFlag(a3)
+                bra.l   EXPLICITREQUESTDONE
+
+loc_7282
+                lea     $1A1(a3),a2
+                moveq   #0,d0
+                move.b  (a2)+,d0
+                move.b  d0,$B0(a1)
+                eieioSTP
+                subq.b  #1,d0
+                lea     (a1),a0
+
+loc_7294
+                lea     $10(a0),a0
+                move.b  (a2)+,(a0)
+                eieioSTP
+                dbra    d0,loc_7294
+                move.b  d3,d0
+                andi.b  #$C,d0
+                cmpi.b  #$C,d0
+                bne.s   loc_72B0
+                moveq   #6,d0
+                bra.s   loc_72B8
+
+loc_72B0
+                moveq   #2,d0
+                lea     loc_7272,a0
+                move.l  a0,(sp)
+
+loc_72B8
+                move.b  d0,$D0(a1)
+                eieioSTP
+                bclr    #1,(a1)
+                eieioSTP
+                rts
+; End of function sub_7242
+
+
+
+
+sub_72C6
+
+
+; FUNCTION CHUNK AT ROM0002B47E SIZE 00000036 BYTES
+
+                movea.l ADBBase,a3
+                movea.l DeviceBase(a3),a1
+                tst.l   a1
+                beq.s   locret_72DC
+                btst    #0,(a1)
+                bne.s   loc_72DE
+                clr.b   (a1)
+                eieioSTP
+
+locret_72DC
+                rts
+
+loc_72DE
+                moveq   #0,d3
+                move.l  d3,d1
+                move.b  $10(a1),d3
+                move.b  $C0(a1),d1
+                eieioSTP
+                clr.b   $C0(a1)
+                eieioSTP
+                btst    #0,d1
+                bne.s   loc_7300
+                btst    #1,d1
+                beq.s   loc_731C
+                bra.s   loc_7308
+
+loc_7300
+                move.b  d3,fDBCmd(a3)
+                move.b  d3,$16E(a3)
+
+loc_7308
+                clr.b   $163(a3)
+                moveq   #$10,d2
+                suba.l  a2,a2
+                and.b   $B0(a1),d2
+                clr.b   $B0(a1)
+                eieioSTP
+                bra.s   loc_7386
+
+loc_731C
+                lea     $1AE(a3),a2
+                moveq   #$1F,d2
+                and.b   $B0(a1),d2
+                move.b  d3,(a2)+
+                move.b  d3,d0
+                lsr.b   #4,d0
+                andi.l  #$F,d0
+                btst    #5,fDBFlag(a3)
+                bne.s   loc_7354
+                btst    #2,d1
+                beq.s   loc_7354
+                bset    #6,fDBAuFlag(a3)
+                move.w  DevMap(a3),d1
+
+loc_734A
+                addq.b  #1,d0
+                andi.b  #$F,d0
+                btst    d0,d1
+                beq.s   loc_734A
+
+loc_7354
+                move.b  d0,PollAddr(a3)
+                moveq   #$10,d1
+                and.b   d2,d1
+                bclr    #4,d2
+                clr.b   $163(a3)
+                subq.b  #1,d2
+                move.b  d2,$163(a3)
+                move.b  d2,d0
+                or.b    d1,d2
+                subq.b  #1,d0
+                bmi.s   loc_7386
+                movea.l a2,a0
+                move.l  a1,d1
+                lea     $20(a1),a1
+
+loc_737A
+                move.b  (a1),(a0)+
+                lea     $10(a1),a1
+                dbra    d0,loc_737A
+                movea.l d1,a1
+
+loc_7386
+                bclr    #0,(a1)
+                eieioSTP
+                bclr    #4,d2
+                bne.l   IMPLICITREQUESTDONE
+                bclr    #2,fDBAuFlag(a3)
+                bclr    #1,fDBAuFlag(a3)
+                bne.l   IMPLICITREQUESTDONE
+                bra.l   EXPLICITREQUESTDONE
+; End of function sub_72C6
+
+
+
+AlphaDebugPoll
+
+                movea.l ADBBase,a1
+                movea.l DeviceBase(a1),a1
+                tst.l   a1
+                beq.s   locret_73C4
+                btst    #0,(a1)
+                beq.s   locret_73C4
+                pea     sub_72C6
+
+locret_73C4
+
+                rts
+
+
+AlphaDebugEnter
+
+                movea.l ADBBase,a0
+                movea.l DeviceBase(a0),a1
+                tst.l   a1
+                beq.s   locret_73E2
+                bset    #0,$E0(a1)
+                eieioSTP
+                bne.s   locret_73E2
+                bset    #6,fDBAuFlag(a0)
+
+locret_73E2
+
+                rts
+
+AlphaDebugExit
+
+                movea.l ADBBase,a0
+                movea.l DeviceBase(a0),a1
+                tst.l   a1
+                beq.s   locret_7400
+                bclr    #6,fDBAuFlag(a0)
+                beq.s   locret_7400
+                bclr    #0,$E0(a1)
+                eieioSTP
+
+locret_7400
+
+                rts
+		ENDIF								; {1, Alpha}
+
+
+
+		IF 1 THEN
+;•••••••••••••••••••••••••••••••••••• Dummy •••••••••••••••••••••••••••••••••••••
 
 
 ;________________________________________________________________________________________
 ;
-; Routine:	IOPRunKBD
-;
-; Inputs:	
-;
-; Outputs:	
-;
-; Trashes:	
-;
-; Function:	code to handle keyboard polling in a debugger
+; Routine:	DummyInitADB
 ;________________________________________________________________________________________
 
-IOPRunKBD	MOVE.L	#(%00001000<<24)+\		; allow xmt msg 3
-					(%00001000<<16)+\		; allow rcv msg 3
-					(0<<8)+\				; this byte must be zero
-					1,d0					; ADB is on SWIM IOP (IOP 1)
-			BRA.L	IOPInterrupt			; go handle the interrupt
+DummyInitADB
+                movea.l ADBBase,a3
+                lea     loc_7410,a0
+                move.l  a0,$130(a3)
+                rts
+loc_7410
+                moveq   #0,d2
+                movea.l d2,a2
+                tst.l   d3
+                bmi.s   locret_741E
+                bra.l   EXPLICITREQUESTDONE
+locret_741E
+                rts
+		ENDIF								; {1, Dummy}
 
 
-			ENDWITH							; {IOPRequestInfo}
 
-		ENDIF								; {IopADB}
+		IF 1 THEN
+;•••••••••••••••••••••••••••••••••••• Beta •••••••••••••••••••••••••••••••••••••
+
+
+;_______________________________________________________________________________________
+;
+; Routine:	BetaInitADB
+;
+; Inputs:	Does not assume that A3 points to ADBBase, because called from InitADB!
+;_______________________________________________________________________________________
+
+				export  BetaInitADB ; for direct ADB Manager call
+BetaInitADB
+                lea     loc_7560,a0
+                move.l  a0,([ExpandMem],$298)
+                lea     BetaADBTable,a0 ; yes, my parent table!
+                movea.l UnivInfoPtr,a1
+                suba.l  a1,a0
+                move.l  a0,$48(a1)
+                movea.l ADBBase,a3
+                bclr    #5,fDBFlag(a3)
+                lea     loc_744E,a0
+                move.l  a0,$130(a3)
+                rts
+
+loc_744E
+                movem.l d0-d3/a3-a4,-(sp)
+                tst.l   ([ExpandMem],$294)
+                beq.s   loc_746E
+                movea.l ([ExpandMem],$294),a1
+                jsr     (a1)
+                cmpi.l  #$FFFFFFFF,d0
+                bne.s   loc_74AC
+
+loc_746E
+                move.w  ([ExpandMem],$2A0),d0
+                cmpi.w  #$1234,d0
+                bne.s   loc_7486
+                movea.l ([ExpandMem],$2A0),a0
+                bra.s   loc_749C
+
+loc_7486
+                tst.l   ([ExpandMem],$29C)
+                beq.s   loc_74AC
+                movea.l ([ExpandMem],$29C),a1
+                moveq   #3,d0
+                jsr     (a1)
+
+loc_749C
+                movem.l (sp)+,d0-d3/a3-a4
+                tst.l   a0
+                beq.s   locret_74AA
+                movea.l ADBBase,a3
+                jsr     (a0)
+
+locret_74AA
+                rts
+
+loc_74AC
+
+                movea.l d0,a2
+                movem.l (sp)+,d0-d3/a3-a4
+                moveq   #0,d2
+                move.b  (a2)+,d2
+                bra.l   EXPLICITREQUESTDONE
+
+
+;_______________________________________________________________________________________
+;
+; Routine:	BetaDebugPoll
+;_______________________________________________________________________________________
+
+BetaDebugPoll
+                tst.l   ([ExpandMem],$290)
+                beq.s   loc_74D8
+                movem.l d1-d2/a0-a1,-(sp)
+                movea.l ([ExpandMem],$290),a1
+                jsr     (a1)
+                movem.l (sp)+,d1-d2/a0-a1
+
+loc_74D8
+                tst.l   ([ExpandMem],$29C)
+                beq.s   locret_74F8
+                movea.l ([ExpandMem],$29C),a1
+                moveq   #4,d0
+                jsr     (a1)
+                move.l  $10(a0),d0
+                beq.s   locret_74F8
+                adda.l  d0,a0
+                jsr     (a0)
+
+locret_74F8
+
+                rts
+
+
+;_______________________________________________________________________________________
+;
+; Routine:	BetaDebugEnter
+;_______________________________________________________________________________________
+
+BetaDebugEnter
+                tst.l   ([ExpandMem],$29C)
+                beq.s   locret_7530
+                movea.l ([ExpandMem],$29C),a1
+                moveq   #4,d0
+                jsr     (a1)
+                move.l  8(a0),d0
+                beq.s   loc_751A
+                adda.l  d0,a0
+                jsr     (a0)
+
+loc_751A
+                tst.l   ([ExpandMem],$29C)
+                beq.s   locret_7530
+                movea.l ([ExpandMem],$29C),a1
+                moveq   #1,d0
+                jsr     (a1)
+
+locret_7530
+
+                rts
+
+
+;_______________________________________________________________________________________
+;
+; Routine:	BetaDebugExit
+;_______________________________________________________________________________________
+
+BetaDebugExit
+                tst.l   ([ExpandMem],$29C)
+                beq.s   locret_755E
+                movea.l ([ExpandMem],$29C),a1
+                moveq   #2,d0
+                jsr     (a1)
+                movea.l ([ExpandMem],$29C),a1
+                moveq   #4,d0
+                jsr     (a1)
+                move.l  $C(a0),d0
+                beq.s   locret_755E
+                adda.l  d0,a0
+                jsr     (a0)
+
+locret_755E
+
+                rts
+
+loc_7560
+                movea.l #$12345678,a0
+                cmpa.l  a0,a1
+                beq.s   loc_758C
+                movea.l a1,a0
+                _RmvTime
+                movea.l ADBBase,a3
+                lea     $1AC(a3),a2
+                move.b  #2,(a2)+
+                move.b  #$35,(a2)+
+                move.b  #$FF,(a2)+
+                lea     $1AC(a3),a2
+                move.l  #$8000002C,d3
+
+loc_758C
+                movea.l ADBBase,a3
+                moveq   #0,d2
+                move.b  (a2)+,d2
+                bra.l   IMPLICITREQUESTDONE
+		ENDIF								; {1, Beta}
 
 
 

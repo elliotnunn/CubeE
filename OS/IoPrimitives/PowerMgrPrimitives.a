@@ -148,7 +148,6 @@
 			PRINT	OFF				
 			LOAD	'StandardEqu.d'
 			INCLUDE	'HardwarePrivateEqu.a'
-			INCLUDE	'SoundPrivate.a'
 			INCLUDE	'UniversalEqu.a'
 			INCLUDE	'PowerPrivEqu.a'
 			INCLUDE	'PowerMgrDispatchEqu.a'
