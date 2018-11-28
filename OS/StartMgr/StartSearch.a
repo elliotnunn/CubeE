@@ -281,6 +281,8 @@ FindStartupDevice	PROC	EXPORT
 			BSR		LoadSCSIDrivers				; Load all the drivers we can
 			BSR		WaitForPollDrive			; Wait until the boot drive has warmed up
 			BRA.S	@FirstEntry					; First time through: keep original goal
+			BSR		LoadATADrivers
+
 
 @NextPass
 		IF hasPwrControls THEN					;													<SM7>
@@ -311,6 +313,33 @@ FindStartupDevice	PROC	EXPORT
 			BEQ.S	@NoChange					; -> yes, keep looking for floppies
 			LEA		IsItAnything,A3				; no, from now on, any device will do
 @NoChange
+
+			Move.L	D7, D7
+			BNE.B	@twenty_six
+			SubA.L	A0, A0
+			_InternalWait
+			BNE.B	@skip_blah
+			MoveQ.L	#$19, D0
+@skip_blah
+			MulU	#$3C, D0
+			Add.L	-$56(A4), D0
+			Cmp.L	(Ticks), D0
+			BCS.B	@twenty_six
+			MoveQ.L	#$F, D0
+			Add.L	(Ticks), D0
+@before_cmp
+			Cmp.L	(Ticks), D0
+			BCC.B	@before_cmp
+			Bra.B	@after_less_stuff
+@twenty_six
+			MoveQ.L	#$1, D7
+			Lea.L	IsItAnything, A3
+@after_less_stuff
+			IMPORT	ATAMgr_5d940
+			Bsr.L	ATAMgr_5d940
+@after_stuff
+
+
 			BSR		LoadSCSIDrivers				; load more drivers if we can
 
 @TryAgain
@@ -609,6 +638,78 @@ LoadSCSIDrivers
 			move.l	(sp)+,a0					; restore a0
 			move.l	(sp)+,d6					; restore d6									<LW3>pdw
 			RTS
+
+
+
+
+LoadATADrivers
+			BTst.B	#$7, ($B23)
+			BEQ		@L3
+			MoveM.L	D1-D7/A0-A6, -(A7)
+			Move	D4, -$8(A4)
+			Move.L	-$C(A4), D5
+			Move.L	#$FF, D2
+			Move.L	D5, D1
+			AndI	#$F800, D1
+			CmpI	#$2000, D1
+			BEQ.B	@L0
+			AndI.L	#$FFFF00FF, D3
+			CmpI	#$FFCA, D5
+			BEQ.B	@L0
+			Bra.B	@L2
+@L0			_DisableDynWait
+			_GetTimeOut
+			BNE.B	@L1
+			MoveQ.L	#$19, D0
+@L1			Move.L	D0, -(A7)
+			MoveQ.L	#$0, D0
+			Move.B	-$9(A4), D0
+			LsL		#$8, D0
+			Move.B	-$C(A4), D0
+			Move.L	D0, -(A7)
+			IMPORT	ATAMgr_5d9b0
+			BSR.L	ATAMgr_5d9b0
+			AddQ	#$8, A7
+			CmpI	#$0, D0
+			BEQ.B	@L2
+			Move	D0, -$8(A4)
+			IMPORT	ATAMgr_5d940
+@L2			BSR.L	ATAMgr_5d940
+			MoveM.L	(A7)+, D1-D7/A0-A6
+			Move	-$8(A4), D4
+@L3			Rts
+
+
+
+PostATA
+			MoveM.L	D0-D3/A0-A2, -(A7)
+			MoveA.L	([$2B6],$288), A2
+
+			Move.L	A2, D0
+			BEQ.B	@return
+			Move	$6(A2), D1
+			MoveQ.L	#$0, D2
+
+@loop		MoveA.L	$14(A2,D2.L), A1
+			Move.L	A1, D0
+			BEQ.B	@return
+			Move	$C8(A1), D0
+
+			Clr		D3
+			Cmp		D3, D0
+			BEQ.B	@skip
+			MoveA.L	$C4(A1), A0
+			Move.L	A0, D0
+			BEQ.B	@return
+			Jsr		(A0)
+			Bra.B	@return
+			
+@skip		AddQ	#$4, D2
+			SubQ	#$1, D1
+			BNE.B	@loop
+
+@return		MoveM.L	(A7)+, D0-D3/A0-A2
+			Rts
 
 
 ;________________________________________________________________________________________
