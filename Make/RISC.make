@@ -235,7 +235,8 @@ Features		=	hasRISCV0ResMgrPatches					∂
 					ForROM
 
 
-ResourceFiles	=	"{RsrcDir}CQD.rsrc"						∂
+ResourceFiles	=	"{MiscDir}ATAMgr.rsrc"					∂
+					"{RsrcDir}CQD.rsrc"						∂
 					"{RsrcDir}DeclData"						∂
 					"{MiscDir}DriverServices.rsrc"			∂
 					"{RsrcDir}EDisk.rsrc"					∂

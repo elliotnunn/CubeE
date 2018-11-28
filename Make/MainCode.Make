@@ -69,6 +69,7 @@ MainCodeLibs = 												∂
 				"{LibDir}DisplayMgr.lib"					∂
 				"{LibDir}WindowMgr.lib"						∂
 				"{LibDir}MenuMgr.lib"						∂
+				"{LibDir}ATAMgr.lib"						∂
 				"{ObjDir}DeviceMgr.a.o"						∂
 #															∂
 #	DispatchHelper and DialogMgr.lib need to be colocated	∂
