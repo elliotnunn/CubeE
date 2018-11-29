@@ -290,6 +290,22 @@ pascal long goComponentRegister(long theComponent ) = ComponentCallNow( kCompone
 pascal long goComponentUnregister(long theComponent ) = ComponentCallNow( kComponentUnregisterSelect,0);
 
 
+// (CDG5) moved up here for no obvious reason
+long RegisteredComponentPointerToComponentID(register RegisteredComponent *rt)		/* should be a macro */
+	{																				/* don't let valid components be negative */
+	return rt ? ( rt - ComponentManagerGlobals->rtTable + ((long)rt->rtEntryUseCount<<16) ) : 0;
+	}
+
+
+// (CDG5) moved up here for no obvious reason
+long ComponentInstancePointerToComponentInstanceID(register RegisteredComponentInstance *rti)		/* should be a macro */
+	{
+	return rti ? ( rti - ComponentManagerGlobals->rtInstanceTable + ((long)rti->rtiEntryUseCount<<16) ) : 0;
+	}
+
+
+
+
 // Gestalt proc for returning the version of the installed Component Mgr
 pascal OSErr GestaltComponentMgrVersion(OSType selector, long* responsePtr)
 {
@@ -499,12 +515,6 @@ void BumpModificationSeed( register long *pSeed )
 pascal long __GetComponentListModSeed( )
 	{
 	return ComponentManagerGlobals->rtModSeed;
-	}
-
-
-long RegisteredComponentPointerToComponentID(register RegisteredComponent *rt)		/* should be a macro */
-	{																				/* don't let valid components be negative */
-	return rt ? ( rt - ComponentManagerGlobals->rtTable + ((long)rt->rtEntryUseCount<<16) ) : 0;
 	}
 
 
@@ -1186,14 +1196,6 @@ pascal OSErr __CloseComponentResFile( short refnum )
 RegisteredComponentInstance *ComponentInstanceIDToComponentInstancePointer( register long t )		/* should be a macro */
 	{
 	return ( ComponentManagerGlobals->rtInstanceTable + (t & 0xffff) );
-	}
-
-
-
-
-long ComponentInstancePointerToComponentInstanceID(register RegisteredComponentInstance *rti)		/* should be a macro */
-	{
-	return rti ? ( rti - ComponentManagerGlobals->rtInstanceTable + ((long)rti->rtiEntryUseCount<<16) ) : 0;
 	}
 
 
