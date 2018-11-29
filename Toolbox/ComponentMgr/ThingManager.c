@@ -782,8 +782,10 @@ pascal Component __RegisterComponentResource(ComponentResource **htr, short glob
 	long	version = 0;
 	short	platformType;
 
+	if (global & 0x80) TempInsertROMMap(true);
+
 	GetResInfo((Handle)htr, &resID, &resType, wastedName);			// don't need the name under system 7
-	if (result = ResError()) return 0;
+	if (ResError()) return 0;
 
 	saveState = HGetState((Handle)htr);
 	HLock((Handle)htr);
@@ -830,15 +832,20 @@ pascal Component __RegisterComponentResource(ComponentResource **htr, short glob
 				new->rtFlags |= rtfHasIconSuite;
 			}
 
+		if (global & 0x80) {
+			new->rtFileNumber = -1;
+		} else {
 		new->rtFileNumber = AddComponentResFile( (Handle)htr );
 		if ( new->rtFileNumber < 0)
 			{
 #ifdef	WARHOL_DEBUG
 			Debugger();						/* should never fail (can fail if no memory and couldn't get a file id)*/
 #endif
+			new->rtFileNumber = -2;
 			UnregisterComponent(result);
 			return 0;
 			}
+		}
 		componentRoutine = NewHandleSys(0);
 		EmptyHandle(componentRoutine);
 
@@ -862,6 +869,10 @@ pascal Component __RegisterComponentResource(ComponentResource **htr, short glob
 				{
 				UnregisterComponent(result);
 				return 0;
+				}
+			else
+				{
+				new = ComponentIDtoRegisteredComponentPointer(result);
 				}
 
 		// scan the Component table for possible duplicates and kill the older one(s) (if auto versioning on)
@@ -900,16 +911,62 @@ pascal long __RegisterComponentResourceFile(short resRefNum, short global)
 	{
 		register short count, i;
 
-		if ((count = Count1Resources(kComponentResourceType)) > 0)
+		// ALL of the new variable definitions
+		short listResCount; short j, k; Handle subhdl; short elCnt;
+
+		short resID; // -$0112(A6)
+		OSType resType; // -$0116(A6)
+		Str255 wastedName; // -$0110(A6)
+
+		// (CDG5) First load component resources in the order specified
+		// by any 'thn#' resources, which are arrays of (type, id).
+		listResCount = Count1Resources('thn#');
+		for (j=1; j<=listResCount; j++)
+		{
+			hdl = Get1Resource('thn#', j);
+			if (hdl)
+			{
+				elCnt = GetHandleSize(hdl) / 6;
+				for (k=0; k<elCnt; k++)
+				{
+					subhdl = Get1Resource(*(OSType *)(*hdl + 6*k), *(short *)(*hdl + 6*k + 4));
+					if (subhdl)
+					{
+						if (RegisterComponentResource((ComponentResource **)subhdl, global))
+						{
+							err++;
+						}
+					}
+				}
+			}
+		}
+
+		// (CDG5) the original loop with a twist...
+		count = Count1Resources(kComponentResourceType);
 		{
 			for (i=1; i<=count; i++)
 			{
 				hdl = Get1IndResource(kComponentResourceType, i);
 				if (hdl)
 					{
+										if (listResCount) {
+											GetResInfo(hdl, &resID, &resType, wastedName);
+											for (j=1; j<=listResCount; j++) {
+												subhdl = Get1IndResource('thn#', j);
+												if (subhdl) {
+													elCnt = GetHandleSize(subhdl) / 6;
+													for (k=0; k<elCnt; k++) {
+														if (*(OSType *)(*hdl + 6*k) == resType && *(short *)(*hdl + 6*k + 4) == resID) {
+															goto alreadyDoneResource;
+														}
+													}
+												}
+											}
+										}
 					if (RegisterComponentResource((ComponentResource **)hdl, global))
 						err++;						/* we registered something */
 					}
+										alreadyDoneResource:;
 			}
 		}
 	}
