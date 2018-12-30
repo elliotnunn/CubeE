@@ -819,7 +819,7 @@
 
 //__________________________________________________________________________________________________
 // version
-
+#define SysVersion "7"
 	#define VersionString \
 		"Macintosh System version " SysVersion "\n\n\n" \
 		"© Apple Computer, Inc. 1983-1991\n" \
@@ -827,9 +827,9 @@
 
 	resource 'STR ' (0) { VersionString };
 
-	resource 'vers' (1) {
-		LIntVers, LangInt, SysVersion, SysVersion", © Apple Computer, Inc. 1983-1991"
-	};
+//	resource 'vers' (1) {
+//		LIntVers, LangInt, SysVersion, SysVersion", © Apple Computer, Inc. 1983-1991"
+//	};
 
 	resource 'BNDL' (0) {
 		'MACS', 0, {
@@ -893,9 +893,9 @@
 //__________________________________________________________________________________________________
 // startup stuff
 
-	IncSys "BootBlocks.a.rsrc" codeAs 'boot' (1, sysHeap, protected);
-	IncSys "StartSystem.a.rsrc" codeAs 'boot' (2, sysHeap, locked);
-	IncSys "BootCode.a.rsrc" codeAs 'boot' (3, sysHeap, locked);
+	IncSys "Boot1.a.rsrc" codeAs 'boot' (1, sysHeap, protected);
+	IncSys "Boot2.a.rsrc" codeAs 'boot' (2, sysHeap, locked);
+	IncSys "Boot3.a.rsrc" codeAs 'boot' (3, sysHeap, locked);
 	IncSys "LinkedPatchLoader.a.rsrc" codeAs 'lodr' (-16385, sysHeap, locked);
 	IncSys "DiskCache.a.rsrc" codeAs 'ptch' (41, sysHeap, locked);
 	resource 'STR ' (-16501, sysHeap, purgeable) { "A/ROSE" };
@@ -953,7 +953,7 @@
 	// Picasso Macintosh icon (loaded by System Error Handler)
 
 	resource 'cicn' (-16396, purgeable) {
-		{0, 0, 32, 32}, 4,			// bounds, bits per pixel
+		16, {0, 0, 32, 32}, 4,			// bounds, bits per pixel
 	// mask
 		$"0007FF80 00080000 00087E20 00080120"
 		$"00080120 04080120 0C080120 08080120"
@@ -1118,18 +1118,20 @@
 
 	IncSys "BeforePatches.a.rsrc" codeAs 'PTCH' (0, sysHeap, locked);
 
+/*
 	IncSys "PatchPlusROM.a.rsrc" codeAs 'PTCH' (MacPlus, sysHeap, locked);
 	IncSys "PatchSEROM.a.rsrc" codeAs 'PTCH' (MacSE, sysHeap, locked);
 	IncSys "PatchIIROM.a.rsrc" codeAs 'PTCH' (MacII, sysHeap ,locked);
 	IncSys "PatchPortableROM.a.rsrc" codeAs 'PTCH' (Portable, sysHeap, locked);
 	IncSys "PatchIIciROM.a.rsrc" codeAs 'PTCH' (Mac32, sysHeap, locked);
+*/
 
 //__________________________________________________________________________________________________
 // INITs
 
 	IncSys "ParityINIT.a.rsrc" codeAs 'INIT' (10, sysHeap, locked);
 
-	IncSys "EDiskShutdownPtch.a.rsrc" codeAs 'INIT' (12, sysHeap, locked);
+//	IncSys "EDiskShutdownPtch.a.rsrc" codeAs 'INIT' (12, sysHeap, locked);
 	
 	
 	resource 'mcky' (0, sysHeap, purgeable) { { 255, 255, 255, 255, 255, 255, 255, 255 } };
@@ -1151,7 +1153,7 @@
 //__________________________________________________________________________________________________
 // Alias Mgr (includes Folder Mgr)
 
-	IncSys "AliasMgr.rsrc";
+//	IncSys "AliasMgr.rsrc";
 
 // Folder Mgr folder list
 	resource 'fld#' (0, sysHeap, purgeable) { {
@@ -1175,23 +1177,6 @@
 	// IncSys "AppleTalk.rsrc" not 'vers';
 	// IncSys "ADSP.rsrc" not 'vers';
 	// IncSys "Responder.rsrc" not 'vers';
-
-	resource 'STR#' ($BFE8, sysheap, locked) { {
-		"Your system has been placed in AppleTalk zone “",
-
-		"”.  "
-		"To select a different zone, please click the Network icon in the Control Panel, "
-		"then click the selected AppleTalk connection icon.",
-
-		"Access to your AppleTalk internet has now become available.  To use "
-		"the internet, please click the Network icon in the Control Panel, "
-		"then click the selected AppleTalk connection icon.",
-
-		"An unexpected change in your AppleTalk internet has interrupted network access.  "
-		"To resume network use, please click the "
-		"Network icon in the Control Panel, "
-		"then click the selected AppleTalk connection icon.",
-	} };
 
 	resource 'ALRT' ($BFE9, purgeable) {
 		{80, 116, 205, 417}, $BFE9, beepStages, alertPositionMainScreen
@@ -1223,36 +1208,16 @@
 		{13, 60, 118, 294}, StaticText { disabled, "^0" };
 	} };
 
-	resource 'STR#' ($BFEC, purgeable) { {
-		"Router",
-
-		"The Router could not run.  "
-		"A driver for one of the AppleTalk connections can not be found.  "
-		"The built-in LocalTalk port will be used for your AppleTalk connection.",
-
-		"The Router could not run.  "
-		"An error occured while installing a driver for one of the AppleTalk connections.  "
-		"The built-in LocalTalk port will be used for your AppleTalk connection.",
-
-		"The Router could not run.  "
-		"The Router file was not found.  "
-		"Please reinstall the Router.",
-
-		"The Router could not run.  "
-		"The Router file is damaged.  "
-		"Please reinstall the Router.",
-	} };
-
 //__________________________________________________________________________________________________
 // Backlight Driver
 
-	IncSys "Backlight.rsrc" not 'vers';
+//	IncSys "Backlight.rsrc" not 'vers';
 
 //__________________________________________________________________________________________________
 // BitEdit
 
 #if hasBitEdit
-	IncSys "BitEdit.a.rsrc" codeAs 'PACK' (1, sysHeap, purgeable);
+//	IncSys "BitEdit.a.rsrc" codeAs 'PACK' (1, sysHeap, purgeable);
 #endif
 
 //__________________________________________________________________________________________________
@@ -1297,7 +1262,7 @@ resource 'PICT' (-16387) {
 //__________________________________________________________________________________________________
 // Color Picker
 
-	IncSys "ColorPicker.p.rsrc" codeAs 'PACK' (12, sysHeap, purgeable);
+//	IncSys "ColorPicker.p.rsrc" codeAs 'PACK' (12, sysHeap, purgeable);
 	#include $$Shell("ColorPicker")"ColorPicker.r"			// why are these includes???
 	#include $$Shell("ColorPicker")"ColorPickerWedge.r"		// they should be in line to speed up Rez
 
@@ -1333,7 +1298,7 @@ resource 'PICT' (-16387) {
 	IncSys 	"Choose.r.rsrc" 'CNTL' (CTB_ChooseCNTLID) as 'CNTL' (CTB_ChooseCNTLID, sysHeap, purgeable);
 	IncSys 	"Choose.r.rsrc" 'MENU' (CTB_ChooseMENUID) as 'MENU' (CTB_ChooseMENUID, sysHeap);
 
-	IncSys 	"StandardNBP.p.rsrc" codeAs CTB_NuLookupType (CTB_NuLookupID, sysHeap, purgeable, locked);
+//	IncSys 	"StandardNBP.p.rsrc" codeAs CTB_NuLookupType (CTB_NuLookupID, sysHeap, purgeable, locked);
 	IncSys 	"StandardNBPHelp.r.rsrc" 'hdlg' (CTB_NulookuphdlgID) as 'hdlg' (CTB_NulookuphdlgID, sysHeap, purgeable);
 	IncSys 	"StandardNBP.r.rsrc" 'DLOG' (CTB_NulookupDLOGID) as 'DLOG' (CTB_NulookupDLOGID, sysHeap, purgeable);
 	IncSys 	"StandardNBP.r.rsrc" 'DITL' (CTB_NulookupDITLID) as 'DITL' (CTB_NulookupDITLID, sysHeap, purgeable);
@@ -1954,7 +1919,7 @@ resource 'STR#' (glyphNameResID, purgeable) { {
 //__________________________________________________________________________________________________
 // Gestalt
 
-	IncSys "Gestalt.rsrc" codeAs 'ptch' (5, sysHeap, locked);
+//	IncSys "Gestalt.rsrc" codeAs 'ptch' (5, sysHeap, locked);
 
 //__________________________________________________________________________________________________
 // pslt • Nubus pseudo-slot mapping definitions
@@ -2093,7 +2058,7 @@ resource 'pslt' (gestaltEclipse33, purgeable) {
 //__________________________________________________________________________________________________
 // Icon Utilities
 
-	IncSys "IconUtils.rsrc";
+//	IncSys "IconUtils.rsrc" // this somehow survives as a linked patch -- how, I cannot say
 	IncSys "GenericIcons.rsrc";
 
 //__________________________________________________________________________________________________
@@ -2121,14 +2086,14 @@ resource 'pslt' (gestaltEclipse33, purgeable) {
 
 	IncSys "International.rsrc" 'kcs#' (0) as 'kcs#' (0, sysHeap, purgeable);
 	IncSys "International.rsrc" 'kcs4' (0) as 'kcs4' (0, sysHeap, purgeable);
-	IncSys "International.rsrc" 'kcs8' (0) as 'kcs8' (0, sysHeap, purgeable);
+//	IncSys "International.rsrc" 'kcs8' (0) as 'kcs8' (0, sysHeap, purgeable);
 	IncSys "International.rsrc" 'kcs#' (-16491) as 'kcs#' (-16491, sysHeap, purgeable);
 	IncSys "International.rsrc" 'kcs4' (-16491) as 'kcs4' (-16491, sysHeap, purgeable);
-	IncSys "International.rsrc" 'kcs8' (-16491) as 'kcs8' (-16491, sysHeap, purgeable);
+//	IncSys "International.rsrc" 'kcs8' (-16491) as 'kcs8' (-16491, sysHeap, purgeable);
 	IncSys "International.rsrc" 'STR#' (-16491) as 'STR#' (-16491, sysHeap, purgeable);
 	IncSys "International.rsrc" 'hmnu' (-16491) as 'hmnu' (-16491, sysHeap, purgeable);	// Keyboard menu help strings	<185>
-	IncSys "International.rsrc" 'DLOG' (-16491) as 'DLOG' (-16491, sysHeap, purgeable);	// About Keyboards…				<208>
-	IncSys "International.rsrc" 'DITL' (-16491) as 'DITL' (-16491, sysHeap, purgeable);	// About Keyboards…				<208>
+//	IncSys "International.rsrc" 'DLOG' (-16491) as 'DLOG' (-16491, sysHeap, purgeable);	// About Keyboards…				<208>
+//	IncSys "International.rsrc" 'DITL' (-16491) as 'DITL' (-16491, sysHeap, purgeable);	// About Keyboards…				<208>
 	IncSys "International.rsrc" 'DLOG' (-16492) as 'DLOG' (-16492, sysHeap, purgeable);	// About Keyboards…				<208>
 	IncSys "International.rsrc" 'DITL' (-16492) as 'DITL' (-16492, sysHeap, purgeable);	// About Keyboards…				<208>
 
@@ -2537,9 +2502,11 @@ resource 'ppci' (-16409)
 //__________________________________________________________________________________________________
 // Process Mgr
 
-	IncSys "Scheduler.rsrc";
+//	IncSys "Scheduler.rsrc";
 	IncSys "DAHandler.rsrc";
 
+// the line below is naughty
+#if 0
 //__________________________________________________________________________________________________
 // SANE
 
@@ -3614,4 +3581,5 @@ resource 'ALRT' (-16414, sysheap, purgeable) {
 		OK, visible, sound1
 	}
 };
+#endif
 #endif

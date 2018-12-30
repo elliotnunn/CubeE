@@ -1,0 +1,37 @@
+temporary segment correspondences
+
+Orig    New     Name
+-16470  -16470  jump table
+-16469  -16469  init
+-16468  -16468  main
+-16467  -16464  zone_tools
+-16466  -16461  zone32_tools
+-16465  -16462  zone24_tools
+-16464  -16467  kernel_segment
+-16463  -16463  %A5Init (come back to this one later!)
+-16462  -16466  eppc_segment
+-16461  -16465  Debugger
+
+-16470  jump table
+-16469  init
+-16468  main
+-16467  kernel_segment
+-16466  eppc_segment
+-16465  Debugger
+-16464  zone_tools
+-16463  %A5Init (come back to this one later!)
+-16462  zone24_tools
+-16461  zone32_tools
+
+Switch.a.o lives entirely in the kernel_segment, thankfully
+
+
+error.a: Main
+osdispatch.a: Main
+processmgrmisc.a: Main, kernel_segment, **INIT**
+zoomrect.a: Main
+switch.a: kernel_segment
+startup.c: INIT, main, kernel_segment, eppc_segment, INIT
+
+okay, is there a magic incantation to force the segment order???
+yes, there probably is!

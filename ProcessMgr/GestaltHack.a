@@ -1,0 +1,21 @@
+	case	on
+	seg		'Main'
+a	proc	export
+	seg		'INIT'
+b	proc	export
+	seg		'zone_tools'
+c	proc	export
+	seg		'zone32_tools'
+d	proc	export
+	seg		'zone24_tools'
+e	proc	export
+	seg		'kernel_segment'
+f	proc	export
+	seg		'%A5Init'
+g	proc	export
+	seg		'eppc_segment'
+h	proc	export
+	seg		'Debugger'
+i	proc	export
+
+	end

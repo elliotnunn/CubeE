@@ -150,4 +150,6 @@ debugger(StringPtr message)
 /*	_Debugger
  */
  
+pascal OSErr MyGestalt(OSType selector,long *response);
+
 #endif __GLUE__

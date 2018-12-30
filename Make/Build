@@ -108,6 +108,10 @@
 			Set BuildSet "{BuildSet} {1}"
 			Shift; Continue
 		End
+		If "{1}" =~ /"Sys"/					# Build LC930?		
+			Set BuildSet "{BuildSet} {1}"
+			Shift; Continue
+		End
 		If "{1}" !~ /-≈/					# Target?		
 			Set Targets "{Targets} {1}"
 			Shift; Continue
@@ -279,6 +283,12 @@
 			Set MakeFile	"{Sources}Make:dbLite.Make"				
 			
 			Set MakeOut		"{Sources}BuildResults:dbLite:Text:MakeOut"
+			
+		Else If "{Build}" =~ /Sys/
+						
+			Set MakeFile	"{Sources}Make:Sys.Make"				
+			
+			Set MakeOut		"{Sources}BuildResults:Sys:Text:MakeOut"
 			
 		Else
 			Alert "Error: Unknown build “{Build}”"

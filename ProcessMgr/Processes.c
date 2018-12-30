@@ -742,7 +742,7 @@ CreateProcess(InternalLaunchPBPtr pParams, PEntryPtr pNewProc, PEntryPtr pLaunch
 	BlockMove(pCode0->jt, (Ptr)currenta5 + pCode0->jtoffset, pCode0->jtsize);
 
 	/* Now that things are set up, we can release segment 0 */
-	if (SAVESEGHANDLE != nil)
+	/* <12C> removed a test of SAVESEGHANDLE from here */
 		ReleaseResource(SAVESEGHANDLE);
 
 	/* Try to set APPLLIMIT to ssize below current stack.  We get an error if this

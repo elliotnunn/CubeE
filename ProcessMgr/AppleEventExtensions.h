@@ -112,7 +112,7 @@ typedef struct MyAppleEventReply {
 void			TranslateAppleEvent(MFmsgBlkPtr, OSErr *);
 AETFParameter *	FindKeywordParameter(AETFHeader *, unsigned long, unsigned long);
 void			NextListParam(AETFDescriptor **);
-void			ExamineDocList(AETFHeader *, unsigned long, AETFDescriptor *, short *);
+void			ExamineDocList(AETFHeader *, unsigned long, AETFDescriptor **, short *);
 OSErr			FileIDToAppFile(AETFDescriptor *, AppFile *, short *, long *);
 AppParmRecHdl	NewAppParmHandle(Size);
 void			NextAppFile(AppFile **);

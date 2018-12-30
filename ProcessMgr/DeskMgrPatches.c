@@ -65,7 +65,7 @@
 #include <files.h>
 #include <segload.h>
 #include <devices.h>
-#include <sound.h>
+//#include <sound.h>
 #include <MFPrivate.h>
 #include <MenuMgrPriv.h>
 #include <ResourceMgrPriv.h>
@@ -136,7 +136,7 @@ CheckUnitTableEntry(short resourceID)
 	register DCtlPtr	dCtlPtr;
 	DCtlHandle			dCtlHdl;
 	OSErr				result;
-	
+
 	result = noErr;
 	dCtlHdl = (DCtlHandle) UNITTABLE[resourceID];
 	if ( (dCtlHdl != nil) && ((dCtlPtr = *dCtlHdl) != nil) && ((dCtlPtr->dCtlFlags & DOpened) != 0) )

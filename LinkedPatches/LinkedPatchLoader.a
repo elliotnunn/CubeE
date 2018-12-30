@@ -305,9 +305,6 @@
 		include 'LinkedPatchMacros.a'
 		print pop
 
-_GetTrapWordAddress						opword	$A546				; *** move into Traps.a
-_SetTrapWordAddress						opword	$A447				; *** move into Traps.a
-
 dsLinkedPatchReferenceTooFar			equ		97					; *** move into SysErr.a
 
 k32BitCQDTrap							equ		$AB03				; trap number for 32-bit QuickDraw

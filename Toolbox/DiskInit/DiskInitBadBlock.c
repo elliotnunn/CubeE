@@ -98,10 +98,6 @@
 #include <HFSDefs.h>
 #include <Disks.h>
 
-typedef	unsigned long	ulong;				/* idiosyncrasy of the author */
-typedef	unsigned short	ushort;
-typedef	unsigned char	uchar;
-
 #define	BUFSIZE		18				/* test buffer size, in sectors (mb >=18) */ 
 							/* 18 is bad 'cause it's greater than a track (KSCT) */
 #define	CLUMP		1				/* coallesce badspots only if they are contig */

@@ -9,6 +9,7 @@ ControlMgrDir 				= "{ToolBoxDir}ControlMgr:"
 DataAccessDir 				= "{ToolBoxDir}DataAccessMgr:"
 DialogDir 					= "{ToolBoxDir}DialogMgr:"
 DictionaryMgrDir			= "{ToolBoxDir}DictionaryMgr:"
+DiskInitDir 				= "{ToolBoxDir}DiskInit:"
 DisplayMgrDir 				= "{ToolBoxDir}DisplayMgr:"
 EditionMgrDir				= "{ToolBoxDir}DataPubsMgr:"
 ExpansionBusMgrDir 			= "{ToolBoxDir}ExpansionBusMgr:"
@@ -108,3 +109,43 @@ ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 										"{AIncludes}PrPrivate.a"					∂
 										"{PrintingDir}PrintGlue.a"
 	Asm {StdAOpts} -o "{Targ}" "{PrintingDir}PrintGlue.a"
+
+"{RsrcDir}DiskInit.rsrc"			ƒ	"{RIncludes}Types.r"						∂
+										"{RIncludes}BalloonTypes.r"					∂
+										"{ObjDir}DiskInit.a.rsrc"					∂
+										"{ObjDir}DiskInitHFS.a.rsrc"				∂
+										"{DiskInitDir}DiskInit.r"
+	Rez {StdROpts} -o {Targ} "{DiskInitDir}DiskInit.r"
+
+DiskInitObjs						=	"{ObjDir}DiskInit.a.o"						∂
+										"{ObjDir}DiskInitBadBlock.c.o"				∂
+										"{IfObjDir}Interface.o"
+
+"{ObjDir}DiskInit.a.rsrc"			ƒ	{DiskInitObjs}
+	Link {StdLOpts} {StdAlign} -rt RSRC=0 -o {Targ} {DiskInitObjs}
+
+"{ObjDir}DiskInitHFS.a.rsrc"		ƒ	"{ObjDir}DiskInitHFS.a.o"
+	Link {StdLOpts} {StdAlign} -rt RSRC=0 -o {Targ} "{ObjDir}DiskInitHFS.a.o"
+
+"{ObjDir}DiskInit.a.o"				ƒ	"{ObjDir}StandardEqu.d"						∂
+										"{IntAIncludes}HardwarePrivateEqu.a"		∂
+										"{AIncludes}SonyEqu.a"						∂
+										"{AIncludes}Packages.a"						∂
+										"{AIncludes}Balloons.a"						∂
+										"{DiskInitDir}DiskInit.a"
+	Asm {StdAOpts} -d SonyNonPortable=1 -o {Targ} "{DiskInitDir}DiskInit.a"
+
+"{ObjDir}DiskInitHFS.a.o"			ƒ	"{ObjDir}StandardEqu.d"						∂
+										"{IntAIncludes}HardwarePrivateEqu.a"		∂
+										"{AIncludes}SonyEqu.a"						∂
+										"{DiskInitDir}DiskInitHFS.a"
+	Asm {StdAOpts} -o {Targ} "{DiskInitDir}DiskInitHFS.a"
+
+"{ObjDir}DiskInitBadBlock.c.o"		ƒ	"{CIncludes}Errors.h"						∂
+										"{CIncludes}Files.h"						∂
+										"{CIncludes}Devices.h"						∂
+										"{CIncludes}Memory.h"						∂
+										"{IntCIncludes}HFSDefs.h"					∂
+										"{CIncludes}Disks.h"						∂
+										"{DiskInitDir}DiskInitBadBlock.c"
+	C {StdCOpts} -o {Targ} "{DiskInitDir}DiskInitBadBlock.c"

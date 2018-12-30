@@ -242,7 +242,7 @@ DeCompressor
 
 ; do a robustness check to see if the handle really seems to be compacted.
 
-				Cmp.L	#RobustnessData,ResHeader.signiture(A0) ;is it really an extended resource?
+				Cmp.L	#RobustnessData,ResHeader.signature(A0) ;is it really an extended resource?
 				BEQ.S	@TestHeaderVersion
 
 				MoveM.L (SP)+,D3-D7/A4-A5		;restore the regs, but don't pop them yet.
@@ -617,7 +617,7 @@ SkipOldRead
 
 ; do a robustness check to see if the handle really seems to be compacted.
 
-						Cmp.L	#RobustnessData,ResHeader.signiture(A0) ;is it really an extended resource?
+						Cmp.L	#RobustnessData,ResHeader.signature(A0) ;is it really an extended resource?
 						MoveM.L (SP)+,D1/A0
 						UNLK	A6								; <17>
 						BNE.S	JumpOldRead 					;didn't match, then just do old sizersrc.

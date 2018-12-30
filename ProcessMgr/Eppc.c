@@ -206,7 +206,9 @@
 #include <Errors.h>
 #include <MFPrivate.h>
 #include <Memory.h>
-#include <MemoryMgrPriv.h>
+#pragma parameter MoveHLow(__A0)
+pascal void MoveHLow(Handle h)
+ = 0xA09D; 
 #include <PPCToolBox.h>
 #include <AppleEventsInternal.h>
 #include <Errors.h>

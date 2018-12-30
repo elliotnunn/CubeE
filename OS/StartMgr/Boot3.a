@@ -798,8 +798,8 @@ CheckFor040CacheInhibit								; <5> SAM
 
 ; Install the new dispatcher for systems that need it.
 
-			import	InstallDispatch
-			jsr		InstallDispatch
+;			import	InstallDispatch
+;			jsr		InstallDispatch
 
 ;——————————————————————————————————————————————————————————————————————————————————————————————————
 

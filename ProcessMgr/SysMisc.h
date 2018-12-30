@@ -222,6 +222,17 @@ typedef struct JTEntry {
 	void			(*routinePC)();
 } JTEntry;
 
+#define	SYS_VERSION								'1793'
+#define	SYS_SEGMENT_TYPE						'scod'
+#define	NULLPROC_SIGNATURE						'TWIT'
+#define	DAH_SEGMENT_ZERO						-16479
+#define	DAH_SIZE_RESOURCE_ID					-16471
+#define	SYS_PUPPET_STRING_RSRC_TYPE				'TWIT'
+#define	SYS_PUPPET_STRING_RSRC_ID				-16458
+#define	COLOR_LOMEMTAB_ID						-16458
+#define	BW_LOMEMTAB_ID							-16459
+#define	LOMEM_TAB_TYPE							'lmem'
+
 #define CODE_ENTRY_UNLOADED(pCodeEntry)			((pCodeEntry)->pea == PEA)
 #define	FNC_PTR_UNLOADED(pFnc)					(CODE_ENTRY_UNLOADED((CodeEntry *)(pFnc)))
 #define	GET_SEGMENT_ID_FROM_FNC_PTR(pFnc)		(((CodeEntry *)pFnc)->segID)

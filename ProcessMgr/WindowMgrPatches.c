@@ -71,7 +71,7 @@ c_initwindows(void)
 		DSWNDUPDATE |= ((char)0x80);
 
 		SetPort(WMGRPORT);
-		DESKPATTERN = **GetPattern(deskPatID);
+		DESKPATTERN = **GetPattern(deskPatID); // Somehow this becomes a BlockMove! How?
 		ShowCursor();
 
 		olda5 = ProcessMgrA5SimpleSetup();

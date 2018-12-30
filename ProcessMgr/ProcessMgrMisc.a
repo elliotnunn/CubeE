@@ -1759,4 +1759,21 @@ MNGSaveRegs		REG			d0-d1/a0-a2					; working registers
 		
 				ENDPROC
 
+
+				SEG			'INIT'
+
+;---------------------------------------------------------------------------------------
+; "MyGestalt", resurrected, because it survived through to 7.1.1
+
+MYGESTALT		PROC		EXPORT
+
+				MOVE.L		8(SP),D0
+				_Gestalt
+				MOVE.L		4(SP),A1
+				MOVE.L		A0,(A1)
+				MOVE.L		(SP)+,A0
+				LEA.L		8(SP),SP
+				MOVE.W		D0,(SP)
+				JMP			(A0)
+
 				END
