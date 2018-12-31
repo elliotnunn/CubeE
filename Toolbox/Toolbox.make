@@ -119,7 +119,8 @@ ToolboxObjs	= 						"{ObjDir}PackageMgr.a.o"						∂
 
 DiskInitObjs						=	"{ObjDir}DiskInit.a.o"						∂
 										"{ObjDir}DiskInitBadBlock.c.o"				∂
-										"{IfObjDir}Interface.o"
+										"{IfObjDir}Interface.o"						∂
+										"{Libraries}Runtime.o"						∂
 
 "{ObjDir}DiskInit.a.rsrc"			ƒ	{DiskInitObjs}
 	Link {StdLOpts} {StdAlign} -rt RSRC=0 -o {Targ} {DiskInitObjs}
