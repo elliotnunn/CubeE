@@ -7,10 +7,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM5>	 10/6/93	SAM		The QDExtensions macros were not setting the upper word of the
-;									selector (what contains the param count for each routine).  This
-;									confused the native dispatcher.  The macros have been updated to
-;									contain the full longword of info in D0.
 ;	   <SM4>	 10/13/92	CSS		Nop calls if the machine doesn't support 24 bit mode
 ;									(SwapMMUMode and StripAddress).
 ;		 <8>	 7/26/92	DTY		Add fast traps for DeviceLoop and GetGray to get the ROM
@@ -1098,115 +1094,115 @@ selectGetGray			equ		25
 		
 				MACRO
 				_NewGWorld
-				MOVE.L	#$160000,D0
+				MOVEQ	#$0,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_LockPixels
-				MOVE.L	#$40001,D0
+				MOVEQ	#$1,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_UnlockPixels
-				MOVE.L	#$40002,D0
+				MOVEQ	#$2,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_UpdateGWorld
-				MOVE.L	#$160003,D0
+				MOVEQ	#$3,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_DisposeGWorld
-				MOVE.L	#$40004,D0
+				MOVEQ	#$4,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_GetGWorld
-				MOVE.L	#$80005,D0
+				MOVEQ	#$5,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_SetGWorld
-				MOVE.L	#$80006,D0
+				MOVEQ	#$6,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_CTabChanged
-				MOVE.L	#$40007,D0
+				MOVEQ	#$7,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_PixPatChanged
-				MOVE.L	#$40008,D0
+				MOVEQ	#$8,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_PortChanged
-				MOVE.L	#$40009,D0
+				MOVEQ	#$9,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_GDeviceChanged
-				MOVE.L	#$4000A,D0
+				MOVEQ	#$A,D0
 				_QDExtensions
 				ENDM
 		
 				MACRO
 				_AllowPurgePixels
-				MOVE.L	#$4000B,D0
+				MOVEQ	#$B,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_NoPurgePixels
-				MOVE.L	#$4000C,D0
+				MOVEQ	#$C,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_GetPixelsState
-				MOVE.L	#$4000D,D0
+				MOVEQ	#$D,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_SetPixelsState
-				MOVE.L	#$8000E,D0
+				MOVEQ	#$E,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_GetPixBaseAddr
-				MOVE.L	#$4000F,D0
+				MOVEQ	#$F,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_NewScreenBuffer
-				MOVE.L	#$E0010,D0
+				MOVEQ	#$10,D0
 				_QDExtensions
 				ENDM
 				
 				MACRO
 				_DisposeScreenBuffer
-				MOVE.L	#$40011,D0
+				MOVEQ	#$11,D0
 				_QDExtensions
 				ENDM
 		
 				MACRO
 				_GetGWorldDevice
-				MOVE.L	#$40012,D0
+				MOVEQ	#$12,D0
 				_QDExtensions
 				ENDM
 		
@@ -1214,7 +1210,7 @@ selectGetGray			equ		25
 		
 				MACRO
 				_QDDone
-				MOVE.L	#$40013,D0
+				MOVEQ	#$13,D0
 				_QDExtensions
 				ENDM
 		
