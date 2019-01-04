@@ -14,7 +14,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;		<SM2>	10/22/92	CSS		Change short branches to word branches.
 ;		<14>	 4/11/91	gbm		csd, KSM, BRC#86464: Fix many references to the control
 ;									rectangle which are invalid because the control handle can be
 ;									unlocked.
@@ -159,7 +158,7 @@ FrameSize		EQU	 -58
 
 			CMP.W	#$3FFF,ROM85		; do we have color QD?
 			SLS		IsColor(A6)			; set boolean depending on color or B&W system
-			BHI		@BWSys				; no, this system has B&W QD <SM2> CSS 
+			BHI.S	@BWSys				; no, this system has B&W QD
 
 ; save the current port’s colors and textMode						<C59/30Jun86> DAF
 
