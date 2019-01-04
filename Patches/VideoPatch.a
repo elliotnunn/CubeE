@@ -474,14 +474,16 @@ ROMMinVer		Equ		$12								; Offset from ROMBase to RAM Major version word.
 				Beq.s	StartDAFB						;	then start doing DAFB stuff.
 				Cmp.b	#boxQuadra900,D0				; If this is an Eclipse,					<7>
 				Beq.s	StartDAFB						;	then start doing DAFB stuff.
-				Cmp.b	#boxZydeco,D0					; If this is a Zydeco (Eclipse 33),
+				Cmp.b	#boxQuadra950,D0				; If this is a Zydeco (Eclipse 33),
 				Beq.s	StartDAFB						;	then start doing DAFB stuff.
 				Bra		AllDone							; Otherwise, just go home.
 
 StartDAFB		
 				Move.l	A3,A0							; Get spBlock ptr into A0.
 				Clr.b	spSlot(A0)						; We only care about Slot $0.
+				Clr.b	spId(A0)
 				Clr.b	spExtDev(A0)					; (No external device.)
+				Clr.b	spTBMask(A0)
 				Move.w	#catDisplay,spCategory(A0)		; Look for:	Display,
 				Move.w	#typVideo,spCType(A0)			;  			Video,
 				Move.w	#drSwApple,spDrvrSW(A0)			;  			Apple,
@@ -970,6 +972,7 @@ StartJMFB
 				Move.b	D3,spSlot(A0)					; Set the slot number to search in.
 				Clr.b	spId(A0)						; Begin at id 0.
 				Clr.b	spExtDev(A0)					; No external device.
+				Clr.b	spTBMask(A0)
 				Move.w	#catDisplay,spCategory(A0)		; Look for:	Display,
 				Move.w	#typVideo,spCType(A0)			;  			Video,
 				Move.w	#drSwApple,spDrvrSW(A0)			;  			Apple,

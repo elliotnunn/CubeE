@@ -4631,7 +4631,7 @@ linkSize	DS.B		0							; size of record
 			WITH		SDVars
 			
 			LINK		A6,#linkSize
-			MOVEM.L		A2-A3/D3-D5,-(SP)			;												<6>
+			MOVEM.L		A2/D3-D5,-(SP)				;												<6>
 
 			MOVE		#paramErr,result(A6) ; default to failure!
 
@@ -4660,11 +4660,7 @@ linkSize	DS.B		0							; size of record
 			MOVE		(SP)+,D4					; did we find one?
 			BEQ			@goHome
 
-@gotMode	Movea.l		gd(A6),A2					; Get GDHandle into A2.
-			Movea.l		(A2),A2						; Get a GDPtr into A2.
-			Btst		#mainScreen,gdFlags(A2)		; If we’re not on the menubar screen,
-			Beq.s		@NotMain1					;	then just keep going.
-			Move.w		theMenu,D5					; Get the currently hilited menuID.
+@gotMode	Move.w		theMenu,D5					; Get the currently hilited menuID.
 			Clr.w		-(Sp)						; And unhilite it.
 			_HiliteMenu
 @NotMain1
@@ -4687,12 +4683,8 @@ linkSize	DS.B		0							; size of record
 			MOVE.L		gd(A6),-(SP)				; push the handle
 			_InitGDevice
 
-			Btst		#mainScreen,gdFlags(A2)		; If we’re not on the menubar screen,
-			Beq.s		@NotMain2					;	then just keep going.
 			Move.w		D5,-(Sp)					; Get the hilite state.
 			_HiliteMenu								; Restore it.
-			_DrawMenuBar							; Draw the MenuBar.
-@NotMain2
 
 			CLR.L		-(SP)						; Activate the front palette
 			_FrontWindow							; before drawing anything.

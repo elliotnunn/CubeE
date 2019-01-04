@@ -596,7 +596,6 @@ Scripts604		EQU		0						;<4.7><08/21/89 pke>
 			Include		'ScriptPriv.a'			;
 			INCLUDE		'GestaltEqu.a'			;
 			INCLUDE		'GestaltPrivateEqu.a'	;
-			INCLUDE		'TextEditPriv.a'		; <1/16/90smb> <16>
 			INCLUDE		'PackMacs.a'			;
 			INCLUDE		'InternalMacros.a'		; <54>
 
@@ -1491,6 +1490,8 @@ gestaltSerial	PROC	EXPORT
 				movea.l	emGestalt(a0),a0				; get gestalt global ptr
 				moveq.l #0,d0							; assume no GPI connections
 				cmpi.w	#gestaltMacLC,machType(a0)		; <107> use real machine name now...
+				beq.s	@noGPI
+				cmpi.w	#gestaltMacLCII,machType(a0)
 				beq.s	@noGPI
 														; IIci and IIsi have GPI connected
 				moveq.l	#(1<<gestaltHasGPIaToDCDa)|\	;	GPIa connected to DCDa
@@ -6359,9 +6360,21 @@ ROMBusErrRecovery	EQU		$00008a6c			; recovery delay routine in ROM				<29>
 			cmp.l	SCSIHsk,d0					; was it a SCSI chip access ?
 			beq.s	@start						; if so, start processing the bus error
 
+			movem.l	d1/a4,-(sp)
+			move.l	SCSIGlobals,a4
+			move.l	SCSI2Base,d1
+			bz.s	@noScsi2
+			cmp.l	scsiGlobalRecord.hhsk5380_2(a4),d0
+			beq.s	@matches
+@noScsi2
+			movem.l	(sp)+,d1/a4
+
 			move.l	(sp)+,d0					; restore d0
 			move.l	OldBusErrVct(a6),-(sp)		; put old bus error handler addr on stack	<end>
 			rts									; jump to old handler, assuming it'll RTE	<29>
+
+@matches
+			movem.l	(sp)+,d1/a4
 
 @start
 
@@ -8047,6 +8060,18 @@ FixUpLooP	move.l		(A0)+, D1
 ;=========================================================================================
 
 
+;————————————————————————————————————————————————————————————————————————————
+; Distinguish LCII from the LC using ROM version
+;
+			cmp.b	#boxMacLC,BoxFlag
+			bne.s	@notLCII
+			move.l	RomBase,a0
+			cmp.b	#$19,ROMHeader.ROMRelease(a0)
+			bne.s	@notLCII
+			move.b	#boxMacLCII,BoxFlag
+@notLCII
+
+
 ;————————————————————————————————————————————————————————————————————————————	GGD <8.4>
 ;	Fix _StripAddress to not check the MMStartMode bit of MMFlags at runtime,
 ;	because the memory manager changes that bit when accessing ROM resources,
@@ -8090,7 +8115,11 @@ FixStripAddress
 			BTST.L	#hwCbPwrMgr,D0						; Do we have a PowerMgr?
 			BEQ.S	@DoneTimLC							; -> No.  This is not a Portable of any kind
 														; We're on a TERROR $67C ROM with a PwrMgr and no FPU.
+			BTST.B	#0,$50FB4000
+			BNZ.S	@jaws25
 			MOVE.B	#boxPowerBook140,boxFlag			; We're on a Tim LC.  Stuff the right boxFlag		<146>			
+			BRA.S	@DoneTimLC
+@jaws25		MOVE.B	#boxPowerBook145,boxFlag
 @DoneTimLC
 
 ;————————————————————————————————————————————————————————————————————————————	<130><131><8><9>
@@ -8147,98 +8176,6 @@ FixStripAddress
 				ADD.L		D1,D2
 @FixPMLoopEnd	MOVE.L		D2,(A0)+				; stash correct address, bump A0
 				DBRA		D0,@FixPMLoop			; and count down, including zero.	dvb <8.3> end
-
-;__________________________________________________________________________
-;__________________________________________________________________________
-
-FixBackSANE	MOVE.L	#'fpu ',D0			; Gestalt FPU selector
-			_Gestalt					; Do it
-			MOVE.L	A0,D0				; Do we have an FPU?
-			BEQ		@ReallyDone			; -> No, do nothing
-						
-			MOVE.L	ROMBase,A0				; Get ROM base			
-			CMPI.B	#TERRORminorVers,18(A0)	; Is this TERROR 067C ROM?
-			BEQ		@ReallyDone				; -> Yes, leave the ROM SANE enabled!
-			CMPI.B	#ZYDECOminorVers,18(A0)	; Is this Zydeco 067C ROM?
-			BEQ		@ReallyDone				; -> Yes, leave the ROM SANE enabled!
-			
-@DisableSANEinROM
-			MOVE.B	ResLoad,-(SP)			; Save current resLoad state
-			MOVE.W	CurMap,-(SP)			; Save Current Rsrc Map refNum
-			CLR.W	CurMap					; Make the System the current Map (CurMap = 0)
-			
-			SF		ResLoad					; Don't actually read the rsrc
-			CLR.L	-(SP)					; Result
-			MOVE.L	#'PACK',-(SP)			; Type
-			MOVE.W	#4,-(SP)				; Id 4
-			_Get1Resource			
-			MOVE.L	(SP)+,D0				; Did we get it?
-			BEQ		@Done					; -> No, PACK 4 is not on the disk.  Exit Now! (Use the ROM SANE)
-			MOVE.L	D0,-(SP)
-			_ReleaseResource				; Make the System SANE handle go away. (or we'll get it at the _RmveRsrc)
-			
-			SF		ResLoad					; Don't actually read the rsrc
-			CLR.L	-(SP)					; Result
-			MOVE.L	#'PACK',-(SP)			; Type
-			MOVE.W	#5,-(SP)				; Id 5
-			_Get1Resource			
-			MOVE.L	(SP)+,D0				; Did we get it?
-			BEQ		@Done					; -> No, PACK 5 is not on the disk.  Exit Now! (Use the ROM SANE)
-			MOVE.L	D0,-(SP)
-			_ReleaseResource				; Make the System SANE handle go away. (or we'll get it at the _RmveRsrc)
-			
-			ST		RomMapInsert			;  Put the ROM map in first
-			MOVE.W	#1,CurMap				; Make the ROM map current
-			
-			CLR.L	-(SP)					; Result
-			MOVE.L	#'PACK',-(SP)			; Type
-			MOVE.W	#4,-(SP)				; Id 4
-			_Get1Resource			
-			MOVE.L	(SP)+,D0				; Did we get it?
-			BEQ.S	@Try45					; -> No, try 4 five.
-			
-			MOVE.L	D0,-(SP)				; The Handle (save a copy of it)
-			MOVE.L	ROMMapHndl,-(SP)		; Save this
-			MOVE.L	#-1,ROMMapHndl			; To fool SetResAttr into letting use change ROM rsrc attrs
-			
-			MOVE.L	D0,-(SP)				; The Handle (push it. Push it good)
-			MOVE.W	#$50,-(SP)				; A good value (Unprotected)
-			_SetResAttrs
-			MOVE.L	(SP)+,ROMMapHndl
-
-			MOVE.W	#1,CurMap				; Set CurMap to the ROM rsrc map
-			ST		RomMapInsert			; Dont load the rsrc into memory						
-			_RmveResource
-
-@Try45		ST		RomMapInsert			;  Put the ROM map in first
-
-			CLR.L	-(SP)					; Result
-			MOVE.L	#'PACK',-(SP)			; Type
-			MOVE.W	#5,-(SP)				; Id 5
-			_Get1Resource			
-			MOVE.L	(SP)+,D0				; Did we get it?
-			BEQ.S	@Done					; -> No, exit
-			
-			MOVE.L	D0,-(SP)				; The Handle (save a copy of it)
-			MOVE.L	ROMMapHndl,-(SP)		; Save this
-			MOVE.L	#-1,ROMMapHndl			; To fool SetResAttr into letting use change ROM rsrc attrs
-
-			MOVE.L	D0,-(SP)				; The Handle (push it. Push it good)
-			MOVE.W	#$50,-(SP)				; A good value (Unprotected)
-			_SetResAttrs
-			MOVE.L	(SP)+,ROMMapHndl
-			
-			MOVE.W	#1,CurMap				; Set CurMap to the ROM rsrc map
-			ST		RomMapInsert			; Dont load the rsrc into memory						
-			_RmveResource
-
-@Done		MOVE.W	(SP)+,CurMap			; Restore the current res map
-			MOVE.B	(SP)+,resLoad			; Restore ResLoad
-@ReallyDone		
-;__________________________________________________________________________
-;__________________________________________________________________________
-
-
 
 ;____________________________________________________________________________		<2> RMP
 ;	This patch is used to fix a problem in the MPW Shell on Eclipse.  See above.
@@ -8693,6 +8630,11 @@ FixQDColors										;								<4.7>
 			AND.B		#ClockMask,D0					; (bits 4-6)				<107> SAM (Use ClockMask!)
 			CMP.B		#ClockEgret,D0					; Is bit 5 on?
 			BNE.S		@EndOfEgretOnly					; -> Nope, skip this install code
+
+			AND.L		#EgretFWMask,D0
+			BZ.S		@EndOfEgretOnly
+			CMP.L		#Cuda,D0
+			BGE.S		@EndOfEgretOnly
 
 ;----------------------------------------------------------------------------------------------------
 ; 	This patch bypasses the physical read of egret when reading the time. The time is automatically
