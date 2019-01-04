@@ -446,7 +446,7 @@ IsNoZoom
 
 			move.l	WMgrPort,-(SP)		; B&W, set to window manager port
 			_SetPort					;
-			bra		@CommonSys			; done for the B&W environment <SM1> CSS
+			bra.s	@CommonSys			; done for the B&W environment <SM1> CSS
 
 ; ------------- doin it with color -------------
 ; when using the WMgrCPort, it is the defproc’s responsibility to reconcile
@@ -538,7 +538,6 @@ IsNoZoom
 			subq.l	#4, SP					; room for a PixMapHandle
 			move.l	#'pmap', -(SP)			; the Pixmap resource type
 			move.w	#kPixmapID, -(SP)		; ID of working pixmap
-			move.w	#MapTrue,RomMapInsert	;												<SM3> rb
 			_GetResource					; look in ROM first								<SM3> rb
 			move.l	(SP)+, workPixmap(A6)	; save it for later
 			move.l	#16,D0					; allocate a bogus ctab 						<21>
@@ -1663,11 +1662,8 @@ WDefDrawGIcon
 			move.l	portRect+botRight(windowReg),(rectReg)	; botRight=topLeft
 			move.l	(rectReg),botRight(rectReg)				; copy into botRight, too
 
-			add.w	d4,left(rectReg)						; <SM5> 	reintroduced from <34>
-			add.w	d4,right(rectReg)						; <SM5>
-			swap	d4										; <SM5>
-			add.w	d4,top(rectReg)							; <SM5>
-			add.w	d4,bottom(rectReg)						; <SM5>
+			add.l	d4,0(a4)
+			add.l	d4,4(a4)
 
 			sub.w	#scrollBarSize-2,top(rectReg)			; remove scroll area
 			sub.w	#scrollBarSize-2,left(rectReg)
@@ -2359,7 +2355,6 @@ SetupColorPict
 			move.w	(A2, D0.w), -(SP)					; push the resource ID
 			cmpi.w	#kHighlightPix,(sp)
 			seq		gadgetHighlight(a6)					; Set if we’re highlighting
-			move.w	#MapTrue,RomMapInsert				;										<SM3> rb
 			_GetResource								; look in ROM first						<SM3> rb
 			move.l	(SP)+, A0							; pixels handle
 			_HLock										; don’t want it to move
