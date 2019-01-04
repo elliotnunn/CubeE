@@ -166,7 +166,6 @@ size			equ		*
 
 GestaltGlobals	RECORD	0
 tableH			ds.l	1						; handle to table of longs
-slotsUsed		ds.l	1						; number of entries in table
 maxSlots		ds.l	1						; number of entries in table
 memSize			ds.l	1						; amount of memory in this machine
 realTop			ds.l	1						; adjusted memory size
