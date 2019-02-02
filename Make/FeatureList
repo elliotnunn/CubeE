@@ -125,6 +125,7 @@ Set	AvailableFeatures  "hasROMGibbly			∂
 						hasAppleEventMgr		∂
 						hasBalloonHelp			∂
 						hasBattery				∂
+						hasBitEdit				∂
 						hasCQD					∂
 						hasCommToolbox			∂
 						hasCPUIDRegister		∂
