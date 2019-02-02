@@ -24,7 +24,7 @@ PictUtilObjs					=	"{ObjDir}puDispatch.a.o"						∂
 
 
 "{RsrcDir}PictUtilities.rsrc" ƒ	{PictUtilObjs}
-	Link {StdLOpts} {StdAlign} -m PictUtilEntry -rt PACK=15 -o "{Targ}" {PictUtilObjs}
+	Link {StdLOpts} {StdAlign} -m PictUtilEntry -rt RSRC=0 -o "{Targ}" {PictUtilObjs}
 
 
 "{LibDir}PictUtilities.lib"	ƒ	"{ObjDir}puPackEntry.a.o"

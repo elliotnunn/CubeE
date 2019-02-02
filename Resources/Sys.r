@@ -815,16 +815,15 @@
 
 //__________________________________________________________________________________________________
 // version
-
 	#define VersionString \
 		"Macintosh System version " SysVersion "\n\n\n" \
-		"© Apple Computer, Inc. 1983-1991\n" \
+		"© Apple Computer, Inc. 1983-1992\n" \
 		"All rights reserved."
 
 	resource 'STR ' (0) { VersionString };
 
 	resource 'vers' (1) {
-		LIntVers, LangInt, SysVersion, SysVersion", © Apple Computer, Inc. 1983-1991"
+		LIntVers, LangInt, SysVersion, SysVersion", © Apple Computer, Inc. 1983-1992"
 	};
 
 	resource 'BNDL' (0) {
@@ -881,7 +880,34 @@
 		"PowerBook 100",		// 24 Asahi
 		"PowerBook 140",		// 25 TimLC
 		"Macintosh Quadra 950",	// 26 Zydeco		<13> Leave 4 trailing spaces for the Installer
-		"Macintosh",			// 27 DBLite
+		"",						// 27 not used
+		"",						// 28 not used
+		"",						// 29 not used
+		"",						// 30 not used
+		"",						// 31 not used
+		"",						// 32 not used
+		"",						// 33 not used
+		"",						// 34 not used
+		"",						// 35 not used
+		"",						// 36 not used
+		"Macintosh LC II",		// 37
+		"",						// 38 not used
+		"",						// 39 not used
+		"",						// 40 not used
+		"",						// 41 not used
+		"",						// 42 not used
+		"",						// 43 not used
+		"",						// 44 not used
+		"",						// 45 not used
+		"",						// 46 not used
+		"",						// 47 not used
+		"",						// 48 not used
+		"",						// 49 not used
+		"",						// 50 not used
+		"",						// 51 not used
+		"",						// 52 not used
+		"",						// 53 not used
+		"PowerBook 145",		// 54
 	} };
 
 	type 'dbex' { integer=0; };		// nothing
@@ -949,7 +975,7 @@
 	// Picasso Macintosh icon (loaded by System Error Handler)
 
 	resource 'cicn' (-16396, purgeable) {
-		{0, 0, 32, 32}, 4,			// bounds, bits per pixel
+		4, {0, 0, 32, 32}, 4,			// bounds, bits per pixel
 	// mask
 		$"0007FF80 00080000 00087E20 00080120"
 		$"00080120 04080120 0C080120 08080120"
@@ -1110,7 +1136,7 @@
 //__________________________________________________________________________________________________
 // patches
 
-	IncSys "LinkedPatches.rsrc";
+//	IncSys "LinkedPatches.rsrc";
 
 	IncSys "BeforePatches.a.rsrc" codeAs 'PTCH' (0, sysHeap, locked);
 
@@ -1125,7 +1151,7 @@
 
 	IncSys "ParityINIT.a.rsrc" codeAs 'INIT' (10, sysHeap, locked);
 
-	IncSys "EDiskShutdownPtch.a.rsrc" codeAs 'INIT' (12, sysHeap, locked);
+//	IncSys "EDiskShutdownPtch.a.rsrc" codeAs 'INIT' (12, sysHeap, locked);
 	
 	
 	resource 'mcky' (0, sysHeap, purgeable) { { 255, 255, 255, 255, 255, 255, 255, 255 } };
@@ -1176,16 +1202,16 @@
 		"Your system has been placed in AppleTalk zone “",
 
 		"”.  "
-		"To select a different zone, please click the Network icon in the Control Panel, "
+		"To select a different zone, please open the Network icon in the Control Panels Folder, "
 		"then click the selected AppleTalk connection icon.",
 
 		"Access to your AppleTalk internet has now become available.  To use "
-		"the internet, please click the Network icon in the Control Panel, "
+		"the internet, please open the Network icon in the Control Panels Folder, "
 		"then click the selected AppleTalk connection icon.",
 
 		"An unexpected change in your AppleTalk internet has interrupted network access.  "
-		"To resume network use, please click the "
-		"Network icon in the Control Panel, "
+		"To resume network use, please open the "
+		"Network icon in the Control Panels Folder, "
 		"then click the selected AppleTalk connection icon.",
 	} };
 
@@ -1237,6 +1263,10 @@
 		"The Router could not run.  "
 		"The Router file is damaged.  "
 		"Please reinstall the Router.",
+
+		"The Router could not run. "
+		"The Router is not compatible with Virtual Memory. "
+		"The built-in LocalTalk port will be used for your AppleTalk connection.",
 	} };
 
 //__________________________________________________________________________________________________
@@ -1329,7 +1359,7 @@ resource 'PICT' (-16387) {
 	IncSys 	"Choose.r.rsrc" 'CNTL' (CTB_ChooseCNTLID) as 'CNTL' (CTB_ChooseCNTLID, sysHeap, purgeable);
 	IncSys 	"Choose.r.rsrc" 'MENU' (CTB_ChooseMENUID) as 'MENU' (CTB_ChooseMENUID, sysHeap);
 
-	IncSys 	"StandardNBP.p.rsrc" codeAs CTB_NuLookupType (CTB_NuLookupID, sysHeap, purgeable, locked);
+//	IncSys 	"StandardNBP.p.rsrc" codeAs CTB_NuLookupType (CTB_NuLookupID, sysHeap, purgeable, locked);
 	IncSys 	"StandardNBPHelp.r.rsrc" 'hdlg' (CTB_NulookuphdlgID) as 'hdlg' (CTB_NulookuphdlgID, sysHeap, purgeable);
 	IncSys 	"StandardNBP.r.rsrc" 'DLOG' (CTB_NulookupDLOGID) as 'DLOG' (CTB_NulookupDLOGID, sysHeap, purgeable);
 	IncSys 	"StandardNBP.r.rsrc" 'DITL' (CTB_NulookupDITLID) as 'DITL' (CTB_NulookupDITLID, sysHeap, purgeable);
@@ -1904,6 +1934,7 @@ resource 'STR ' (-16391, purgeable) { "Font Cache" };
 	data 'FONT' (384, "Geneva", purgeable) {};
 	IncSys "SystemFonts.rsrc" 'FONT' (393) as 'FONT' (393, purgeable);
 	IncSys "SystemFonts.rsrc" 'FONT' (396) as 'FONT' (396, purgeable);
+	IncSys "SystemFonts.rsrc" 'FONT' (521) as 'FONT' (521, purgeable);
 
 	resource 'FOND' (4, "Monaco", purgeable) {
 		FakeFONDFlags, 4, FakeFONDFields, 1, { 9, plain, 521; }, FakeFONDTables
@@ -1950,7 +1981,7 @@ resource 'STR#' (glyphNameResID, purgeable) { {
 //__________________________________________________________________________________________________
 // Gestalt
 
-	IncSys "Gestalt.rsrc" codeAs 'ptch' (5, sysHeap, locked);
+//	IncSys "Gestalt.rsrc" codeAs 'ptch' (5, sysHeap, locked);
 
 //__________________________________________________________________________________________________
 // pslt • Nubus pseudo-slot mapping definitions
@@ -2117,16 +2148,24 @@ resource 'pslt' (gestaltEclipse33, purgeable) {
 
 	IncSys "International.rsrc" 'kcs#' (0) as 'kcs#' (0, sysHeap, purgeable);
 	IncSys "International.rsrc" 'kcs4' (0) as 'kcs4' (0, sysHeap, purgeable);
-	IncSys "International.rsrc" 'kcs8' (0) as 'kcs8' (0, sysHeap, purgeable);
+	IncSys "International.rsrc" 'kcs#' (16383) as 'kcs#' (16383, sysHeap, purgeable);
+	IncSys "International.rsrc" 'kcs4' (16383) as 'kcs4' (16383, sysHeap, purgeable);
 	IncSys "International.rsrc" 'kcs#' (-16491) as 'kcs#' (-16491, sysHeap, purgeable);
 	IncSys "International.rsrc" 'kcs4' (-16491) as 'kcs4' (-16491, sysHeap, purgeable);
-	IncSys "International.rsrc" 'kcs8' (-16491) as 'kcs8' (-16491, sysHeap, purgeable);
+	IncSys "International.rsrc" 'kcs#' (-16492) as 'kcs#' (-16492, sysHeap, purgeable);
+	IncSys "International.rsrc" 'kcs4' (-16492) as 'kcs4' (-16492, sysHeap, purgeable);
 	IncSys "International.rsrc" 'STR#' (-16491) as 'STR#' (-16491, sysHeap, purgeable);
+	IncSys "International.rsrc" 'STR#' (-16492) as 'STR#' (-16492, sysHeap, purgeable);
+	IncSys "International.rsrc" 'STR#' (-16493) as 'STR#' (-16493, sysHeap, purgeable);
+	IncSys "International.rsrc" 'STR#' (-16494) as 'STR#' (-16494, sysHeap, purgeable);
+	IncSys "International.rsrc" 'STR#' (-16495) as 'STR#' (-16495, sysHeap, purgeable);
 	IncSys "International.rsrc" 'hmnu' (-16491) as 'hmnu' (-16491, sysHeap, purgeable);	// Keyboard menu help strings	<185>
-	IncSys "International.rsrc" 'DLOG' (-16491) as 'DLOG' (-16491, sysHeap, purgeable);	// About Keyboards…				<208>
-	IncSys "International.rsrc" 'DITL' (-16491) as 'DITL' (-16491, sysHeap, purgeable);	// About Keyboards…				<208>
 	IncSys "International.rsrc" 'DLOG' (-16492) as 'DLOG' (-16492, sysHeap, purgeable);	// About Keyboards…				<208>
 	IncSys "International.rsrc" 'DITL' (-16492) as 'DITL' (-16492, sysHeap, purgeable);	// About Keyboards…				<208>
+	IncSys "International.rsrc" 'DLOG' (-16493) as 'DLOG' (-16493, sysHeap, purgeable);	// About Keyboards…
+	IncSys "International.rsrc" 'DITL' (-16493) as 'DITL' (-16493, sysHeap, purgeable);	// About Keyboards…
+	IncSys "International.rsrc" 'DLOG' (-16494) as 'DLOG' (-16494, sysHeap, purgeable);	// About Keyboards…
+	IncSys "International.rsrc" 'DITL' (-16494) as 'DITL' (-16494, sysHeap, purgeable);	// About Keyboards…
 
 //__________________________________________________________________________________________________
 // List Mgr
@@ -2535,13 +2574,6 @@ resource 'ppci' (-16409)
 
 	IncSys "Scheduler.rsrc";
 	IncSys "DAHandler.rsrc";
-
-//__________________________________________________________________________________________________
-// SANE
-
-	IncSys "FPHW.rsrc" 'RSRC' (0) as 'PACK' (4, sysHeap, locked);
-	IncSys "ElemsHW.rsrc" 'RSRC' (0) as 'PACK' (5, sysHeap, locked);
-
 
 //__________________________________________________________________________________________________
 // QuickDraw
@@ -3151,7 +3183,7 @@ data 'ppat' (18, sysheap, purgeable) {
 // color desktop pattern = dithered gray
 	resource 'ppat' (16, sysHeap, purgeable) {
 		$"AA55AA55AA55AA55",			// black & white pattern
-		{0, 0, 8, 8}, 4,				// bounds, bits per pixel
+		4, {0, 0, 8, 8}, 4,				// bounds, bits per pixel
 	// 4-bit color image
 		$"10101010"
 		$"01010101"
