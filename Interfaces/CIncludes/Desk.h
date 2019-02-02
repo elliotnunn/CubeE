@@ -45,7 +45,7 @@ Created: Saturday, July 27, 1991 at 2:53 PM
 enum {
 
  accEvent = 64,
- accRun = 65,
+// accRun = 65,
  accCursor = 66,
  accMenu = 67,
  accUndo = 68,
