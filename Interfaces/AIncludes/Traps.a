@@ -2110,18 +2110,10 @@ _HGetState		OPWORD  	$A069
 _HSetState		OPWORD  	$A06A
 _InitFS   		OPWORD  	$A06C
 _InitEvents   	OPWORD  	$A06D
-
-	Macro							; SuperMario is a 32-bit only ROM
-	_SwapMMUMode
-	EndM
-	Macro							; SuperMario is a 32-bit only ROM
-	_StripAddress
-	EndM
-	Macro							; SuperMario is a 32-bit only ROM
-	_Translate24To32
-	EndM
-
+_StripAddress              OPWORD                 $A055
+_Translate24To32           OPWORD                 $A091
 _SetAppBase   	OPWORD  	$A057
+_SwapMMUMode               OPWORD                 $A05D
 _SlotVInstall 	OPWORD  	$A06F
 _SlotVRemove  	OPWORD  	$A070
 _AttachVBL		OPWORD  	$A071
