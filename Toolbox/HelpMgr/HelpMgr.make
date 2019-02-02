@@ -17,7 +17,8 @@
 
 BalloonPackObjs					=	"{ObjDir}BalloonPack.a.o"						∂
 									"{ObjDir}BalloonPack.p.o"						∂
-									"{IfObjDir}interface.o"
+									"{IfObjDir}interface.o"							∂
+									"{PLibraries}PasLib.o"
 
 
 BalloonWDEFObjs					=	"{ObjDir}BalloonWDEF.a.o"						∂
