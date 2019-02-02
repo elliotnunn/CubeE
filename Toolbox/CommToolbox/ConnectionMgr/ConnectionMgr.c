@@ -225,8 +225,8 @@ err1:
 		DisposHandle( (Handle)hConn );	
 err0:
 		CRMReleaseRF(procID);							/* close file or decrement useCount */
-		GetMemErr() = savedMem;							// restore the error values
-		GetResErr() = savedRes;
+		//GetMemErr() = savedMem;							// restore the error values
+		//GetResErr() = savedRes;
 		
 		return( nil );
 }
