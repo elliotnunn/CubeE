@@ -9,8 +9,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;		 <1>	 4/14/92	stb		first checked in
-;		<19>	 4/14/91	stb		<sm1>stb Add to SuperMario project for use by ResourceMgr.a.  Corrected some speling.
 ;		<18>	  7/9/91	JSM		No need to define SysVers here.
 ;		<17>	 1/30/91	gbm		sab, #38: Change the name of one of the decompressor header
 ;									files (because Sheila said it was okay)
@@ -195,7 +193,7 @@ maxReplacement		EQU	6		;end of substitution list.
 ;
 ;---------------------------------------------------------------------------------
 ExtendedResource	Record	0
-signature			DS.L	1		;used for robustness.  Tells if data is compressed now.
+signiture			DS.L	1		;used for robustness.  Tells if data is compressed now.
 headerLength		DS.W	1		;length of this header in bytes.
 headerVersion		DS.B	1		;number of items in this header. ( must be < 128 ).
 extendedAttributes	DS.B	1		;extension to the attributes for this resource.
