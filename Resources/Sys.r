@@ -3101,16 +3101,6 @@ resource 'ppci' (-16409)
 	} };
 
 //__________________________________________________________________________________________________
-// EDisk
-	resource 'STR#' (-4097, sysHeap, Locked) {
-		{
-			"The contents of the RAM Disk volume “^1” will be lost by shutting down.  "
-			"Do you wish to continue?",
-			"OK",
-			"Cancel",
-		}
-	};
-//__________________________________________________________________________________________________
 // Virtual Memory
 
 	include $$Shell("Misc")"VM.rsrc" not 'ckid';
