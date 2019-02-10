@@ -11,8 +11,6 @@
 	Change History (most recent first):
 	 
 		<26>	 5/29/92	DCL		Included Script.h. GetEnvirons moved for the New Inside Mac.
-		<25>	11/25/91	DTY		Add #include <MemoryMgrPriv.h> to get interface for MoveHLow in
-									its new home.
 		<24>	11/21/91	DTY		Rolling in the 7•Up version of findFreeSessionRecord that
 									allocates the session record low in the System Heap instead of
 									in the middle of the temporary heap. This is conditionalized for
@@ -206,7 +204,9 @@
 #include <Errors.h>
 #include <MFPrivate.h>
 #include <Memory.h>
-#include <MemoryMgrPriv.h>
+#pragma parameter MoveHLow(__A0)
+pascal void MoveHLow(Handle h)
+ = 0xA09D; 
 #include <PPCToolBox.h>
 #include <AppleEventsInternal.h>
 #include <Errors.h>

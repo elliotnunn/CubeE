@@ -10,13 +10,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM4>	  6/3/93	CSS		Per Shannon Holland and KON, The code RgnBlt checks for a
-;									pattern which is solid background color when it should check for
-;									a pattern which is a solid foreground color.
-;	   <SM3>	01/06/93	HI		#1052740: Modified D0 to D3 in RgnBlt in rcMASK0 section.
-;									Previously, it was masking out the destination instead of
-;									the source; so the images were drawn incorrectly. ANDing
-;									with D3 masks out the source and fixes the bug. (Hoon Im)
 ;	   <SM2>	 6/12/92	stb		<sm 6/9/92>stb Synch with QDciPatchROM.a; added comments to
 ;									rMASK8, rXMASK8, rslowHilite, rTransparent.
 ;		<11>	11/26/90	SMC		Fixed pattern hiliting once and for all.  With BAL.
@@ -281,12 +274,12 @@ CLRMASK CLR.L	-(SP)						;ALLOCATE AND CLEAR
 		TST		PATROW(A6)					;BIG PATTERN?
 		BNE.S	@oldWay						;if so, assume pattern contains background color
 		MOVE.L	exPat(A6),A0				;check if non-background pattern
-		MOVE.L	FCOLOR(A6),D1				;get foreground color <SM4> CSS
+		MOVE.L	BCOLOR(A6),D1				;get background color
 		MOVEQ	#$0F,D0						;number of longs in a short pattern
 @nextPatRow
 		CMP.L	(A0)+,D1					;is the row non-background?
 		DBEQ	D0,@nextPatRow				;if so, check for more rows
- 		BNE.S	@oldWay						;if not, can’t do fast hiliting <SM4> CSS
+ 		BEQ.S	@oldWay						;if not, can’t do fast hiliting
 		MOVE	#$10,locMode(A6)			;set the mode to the fast hilite variety
 		BRA.S	@newWay						;assume D0 = -1
 @noHilite
@@ -1481,7 +1474,7 @@ rcMASK0	move.w	hBump(a6),a4	;get hbump in a4
 		EOR.L	D5,D3			;apply bkcolor to src				<9>
 		MOVE.L	(A2),D0			;get dst							<9>
 		EOR.L	D0,D3			;apply it to src					<9>
-		AND.L	(A1)+,D3		;make it							<9> <SM3>
+		AND.L	(A1)+,D0		;make it							<9>
 		EOR.L	D0,D3			;reapply dst to src					<9>
 		MOVE.L	D3,(A2)			;move result to dst					<9>
 		add		a4,a2			;%%%bump dst
@@ -4109,15 +4102,6 @@ rslowHilite
 
 rTransparent
 rTransparentIndexed
-		TST.L	D3						;right to left?									<sm 6/9/92>stb
-		BMI.S	@1						;if so, skip									<sm 6/9/92>stb
-		CMP.W	#8,DSTPIX+PIXELSIZE(A6)	;is it 8 bit mode?								<sm 6/9/92>stb
-		BEQ		rTransparent8			;yes, go use quickdraw							<sm 6/9/92>stb
-									; if it is, go use Andy’s QuickerDraw special 8-bit case
-									; which doesn’t have this problem					<sm 6/9/92>stb
-	@1:	LEA		@RealrTransparent,A0; this fixes a bug that the optimization introduced	<sm 6/9/92>stb
-		MOVE.L	A0,ModeCase(A6)		; which was causing the loss of pattern data		<sm 6/9/92>stb
-@RealrTransparent
 		MOVE	patHMask(A6),D1		;set up source constriction
 		MOVE 	pixInLong1(A6),A0	;set up absolute long bump
 		MOVE	longBump(A6),A2		;set up long bump

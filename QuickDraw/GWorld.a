@@ -7,9 +7,6 @@
 ;
 ;	   <SM5>	 9/12/93	SAM		Changed all instances of _Translate24to32 to _rTranslate24to32
 ;									so they can conditionalized out of the build.
-;	   <SM4>	 6/14/93	kc		Roll in Ludwig.
-;	   <LW2>	 3/25/93	fau		Made the NewGWorld call allocate a buffer whose width is a whole
-;									number of quadwords, in order to help digitizer grabs.
 ;	   <SM3>	10/28/92	SWC		Replaced obsolete INCLUDEd filenames with their replacements.
 ;	   <SM2>	 6/11/92	stb		<sm 6/9/92>stb Synch with QDciPatchROM.a; added comments to
 ;									NewGWorld, UpdateGWorld, Pixmap32Bit, GetGWorldPixMap,
@@ -900,12 +897,6 @@ allocateBuffer
 		addq	#1,d0						; add one long as per simplified formula above
 		lsl.l	#2,d0						; convert longs to bytes
 
-; Make buffer's width quad longword aligned on both ends.  This will help when doing 
-; video digitizer grabs on Cyclone.
-
-		addi.l	#15,d0						; Add 15 bytes to make it to the next quad-w boundary 	<LW2>fau
-		andi.b	#$f0,d0						; Chop the remainder									<LW2>fau
-		
 		move	d0,bytesPerRow(a6)			; save # of bytes in a row
 
 		move	localRect+bottom(a6),d1		; compute height of rectangle

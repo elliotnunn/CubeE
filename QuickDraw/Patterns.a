@@ -12,8 +12,6 @@
 ;
 ;	   <SM8>	 9/12/93	SAM		Changed all instances of _Translate24to32 to _rTranslate24to32
 ;									so they can conditionalized out of the build.
-;	   <SM7>	 1/15/93	kc		Change JSR to JMP to fix bug introduced in last checkin.
-;	   <SM6>	 1/13/93	kc		Change BSR ot JSR to appease the Linker gods.
 ;	   <SM4>	 8/18/92	CSS		Update from Reality:
 ;									<16> 8/18/92 SAH	#1040323 <KON>: Fixed Indexed SeedCFill bug by making
 ;														MakeScaleTbl check to see if fg color is black and bg color is
@@ -119,7 +117,7 @@ GetCCursor	PROC	EXPORT
 			MOVE	4(SP),D0				; get the cursor's resource ID
 			MOVE.L	#'crsr',D1				; get the desired resource type
 			MOVEQ	#CRSRRec,D2				; get size of cursor record
-			JMP		PATSHARE
+			BRA.S	PATSHARE
 			NOP								; silence the assembler <13>
 
 

@@ -10,19 +10,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM4>	11/23/93	rab		In the previous checkin a !forROM conditional was added to
-;									FlushCache to strip out a check for the Mac+ ROM. Unforutnately
-;									the conditional was added a few lines too soon and eliminated
-;									all of the logic which decided if the cache should be flushed
-;									based on CacheFlag and noFlushBit. The result was that the cache
-;									always flushed which causes a performance hit. Moved the
-;									conditional and added a bra fcExit so things will work like they
-;									used to.
-;	   <SM3>	11/18/92	RB		Made some changes forROM so that we have the disk cache code in
-;									ROM and not installed as a patch from the system file. This code
-;									is now installed as the cache from ROM, but we do not prevent
-;									the file system cache from being installed (yet), so we will let
-;									this cache do cleanup.
 ;		<24>	 12/3/91	KST		Clean up the equates. Remove cbHqAge and use cbHqDevNum
 ;									consistently.
 ;		<23>	  7/9/91	JSM		Remove obsolete SysVers conditionals, turn off a label unless
@@ -367,7 +354,7 @@ ktDebugCache	equ		0
 ktDebugHash	equ		0
 		endif
 
-RAMCache	PROC	EXPORT			;												<SM3> rb
+			MAIN
 
 ; The following absolute addresses are needed to patch problems in the version 75 ROM:
 
@@ -375,11 +362,6 @@ FReadCall	EQU		$404F56			; ROM75 FileRead return address (read-verify flush)
 FlMDBCall	EQU		$402DD8			; ROM75 FlushMDB return address (used for patch)
 
 ;_______________________________________;
-;
-; If we are compiling forROM, this code is simply part of the ROM code and not a	<SM3> rb
-; resource installed by a patch.													<SM3> rb
-;
-; Otherwise:																		<SM3> rb
 ;
 ; The following code is made into
 ;	a separate resource of type CACH.
@@ -390,13 +372,10 @@ FlMDBCall	EQU		$402DD8			; ROM75 FlushMDB return address (used for patch)
 
 CacheStart
 	
-	IF NOT forROM THEN					;											<SM3> rb
-	
 			BRA		 CacheInstall		;										<06Dec85>
 			DC.L	('CACH')			; CACH resource 						<06Dec85>
 			DC.W	1					; res is 1								<06Dec85>
 			DC.W	3					; <17Apr90> version 3					<17Apr90>
-	ENDIF								;											<SM3> rb
 	
 ;_________________________________________________________________________________
 ;
@@ -453,17 +432,12 @@ fcFile		MOVEA.L FCBSPtr,A1			; A1 = FCB ptr
 			BNE.S	@1					; br if so (go flush)
 			BTST	#noFlushBit,FHFlags(A4) ; avoid intermediate flushes?		<08Dec85>
 			BEQ.S	@1					; br if not (go flush)					<08Dec85>
-			bra.s	fcExit				; exit if so (skip flush)				<SM4>
 
-	IF NOT forROM THEN					; We don't need MacPlus ROM check		<SM3> rb <SM4>
 			MOVE.L	ROMBase,A3			;<11Dec86> make sure we have the correct ROM
 			CMP.W	#$0075,8(A3)		;<11Dec86>
 			BNE.S	fcExit				;<11Dec86> exit if not
 			CMP.L	#FReadCall,$28(A6)	; FileRead flush before verify? 		<08Dec85>
 			BNE.S	fcExit				; exit if not (skip flush)				<08Dec85>
-	ELSE								;										<SM3> rb
-			; if FlushFlag is 0, then if this file is control file skip flushing
-	ENDIF								;										<SM3> rb
 	
 @1			BSR 	FlushFCache 		; flush the A4 cache
 			BRA.S	fcExitTrash 		; trash and exit						<28Sep89>
@@ -925,8 +899,6 @@ RelBlock
 			MOVE.L	(SP)+,-(A6) 		; save return address on A6 stack
 			MOVE.L	A4,-(A6)			; save registers
 
-	IF NOT forROM THEN					; Not for the new ROMs					<SM3> rb
-	
 ; The next nine lines patch a bug in ROM 75 (FlushMDB never cleared dirty bits
 ;  on control file FCBs . . .)
 
@@ -940,7 +912,6 @@ RelBlock
 			BCLR	#FCBModBit,FCBMdRByt(A3,D0) ; clear the dirty flag
 			MOVE.W	VCBCTRef(A2),D0 	; Get catalog file refNum
 			BCLR	#FCBModBit,FCBMdRByt(A3,D0) ; clear the dirty flag
-	ENDIF								;										<SM3> rb
 
 @4			
 										; now we have pointer to data buffer	<23Apr90>
@@ -2553,8 +2524,6 @@ StrFreeQCnt DC.B	'Cache: Free Q Cnt Bad'
 StrTotalCnt DC.B	'Cache: Total Cnt Bad'
 			ENDIF
 
-	IF NOT forROM THEN					;										<SM3> rb
-	
 CutBack
 			_SetHandleSize				; adjust our size
 
@@ -2566,8 +2535,6 @@ CutBack
 			RTS
 EndResident
 
-	ENDIF								;										<SM3> rb
-	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Code after this point will be discarded !!
 
@@ -2648,7 +2615,6 @@ verifyCacheSize
 ;						physical memory that Ramcache can allocate. The max size
 ;						is calculated based on memory CDEV and may be changed later.
 ;_________________________________________________________________________________
-			EXPORT	CacheInstall		;											<SM3> rb
 CacheInstall
 
 										; assume A0/A1 to be free
@@ -2736,18 +2702,12 @@ CacheInstall
 
 			BSR		SyncFSCall			; <02Dec86> synchronize with fs and call below
 	
-	IF NOT forROM THEN					;										<SM3> rb
-	
 			LEA		CacheStart,A0		; get beginning of resident code
 			LEA		EndResident,A1		; get end of resident code
 			SUB.L	A0,A1				; calculate size
 			_RecoverHandle				; recover handle to code (pointed to by A0)
 			MOVE.L	A1,D0				; put size in D0 for SetHandleSize
 			BRA		CutBack				; and slice away.
-			
-	ELSE								;	we are the ROM, this is no patch	<SM3> rb
-			RTS							;										<SM3> rb
-	ENDIF								;										<SM3> rb
 
 ; The following code is executed while the file system is in a suspended state.
 ; Input:	A0.L = ptr(cachevar)

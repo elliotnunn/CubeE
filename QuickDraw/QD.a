@@ -131,6 +131,7 @@ WholeErrors 	EQU 1
 			INCLUDE		'qdHooks.a'
 			INCLUDE 	'fontPrivate.a'
 				 
+			INCLUDE		'CrsrDevEqu.a'
 			INCLUDE 	'colorequ.a'
 			INCLUDE		'SlotMgrEqu.a'
 			INCLUDE		'ROMEqu.a'
@@ -410,7 +411,6 @@ FastStart	PROC	EXPORT
 			; to override.
 
 			; Does the Translate24To32 dispatch trap exist?
-	IF NOT forROM THEN							; SuperMario is a 32-bit only ROM.
 			MOVE.W	#$A091, D0					; Translate24To32 Trap number
 			_GetTrapAddress ,NewOS				; get the address of Translate24To32
 			MOVEA.L	A0, A1						; Hold it for a sec
@@ -424,7 +424,6 @@ FastStart	PROC	EXPORT
 			ADD.L	A4,a0					; really get the actual address
 			_SetTrapAddress ,newOS	
 @skip		
-	ENDIF
 			lea		$4081c11c,a0			;point to copyright notice in rom78
 			move.l	a0,d7					;make a copy
 			

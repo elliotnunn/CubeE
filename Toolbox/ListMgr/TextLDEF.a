@@ -20,8 +20,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM4>	 11/5/92	SWC		Changed PackMacs.a->Packages.a.
-;		<SM3>	10/14/92	CSS		Change some branch short instructions to word branches.
 ;		<11>	 2/26/92	DTY		#1018596: When calculating the pen position to start drawing the
 ;									text for a cell, take teSysJust into account for right-left
 ;									systems. If teSysJust is non zero, compute the pen position from
@@ -61,7 +59,7 @@
 ;	D7 = width of cell available for drawing
 
 				LOAD	  	'StandardEqu.d'
-				INCLUDE		'Packages.a'
+				INCLUDE		'PackMacs.a'
 
 doTruncate		EQU			1	; do truncation
 doCondense		EQU			1	; condense text before trying to truncate
@@ -209,7 +207,7 @@ ListDraw
 				MOVE.W		D3,-(SP)			; length of text
 				_TextWidth
 				CMP.W		(SP),D7				; will string fit? <11> Leave width on stack
-				BGE 		@noTruncate			; yes, no need to truncate <SM3> CSS 
+				BGE.S 		@noTruncate			; yes, no need to truncate
 
 				addq		#2,sp				; <11> Width isn’t needed til after truncation.  Lose it.
 				

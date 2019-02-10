@@ -65,7 +65,6 @@
 #include <files.h>
 #include <segload.h>
 #include <devices.h>
-#include <sound.h>
 #include <MFPrivate.h>
 #include <MenuMgrPriv.h>
 #include <ResourceMgrPriv.h>

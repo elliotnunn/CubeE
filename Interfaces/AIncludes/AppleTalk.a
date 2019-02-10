@@ -8,9 +8,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM2>	 1/29/93	RB		Change the SCCLockout value to 600 instead of 2600, because the
-;									other bits in the status register should remain unchanged for
-;									NewKernel.
 ;		<11>	  7/1/92	DCL		Obsoleted ATalkEqu.a which now includes this file.
 ;		<10>	 6/14/91	JL		Equated clientName and xppSubCode to $1C insteead of csCode
 ;									because csCode is in SysEqu.a which would have to be included.
@@ -134,9 +131,9 @@ crcErr			EQU 		-2
 underrunErr   	EQU 		-3
 lengthErr 		EQU 		-4
 ;
-; SCC interrupt priority		Should NEVER MOVE.W this value, just ORI.W						<SM2> rb
+; SCC interrupt priority
 ;
-sccLockout		EQU 		$600     				; This value works on both Mac and Lisa		<SM2> rb
+sccLockout		EQU 		$2600     				; This value works on both Mac and Lisa
 ;
 ;
 ;+ MPP (control calls to NBP, DDP and ABLAP)

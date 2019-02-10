@@ -10,7 +10,6 @@
 	Change History (most recent first):
 	 
 		<22>	10/28/92	DTY		Use new Get/Set macros to access ExpandMem.
-		<21>	10/27/92	DTY		Change BlockMoves to BlockMoveData.
 		<20>	 9/11/92	DRF		Take out “while(FSBUSY);” in “TheFuture” to allow for faster
 									switching.
 		<19>	 8/26/92	DTY		Roll in latest changes for A/UX.
@@ -374,7 +373,7 @@ save_lomem(PEntryPtr pp)
 	pc->appllimit = APPLLIMIT;
 	pc->applzone = APPLZONE;
 	pc->currenta5 = (unsigned long)CURRENTA5;
-	BlockMoveData(CURAPNAME, &pc->curapname, *((unsigned char *)CURAPNAME) + 1);
+	BlockMove(CURAPNAME, &pc->curapname, *((unsigned char *)CURAPNAME) + 1);
 	pc->curlayer = GetCurLayer();
 	pc->topmaphandle = TOPMAPHANDLE;
 	pc->curmap = CURMAP;
@@ -439,7 +438,7 @@ restore_lomem(PEntryPtr pp, Boolean shouldRestoreVolatile)
 	 */
 	APPLLIMIT = pc->appllimit;
 	CURRENTA5 = pc->currenta5;
-	BlockMoveData(&pc->curapname, CURAPNAME, Length(&(pc->curapname)) + 1);
+	BlockMove(&pc->curapname, CURAPNAME, Length(&(pc->curapname)) + 1);
 	SetCurLayer(pc->curlayer);
 	TOPMAPHANDLE = pc->topmaphandle;
 	CURMAP = pc->curmap;

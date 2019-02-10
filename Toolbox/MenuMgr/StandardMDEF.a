@@ -11,15 +11,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM4>	 12/7/92	CSS		Update from Reality:
-;									<64> 12/4/92 KSM	Don't call DisposHandle if NIL upon exiting even though the call
-;														can handle it. It wastes time and inhibits debugging other
-;														things.
-;	   <SM3>	 11/5/92	SWC		Changed PackMacs.a->Packages.a.
-;	   <SM2>	10/16/92	RB		Removed SOME of the NOT forROM conditionals, since some of that
-;									code did not make sense anymore for SuperMario ROMs. This fixed
-;									the disabled menu items not being drawn in gray color instead of
-;									gray pattern.
 ;		<63>	 8/22/91	KSM		csd,#Bruges: fix font/face cleanup problem in script systems.
 ;		<62>	 3/26/91	KSM		rlc,#85632: Reset the font back to the default after script
 ;									changed it.
@@ -279,7 +270,7 @@
 
 		LOAD	'StandardEqu.d'
 		INCLUDE	'ColorEqu.a'
-		INCLUDE	'Packages.a'
+		INCLUDE	'PackMacs.a'
 		INCLUDE 'MFPrivate.a'
 		INCLUDE 'IconUtilsPriv.a'
 		INCLUDE 'Balloons.a'
@@ -442,9 +433,7 @@ MDEFSaveReg	REG		D3-D7/A2-A4
 			move.l	a3, a0				; get menuHandle
 			_HUnlock					; and unlock it before we leave
 
-			move.l	arrowHandle(a6),d0	; the arrow handle or NIL					<48><64>
-			beq.s	@skipDispose		; Don't bother if already NIL				<64>
-			move.l	d0,a0				; Get ready for DisposeHandle				<64>
+			move.l	arrowHandle(a6),a0	; the arrow handle							<48>
 			_DisposeHandle				; DisposeHandle can deal with NIL			<48>
 @skipDispose
 
@@ -1933,7 +1922,7 @@ DrawDash
 			BRA		DoneDrawItem		; dive	back into mainstream
 
 NotDash
-	;	IF NOT forROM THEN				; only do this for System builds, not ROMs				<33><SM2> rb
+		IF NOT forROM THEN				; only do this for System builds, not ROMs				<33>
 			TST.B	onColorMachine(a6)	; on color machine?
 			BEQ.S	@skipPenMode		; no, skip _TextMode
 			TST.B	enableState(a6)		;										<34>
@@ -1942,7 +1931,7 @@ NotDash
 			MOVE.W	D0,-(SP)
 			_TextMode
 @skipPenMode							; <51=BRC#79297>
-	;	ENDIF							; { NOT forROM }										<33><SM2> rb
+		ENDIF							; { NOT forROM }										<33>
 
 			ADDQ.W	#2, D5				; Add the 2 pixels here instead				<S550	27Jul88	EMT>
 
@@ -2299,16 +2288,16 @@ DRAWITEXT
 
 			TST.B	enableState(A6)		; If enabled, don’t bitclear or reset textmode
 			BNE.S	DoneDrawItem
-	;IF (not forROM) THEN																		<SM2> rb
+	IF (not forROM) THEN
 			TST.B	onColorMachine(A6)	; If color, we drew in gray so don’t bitclear
 			BNE.S	@fixcolor
-	;ENDIF																						<SM2> rb
+	ENDIF
 			BSR.S	BitClearItem
-	;IF (not forROM) THEN																		<SM2> rb
+	IF (not forROM) THEN
 @fixColor
 			MOVE.W	#srcOr,-(SP)
 			_TextMode
-	;ENDIF																						<SM2> rb
+	ENDIF
 
 DoneDrawItem
 			bsr		ResetPreviousColors	; restore colors saved in the stackframe <FJL C408>
@@ -2603,7 +2592,7 @@ doneExpand
 ;						This code returns an even multiple of MFHeight if the menu scrolls.
 
 DoCalcMsg
-	;	IF NOT forROM THEN					;									<2.2>	<SM2> rb
+		IF NOT forROM THEN					;									<2.2>
 			BSR.S	PushThePort
 ;			CMP.W	#$3FFF, ROM85			; color machine ?							<PMAB364	23Jan88	EMT>
 			TST.B	onColorMachine(A6)		; color machine ?							<S394	12Feb88	DBG>
@@ -2618,7 +2607,7 @@ DoCalcMsg
 
 @SetPort									;											<PMAB364	23Jan88	EMT>
 			_SetPort						; set it									<PMAB364	23Jan88	EMT>
-	;	ENDIF	; if NOT forROM															<SM2> rb
+		ENDIF	; if NOT forROM
 
 ; since calc msg could be called at any time, we need to reset the wmgr’s textfont here else
 ; could get incorrectly sized menus
@@ -2728,9 +2717,9 @@ DoCalcDone1								; if NIL menu, return 0				<EHB 10-Apr-85>
 ;			CLR.W	-(SP)					; better restore style to normal
 ;			_TextFace						; set the style
 
-	;	IF NOT forROM THEN					; <2.2>										<SM2> rb
+		IF NOT forROM THEN					; <2.2>
 			_SetPort						; restore original grafPort					<PMAB364	23Jan88	EMT>
-	;	ENDIF	; if NOT forROM															<SM2> rb
+		ENDIF	; if NOT forROM
 
 			rts								; all done! so return to dispatcher
 

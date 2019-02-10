@@ -11,16 +11,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM3>	 7/7/92		CSS		Remove includes to ApplDeskBusPriv.a and roll changes
-;									from that file into this one:
-;	  								<SM1> 5/2/92	kc		Roll in Horror. Comments follow:
-;		 							<2>	  8/5/91	SC		Added new bits to the PMGR ADB flags.
-;									Updated from Reality:
-;		 							<6>	 4/24/92	JF		Added comment to let everyone know that one of three unused
-;									l						ongs in ADBVars is now being used.
-;	   <SM2>	 5/25/92	RB		Commented out the definition of talkCmd and listenCmd since they
-;									are also defined in EgretEqu.a, which seems to be included
-;									everywhere.
 ;		 <5>	 8/21/91	JSM		Clean up header.
 ;		 <4>	 1/30/91	gbm		sab, #38: Change the ‘already including this file’ variable to
 ;									all uppercase (for security reasons)
@@ -48,8 +38,8 @@ __INCLUDINGAPPLEDESKBUSPRIV__	SET	1
 
 maskADBCmd		EQU			$0C					; Mask for ADB command
 resetCmd		EQU			$00					; Command for Bus Reset
-; <SM2> rb	talkCmd   		EQU 		$0C   				; Command for Talk R0
-; <SM2> rb	listenCmd 		EQU 		$08   				; Command for Listen R0 
+talkCmd   		EQU 		$0C   				; Command for Talk R0
+listenCmd 		EQU 		$08   				; Command for Listen R0 
 kbdAddr   		EQU 		$02   				; keyboard type device 
 mouseAddr 		EQU 		$03   				; mouse type device 
 numFDBAdr 		EQU 		16   				; number of avaiblae FDB address 
@@ -62,8 +52,6 @@ Flags			ds.b	1				; modifier/status flags (bit definitions below)
 NoReply			equ		1				; flag for 'command timed out'
 SRQReq			equ		2				; int flag for 'device requesting service'
 SetPollEnables	equ		5				; Update auto-enable bit mask from ADBData field	<1.4>
-PollEnable		equ		6				; enable auto polling and auto srq polling
-ExplicitCmd		equ		7				; message contains an explicit cmd
 
 DataCount		ds.b	1				; number of bytes of ADBData (0..8) (cmd not included)
 ADBCmd			ds.b	1				; ADB command to send / command that replied
@@ -128,7 +116,7 @@ hasDev			ds.w	1	    			; every bit corresponds to an device address
 devMap			ds.w	1	  				; device address map (2 bytes)
 
 				ds.l	1					; unused space												<6>
-				ds.l	1					; •• Now Used! ••  Pointer to Extended ADB Data (4 bytes)	<6>
+				ds.l	1					; unused space												<6>
 				ds.l	1					; unused space												<6>
 				
 fDBCmd			ds.b	1		  			; last fDB command (1 byte)

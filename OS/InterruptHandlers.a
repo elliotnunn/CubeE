@@ -465,6 +465,11 @@
 
 ;	interrupt setup primitives record
 
+IntRegs		reg		a0-a3/d0-d3			; registers saved by all interrupt handlers
+IntRegsSize	equ		8*4					; size of IntRegs in bytes - must change if IntRegs changes!
+										; if this changes, then you must update HALc96Routines.a to handle
+										; both old and new cases.
+
 InterruptPrims	RECORD	{intInitPostProc},INCREMENT
 flags			DS.W	1							; miscellaneous flags
 count			DS.W	1							; number of entries in the table

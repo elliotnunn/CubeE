@@ -10,12 +10,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;		<19>	11/25/92	DRF		Add a conditional patch inside a_hfsdispatch to save and restore
-;									A2 across calls the the real _HFSDispatch. This is a temporary
-;									fix until the PowerPC trap glue follows the proper register
-;									saving conventions. Code is conditionalized under “PsychicTV”
-;									and will be removed at the earliest possibility.
-;		<18>	 9/25/92	DRF		Get rid of MyGestalt, since inline glue exists
 ;		<17>	 3/30/92	DTY		#1025416,<DDG>: Add gestaltSkiaGlobalsSwitched to the list of
 ;									attributes for gestaltOSAttr.
 ;		<16>	11/25/91	DTY		Call GetParallelFCBFromRefNum in the _OpenRF patch to nail the
@@ -898,16 +892,7 @@ DoOldCall
 				lea		patchtraps, a5					; get patch array address
 				move.l	(a5,d2.w),a5					; get old routine
 				exg.l	a1,a5							; restore a5, a1 <- old trap
-
-	if	(PsychicTV) then
-				move.l	a2,-(sp)						; <19>
-	endif
 				jsr		(a1)							; call old trap
-
-	if	(PsychicTV) then
-				move.l	(sp)+,a2						; <19>
-	endif
-
 				move.l	(sp)+,MemTop					; restore memtop
 				rts										; and return to it
 
@@ -1758,5 +1743,22 @@ MNGSaveRegs		REG			d0-d1/a0-a2					; working registers
 				rts										; leave
 		
 				ENDPROC
+
+
+				SEG			'INIT'
+
+;---------------------------------------------------------------------------------------
+; "MyGestalt", resurrected, because it survived through to 7.1.1
+
+MYGESTALT		PROC		EXPORT
+
+				MOVE.L		8(SP),D0
+				_Gestalt
+				MOVE.L		4(SP),A1
+				MOVE.L		A0,(A1)
+				MOVE.L		(SP)+,A0
+				LEA.L		8(SP),SP
+				MOVE.W		D0,(SP)
+				JMP			(A0)
 
 				END

@@ -8,28 +8,9 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM30>	 1/14/94	ged		Added the jSWModemSoundVector field to the ExpandMemRec to
-;									support software modem sound using various modems.
-;	  <SM29>	11/11/93	fau		<aek>		Added pointer to Expansion Bus Manager Globals. Bumped
-;									version to	132.
-;	  <SM29>	10/31/93	aek		Added pointer to Expansion Bus Manager Globals. Bumped version to
-;									132.
-;	  <SM28>	10/29/93	pdw		Moved intRegs and intRegsSize from InterruptHandlers.a into this
-;									file to show that they are used elsewhere as well
-;									(SCSIMgr4pt3:HALc96Routines.a).
-;	  <SM27>	 9/12/93	SAM		Changed emFigmentGlobals to emHeapUtilsGlobals which is more
-;									accurate.
-;	  <SM26>	 9/11/93	SAM		Added emFigmentGlobals (new memory manager).  Bumped emVersion
-;									to 131 to reflect the first post cyclone expandmem change.
-;	  <SM25>	  6/7/93	CSS		Add expandmem to stash the control handle during thumb dragging.
-;									Plus rollin from Reality:
 ;		<85>	 5/20/93	KWR		Added emSpeechRecognitionGlobals and bumped the version number
 ;		<84>	 5/20/93	PKE		Delete names for obsolete fields emNumer, emDenom (they are now
 ;									unused).
-;	  <SM24>	05/19/93	HY		Added emIDEGlobals and updated emCurVersion.
-;	  <SM23>	 4/22/93	CSS		Remove ";" from emButtonIntGlobals.
-;	  <SM22>	 4/22/93	CSS		Change emFFSwapMMU to emButtomIntGlobals per expandmempriv.h.
-;									Also, update from Reality. Reality Comments follow:
 ;		<81>	 3/29/93	DTY		Added emAuxiliaryWindowHashTable and
 ;									emAuxiliaryControlHashTable.
 ;		<80>	 3/26/93	YK		Add emHasMultiScript.  This flag will be true if non-Roman
@@ -203,11 +184,6 @@ envXO			EQU			17
 envEclipse		EQU			18
 ; *********************************************************
 
-
-IntRegs		reg		a0-a3/d0-d3			; registers saved by all interrupt handlers
-IntRegsSize	equ		8*4					; size of IntRegs in bytes - must change if IntRegs changes!
-										; if this changes, then you must update HALc96Routines.a to handle
-										; both old and new cases.
 
 ;___________________________________________________________________________
 ;
@@ -388,7 +364,7 @@ emPrintingGlobals			ds.l	1				; Tsunami Printing Manager non-swapped printing gl
 
 emCursorGlobals				ds.l	1				; Ptr to CursorDev globals								<46>
 
-emButtonIntGlobals			ds.l	1				; Ptr to Button Interrupt globals. previously Ptr to "real" SwapMMUMode routine	<SM22> CSS				
+emFFSwapMMUMode				ds.l	1				; Ptr to "real" SwapMMUMode routine
 
 emAppleTalkInactiveOnBoot	ds.w	1				; True if AppleTalk was inactive on boot				<48>
 
@@ -424,23 +400,13 @@ emGadgetPixMap				ds.l	1				; PixMapHandle used by defprocs to draw gadgets
 emAuxiliaryWindowHashTable	ds.l	1				; Pointer to auxiliary window record hash table
 emAuxiliaryControlHashTable	ds.l	1				; Pointer to auxiliary control record hash table
 
-emIDEGlobals				ds.l	1				; IDE driver globals						<SM24>
-
 emSpeechRecognitionGlobals	ds.l	1				; Speech Recognition Globals				<85><KWR>
-
-emControlHandle				ds.l	1				; control handle used in _DragTheRgn when the thumb is being dragged so we can send a draw thumb outline message. <SM25> CSS
-
-emHeapUtilsGlobals			ds.l	1				; Heap Utilities globals
-
-emExpansionBusGlobals		ds.l	1				; Pointer to Expansion Bus Manager Globals
-
-jSWModemSoundVector			ds.l	1				; Vector to control routine for software modem sound
 
 ; NOTE: When adding new fields here, be sure to update the high-level language header files as well
 ; (currently {CInternal}ExpandMemPriv.h is the one)
 ; Be sure to update the Reality sources when you change this file (and the version number)
 
-emCurVersion		EQU			$0133				; version 
+emCurVersion		EQU			$0130				; version 
 
 emRecSize			equ			*					; size for this version
 size				equ			*

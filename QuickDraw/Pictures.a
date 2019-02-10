@@ -14,11 +14,6 @@
 ;									DrawPicture, XTXFONT, TXRATIO, AddFontToTbl, LineLayout,
 ;									GlyphState, BITSOP, tryBands, PutPicVerb, UpdatePat, DONEW,
 ;									NEWPP, PutPicPixPat, PutDirectPMData.
-;	   <SM2>	 4/15/92	RB		Rolled in patch to DrawPicture from QuickDrawPatches.a. Save and
-;									restore global info so DrawPicture is reentrant. Do not draw
-;									purged Picture Handles and mark Handles non purgeable before
-;									doing the DrawPicture. This fixes bugs in balloon help while
-;									printing, and a bug in ResEdit while printing in the background.
 ;		<43>	 10/2/91	DTY		Conditionalise last change for TheFuture.
 ;		<42>	 10/1/91	KON		Bail on picture playback if StdGetPic an AbortPicPlayBackErr.
 ;		<41>	 7/10/91	JSM		Remove obsolete SysVers conditional.
@@ -980,31 +975,16 @@ saveOutline		equ		saveQdChExtra-1			;Byte
 savePreserve	equ		saveOutline-1			;Byte
 saveFractional	equ		savePreserve-1			;Byte
 saveUnscaled	equ		saveFractional-1		;Byte
-SavePatAlign	EQU 	saveUnscaled-4			; 							<SM2> rb
-SavePlayPic		EQU 	SavePatAlign-4			; 							<SM2> rb
-SavePlayIndex	equ		SavePlayPic-4			; 							<SM2> rb
-SaveHandleState	equ		SavePlayIndex-2			; 							<SM2> rb
-VARSIZE 		EQU 	SaveHandleState			;TOTAL BYTES OF LOCALS 		<SM2> rb
+VARSIZE 		EQU 	saveUnscaled			;TOTAL BYTES OF LOCALS
 
 
 		LINK	A6,#VARSIZE 					;ALLOCATE LOCALS
 		MOVEM.L D3-D7/A2-A4,-(SP)				;SAVE REGISTERS
 		MOVE.L	GRAFGLOBALS(A5),A4				;POINT TO QUICKDRAW GLOBALS
 		MOVE.L	THEPORT(A4),A3					;POINT TO CURRENT GRAFPORT
-		MOVE.L	MYPICTURE(A6),D0				;IS PICHANDLE NIL ?						<SM2> rb
+
+		TST.L	MYPICTURE(A6)					;IS PICHANDLE NIL ?						<SM2> rb
 		BEQ 	GOHOME							;YES, QUIT
-		MOVE.L  D0,A0							; put handle in a0						<SM2> rb
-		MOVE.L 	(A0),D0							; has the handle been purged ?			<SM2> rb
-		BEQ		GOHOME							; if so, then skip drawing picture		<SM2> rb
-
-; remember some state so we can go re-entrant
-		_HGetState								; get the handle's state				<SM2> rb
-		MOVE.B	D0,SaveHandleState(A6)			; and save it, so it can be restored	<SM2> rb
-		_HNoPurge								; make picture handle unpurgeable		<SM2> rb
-
-		MOVE.L	PATALIGN(A4),SavePatAlign(A6)	; save this baby...						<SM2> rb
-		MOVE.L	PLAYPIC(A4),SavePlayPic(A6)		; and his baby brother					<SM2> rb
-		MOVE.L	PLAYINDEX(A4),SavePlayIndex(A6)	; and his big sister					<SM2> rb
 
 ;--------------------------------------------------
 ;
@@ -1318,13 +1298,9 @@ DONELP	MOVE.W	(A0)+,(A3)+ 					;COPY A WORD INTO THEPORT
 ;
 ;  RESTORE GLOBAL VARS AND QUIT
 ;
-		MOVE.L	SavePatAlign(A6),PATALIGN(A4)	; Restore PATALIGN						<SM2> rb
-		MOVE.L	SavePlayPic(A6),PLAYPIC(A4) 	; Restore PLAYPIC 						<SM2> rb
-		MOVE.L	SavePlayIndex(A6),PLAYINDEX(A4)	; And PLAYINDEX							<SM2> rb
-
-		MOVE.B	SavehandleState(A6),D0			; get saved pic handle state 			<SM2> rb
-		MOVE.L	MyPicture(A6),A0				; get pic handle in a0 again 			<SM2> rb
-		_HSetState								; and restore the handle's properties 	<SM2> rb
+		CLR.L	PATALIGN(A4)
+		CLR.L	PLAYPIC(A4)
+		CLR.L	PLAYINDEX(A4)
 
 GOHOME	MOVEM.L (SP)+,D3-D7/A2-A4				;RESTORE REGISTERS
 		UNLINK	PARAMSIZE,'DRAWPICT'

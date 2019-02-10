@@ -12,9 +12,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM5>	 5/21/93	CSS		Delete body of SMgrCalRect as it is obsolete per P. Edberg's
-;									review. Leave an RTS so that the vector here still works.
-;		<SM4>	10/22/92	CSS		Change some branch short instructions to word branches.
 ;		<10>	 6/12/92	FM		Broke out the SMgrpostMunging routine into its own proc, and put
 ;									it here. It used to be in ScriptMgrPatch.a. This way it can be
 ;									used in the rom build without all the unecessary patch code for
@@ -205,7 +202,7 @@ xSwapKybd								; <06/30/89 pke>
 
 		bne.s	@loadItlk					; no - go load itlk. Otherwise…
 		_UseResFile							; restore old resfile (refnum on stack)	<5><6>
-		bra 	DoneKybd					; bail, keep old KCHR & itlk. 			<SM4> CSS 
+		bra.s	DoneKybd					; bail, keep old KCHR & itlk.
 
 @loadItlk
 ; if we already have an itlk, dispose of it											<6>
@@ -463,11 +460,51 @@ DoneEvent
 ; warning:	This routine is a trap patch for InitMenus.
 ;			This routine saves all registers.
 ;
-; This routine is obsolete.
+; This routine calculates the bounds of the menubar icon.
 ; ----------------------------------------------------------------------------
 
+mbarIconPix	equ	16
+
 SMgrCalcRect Proc Export
+		with	SMgrRecord
+
+		movem.l	a2,-(sp)
+		GetSMgrCore a2
+
+		move.w	MBarHeight,d0				; vertical placement
+		lsr.w	#1,d0
+		subq	#mbarIconPix/2,d0
+		move.w	d0,smgrRect+top(a2)
+		add.w	#mbarIconPix,d0
+		move.w	d0,smgrRect+bottom(a2)
+
+		subq	#4,sp
+		move.l	sp,-(sp)
+		_GetWMgrPort
+		move.l	(sp)+,a0
+
+		tst.b	smgrIconSideFlag(a2)		; horizontal placement
+		bnz.s	@iconLeft
+
+@iconRight									; ...on one side...
+		move.w	portRect+right(a0),d0
+		sub.w	smgrIconOffset(a2),d0
+		move.w	d0,smgrRect+right(a2)
+		sub.w	#mbarIconPix,d0
+		move.w	d0,smgrRect+left(a2)
+		bra.s	@return
+@iconLeft									; ...or the other.
+		move.w	portRect+left(a0),d0
+		add.w	smgrIconOffset(a2),d0
+		move.w	d0,smgrRect+left(a2)
+		add.w	#mbarIconPix,d0
+		move.w	d0,smgrRect+right(a2)
+
+@return
+		movem.l	(sp)+,a2
 		rts
+
+		endwith
 		endproc
 
 ; ----------------------------------------------------------------------------

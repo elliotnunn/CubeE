@@ -9,8 +9,6 @@
 
 	Change History (most recent first):
 	 
-	  <SM18>	 7/21/93	joe		Back out <SM17>.
-		<16>	 9/25/92	DRF		Get rid of MyGestalt
 		<15>	 4/10/92	JSM		Undo revision 14, we fixed the problem someplace else.
 		<14>	  4/4/92	DTY		#1019369,<FM>: For each desk accessory, remember the current
 									keyboard state, and the keyboard state after the driver has been
@@ -70,7 +68,6 @@
 #include <osutils.h>
 #include <segload.h>
 #include <diskinit.h>
-#include <sound.h>
 #include <GestaltEqu.h>
 #include <Palettes.h>
 #include <Icons.h>
@@ -509,7 +506,7 @@ InitConfig(void)
 	Colorized = false;
 	Has32BitQD = false;
 	
-	if (Gestalt(gestaltQuickdrawVersion,&qdInfo) == noErr)
+	if (MyGestalt(gestaltQuickdrawVersion,&qdInfo) == noErr)
 		{
 		qdInfo &= 0xFFFF;
 		Colorized = (qdInfo >= gestalt8BitQD);

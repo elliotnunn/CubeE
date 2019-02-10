@@ -7,11 +7,6 @@
 ;
 ;	   <SM9>	  7/6/93	kc		Roll in Ludwig.
 ;	   <SM8>	  7/6/93	kc		Roll in bug fix from Shannon Holland.
-;	   <SM7>	01/19/93	HI		#1060484:Fixed bug in scIndToInd where it was not
-;									properly offseting while masking. Fixes bugs where
-;									>1 bit images are clipped and some garbage is drawn
-;									as a result. For a detailed information of the bug
-;									fix, read the header of scIndToInd. (Hoon Im)
 ;	   <SM6>	 12/4/92	CSS		Revert SM5 as SM4 already fixed this bug.
 ;	   <SM5>	 12/2/92	kc		Roll in <R22> from QuickDrawPatches in Reality.
 ;		<R22>	 8/13/92	SAH		#1039892: Fixed a bug in the ScaleBlt 1->16 non-colorizing loop
@@ -355,9 +350,6 @@ ScaleColorBit	EQU		3
 @1		cmp.l	-(a0),d0					;compare with dst pixel value
 		dbne	d0,@1
 		bne.s	@ScaleOK					;tables are not equal so perform pixel scaling
-
-		Bclr	#ScaleColorBit,XlateFlag+1(a6)	; •••  We are not scaling and it's an idendity map,
-												; •••  so set this bit for the callee
 
 ;if we installed a proc get rid of it before short circuiting stretch
 	
@@ -2310,24 +2302,12 @@ scIndexedto16
 ;	<28MAY92 SAH>
 ;		scale and clip indexed source to indexed dst
 ;
-;	<SM7>
-;		If mask data contains an offset, then set the destination alignment
-;		to 0 and recalculate the source alignment value. Use the high word
-;		of D4 to store srcShift-dstShift value; this value is used to
-;		convert a destination alignment value to a source alignment value.
-;		If srcShift-dstShift >= 0 (higher bit depth to lower bit depth), then
-;		shift the dstAlign value to the left; if srcShift-dstShift < 0
-;		(lower bit depth to higher bit depth), then shift the dstAlign value to
-;		the right. Subtract the resulting value from the source offset value;
-;		this causes the source buffer pointer to be offset by the appropriate
-;		value and a new srcAlign value to be calculated.
-;
 ;-------------------------------------------------------
 ;		a0 = tmpsrc			d0 = vert/scratch
 ;		a1 = tmpmask		d1 = scanCount/scratch
 ;		a2 = tmpdst			d2 = scratch / dst pixel
 ;		a3 = scaleTbl		d3 = run cnt / scanCount
-;		a4 = srcPtr/patPtr	d4 = srcShift-dstShift / dst pixel size		<SM7>
+;		a4 = srcPtr/patPtr	d4 = dst pixel size
 ;		a5 = dstPtr			d5 = scratch
 ;		a6 = locals			d6 = bit offset in src / offset in dst
 ;		a7 = 				d7 = src shift / dst shift
@@ -2346,11 +2326,6 @@ scIndtoInd
 		
 		move.l	scaleTbl(a6),a3		;set this up once
 		
-		swap	d4					;use high word						<SM7>
-		move.w	srcShift(a6),d4		;calculate the difference of		<SM7>
-		sub.w	dstShift(a6),d4		;source and destination bit shifts	<SM7>
-		swap	d4					;use low word						<SM7>
-
 		lea		@first,a0			;go here from now on
 		move.l	A3,scaleBltA3(a6)	;save for reload after seekMask
 		move.l	a0,ScaleCase(a6)	;remember for later
@@ -2403,19 +2378,6 @@ scIndtoInd
 		swap	d7				;get shift
 		lsl.w	d7,d5			;make into bit skip
 		swap	d7				;put shift back
-		swap	d4				;get bit shift difference				<SM7>
-		tst.w	d4				;shift left or right?					<SM7>
-		bmi.s	@shiftRight		;shift right							<SM7>
-		lsl.w	d4,d0			;convert dst alignment to src alignment	<SM7>
-		bra.s	@afterShift		;										<SM7>
-@shiftRight						;										<SM7>
-		neg.w	d4				;get absolute value						<SM7>
-		lsr.w	d4,d0			;convert dst alignment to src alignment	<SM7>
-		neg.w	d4				;revert shift difference value			<SM7>
-@afterShift						;										<SM7>
-		swap	d4				;get dst pixel size						<SM7>
-		sub.w	d0,d5			;subtract								<SM7>
-		move.w	#0,d0			;no dst alignment						<SM7>
 		add.w	d5,d6			;bump src offset
 		move.w	d6,d5			;make a copy							
 		and.w	#$1f,d6			;make offset mod 32

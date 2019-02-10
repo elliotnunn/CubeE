@@ -23,59 +23,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM30>	 11/7/93	SAM		Roll in <MC2> from mc900ftjesus.
-;	   <MC2>	 11/7/93	SAM		Sync-in this file with CPUBootcode.a from the gibbly sources.
-;	  <SM29>	 7/21/93	RC		Changed RegisterROMComponent to selector 42 instead of 27
-;	  <SM28>	 7/20/93	SAM		Cleaned up more stuff.  Moved the processmgr 'proc' resource
-;									loading code *way* forward in the boot.  The scod's end up being
-;									the very first resources in the heap. The "Welcome dialog is
-;									displayed after the scods are loaded.  Removed a couple of 24
-;									bit routines.  Redid the old installmgr code (which is now
-;									called InitSys7ToolBox).  See the comment block around that
-;									change for details.  Made QuickTime components not load on
-;									68010s.  Added labels to the ROM header references.
-;	  <SM27>	 6/17/93	rab		Removed the GetGibbly and CanThisGibblyBootThisMachine routines
-;									and the code that calls them. This code was inadvertantly rolled
-;									in during the Ludwig sync up.
-;	  <SM26>	 6/15/93	SAM		Undid change <LW2> for PDM.  We dont need a gibbly to boot
-;									(we're actually turning the ROM you see...)
-;	  <SM25>	 6/14/93	kc		Roll in Ludwig.
-;	  <LW2>		3/25/93		GS		Added GetGibbly and CanthisGibblyBootThisMachine routines to put 
-;									up the proper Alert when booting a 7.1 System without a Gibbly.
-;	  <SM24>	 4/20/93	SAM		Removed a call to _InitFonts, cuz _InitGraf calls it.
-;	  <SM23>	 2/12/93	PN		Add forROM condition for the previous change
-;	  <SM22>	02/11/93	HY		Fix problem in routine DetachAndExecute.  If a particular resource
-;									is not found in either the ROM or system file then you crash. 
-;	  <SM21>	02/10/93	HY		Enable Appletalk on LCR/LC930 again.  Revert <SM18> changes.
-;	  <SM20>	  2/5/93	SAM		Removed the code that was unimplementing MemoryDispatch based on
-;									MMUtype.  Removed the CPU/MMU checks before calling VM.  VM
-;									knows if it can run.
-;	  <SM19>	01/11/93	jmp		Updated various BoxFlag names.
-;	  <SM18>	12/16/92	HY		Disable Appletalk on LCR/LC930.
-;	  <SM17>	 12/7/92	GMA		We now call RegisterRomComponents directly from Boot3 instead of
-;									through the Manager InstallationVector(in ROM). Rom Components
-;									are registered (through ComponentDispatch) after making the
-;									Cyclone Gibbly Resident. This allows the Components in ROM to
-;									use Localized Strings in the Gibbly without referenceing the
-;									gibbly file directly.
-;	  <SM16>	 12/1/92	RB		Added a call to MakeOverrideMap so that the 'rovm' resource is
-;									used to override some system resources.
-;	  <SM15>	11/20/92	GS		Added the EnablePDMsgs for the Quadra 900/950 .  This was
-;									originally in a linked patch routine to avoid a problem with the
-;									KeySw handler early in the boot process.
-;	  <SM14>	11/18/92	RB		Finally, the Disk Cache code is in ROM so we don't need to
-;									install ptch 41 (the only one in SuperMario ROMs) anymore.
-;	  <SM13>	 11/3/92	RB		Use ROMBase to check for VM being in ROM or not, and call
-;									StripAddress on the resource pointer before checkin it, just in
-;									case we are in 24 bit mode.
-;	  <SM12>	 11/3/92	fau		Corrected a dereference in DetachandExecute.
-;	  <SM11>	11/01/92	HY		Conditionalize changes in <SM10> for LC930 because we don't have 
-;									VM in ROM.
-;	  <SM10>	10/30/92	RB		Give VM in ROM a chance to load when this file is being used as
-;									a ROM Gibbly. VM in ROM is newer than the one in the system and
-;									it behaves correctly in SuperMario based ROMs.
-;	   <SM9>	10/29/92	SWC		Changed ShutdownEqu.a->Shutdown.a.
-;		<SM8>	10/22/92	CSS		Change short branches to word branches.
 ;		<41>	 8/13/92	JDR		Offset to CloseTheFile was out of range in ForTheFuture.
 ;		<40>	 8/13/92	DTY		#1039434 <BBM>: Don’t register components from QuickTime if
 ;									we’re booting on a 68000.
@@ -466,12 +413,12 @@ supportsMFM				equ		1
 			include 'ReliabilityEqu.a'		; just for RelPRAM									<33>
 			include	'ResourceMgrPriv.a'		; for SetupResourceFileAttributes & Resource Override traps					<28> <29>
 			include 'ScriptPriv.a'			;													<13>
-			include 'ShutDown.a'			; just for _SDRestart								<33><SM9>
+			include 'ShutDownEqu.a'			; just for _SDRestart								<33>
 			include	'SonyEqu.a'				;													<11>
 			include	'TextServices.a'		; so we have SetTextServiceLanguage					<14>
 			include	'UniversalEqu.a'		; 													<15>
 
-						MACHINE	MC68020		; <SM28>
+						MACHINE	MC68040
 
 
 _AUXDispatch	 		opword	$ABF9		; <24> A/UX’s trap dispatch *** move to Traps.a
@@ -507,19 +454,6 @@ kPatchTableResourceType		equ	'ptbl'		; Resource type containing patch table rang
 kFileShareCreator		equ		'hhgg'		; <12>
 kAppleShareCreator		equ		'afps'		; <12>
 kDALCreator				equ		'dald'		; <12>
-
-	IF forROM THEN							; <28>
-
-SysVersForROM			equ		$0710		; <28> jam Cube-E system version into SysVersion lowmem for now
-
-kROMVersionPlus			equ		$0075		; <28>
-kROMVersionSE			equ		$0276		; <28>
-kROMVersionII			equ		$0178		; <28>
-kROMVersionPortable		equ		$037A		; <28>
-kROMVersionIIci			equ		$067C		; <28>
-kROMVersionSuperMario	EQU		$077D		; <28>
-
-	ENDIF									; <28>
 
 
 BootCode	MAIN
@@ -563,47 +497,15 @@ SetUpStartupScreen
 			bsr 	LoadDSAT				; get the handle
 			move.l	d0,d6					; stash this away to dispose later
 
-;____________________________________________________________________________________
-; Process Manager segment tweaks.
-;
-; Load these 'scod' resource as low as possible in the system heap to reduce
-; system heap fragmentation.
-;
-; Moved this code here so the 'scod's are THE first resources in the heap.  Reduces
-; fragmentation (7/20/93) SAM  					<SM28>
+			_InitFonts ; undoes sm-24
 
-kProcessManagerSegmentType	equ		'scod'		; Process Manager segment resource type <28>
+			bsr		EraseMyIcon
 
-				subq	#2,sp					; make room in stack for old resfile id	<28>
-				_CurResFile						; Remember the current resource file, in case we’re booting from a gibbly <28>
-				clr.w	-(sp)					; id zero is always the system file		<28>
-				_UseResFile						; Work on the System file				<28>
-
-				lea		ProcessManagerSegmentTable,a1	; Table of Process Manager segments to load low	<28>
-@loadSegmentLoop								;										<28>
-
-				move.w	(a1)+,d1				; Get a segment number					<28>
-				bz.s	DoneWithSegments		; Been there, done that.				<28>
-				subq	#4,sp					; room for handle result				<28>
-				move.l	#kProcessManagerSegmentType,-(sp) ;	push res type				<28>
-				move.w	d1,-(sp)				; push id								<28>
-				_Get1Resource					; Load it in							<28>
-				addq	#4,sp					; We don’t really care about the resource <28>
-				bra.s	@loadSegmentLoop		; go for the next one					<28>
-
-ProcessManagerSegmentTable						;										<28>
-
-				dc.w	$BFAC					; MiscSeg								<28>
-				dc.w	$BFB0					; KernelSeg								<28>
-				dc.w	$BFB2					; EPPCSeg								<28>
-				dc.w	0						; End of table							<28>
-
-DoneWithSegments								;										<28>
-				_UseResFile						; The current resource file is on the stack <28>
-
-
-			bsr		EraseMyIcon					; Erase the happy Mac a little later (after the processmgr loads) <SM28>
-
+			btst	#systemEnabledBit,ExtensionsEnabledByte
+			beq.s	@systemEnabled
+			moveq	#dsOldSystem,d0
+			_SysError
+@systemEnabled
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -666,6 +568,7 @@ ShowStartupScreen
 			move.l	(sp),-(sp)
 			clr.w	-(sp)					; srcCopy mode
 			clr.l	-(sp)					; no maskRgn
+			bsr		EraseMyIcon
 			_CopyBits
 
 			lea		bitMapRec(sp),sp		; get rid of our bitMap on the stack
@@ -676,6 +579,7 @@ ShowStartupScreen
 
 ; Now, do the welcome screen.
 
+			bsr		EraseMyIcon
 			moveq	#dsGreeting,d0			; put up the greeting
 			_SysError
 
@@ -686,6 +590,7 @@ ShowStartupScreen
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 UnimplementedTrap	EQU		$9F
 MemoryDispatchTrap	EQU		$5C
+GestaltTrap			EQU		$AD
 
 SetUpCPUFlag
 
@@ -749,14 +654,10 @@ CheckFor040CacheInhibit								; <5> SAM
 
 			_FlushInstructionCache					; Push both caches back to RAM (FlushICache will do both caches)	<10>
 
-			MACHINE	MC68040							; Generate 040 MOVEC instructions...								<SM28>
-
 			MOVEC	CACR,D0							; Get the CAcheControlRegister
 			AND.L	#~((1<<CACR_DE_040)|(1<<CACR_IE_040)),D0	; Create a mask excluding the DE & IE bits
 			MOVEC	D0,CACR							; Clear DE & IE in the CACR (caches are now inhibited)
 
-			MACHINE	MC68020
-			
 			MOVEQ	#0,D0							; Clear D0															<10>
 			MOVE.W	TimeDBRA,D0						; Get TimeDBRA														<10>
 			DIVU.W	#(1000/k040CyclesPerDBRA),D0	; Compute the clock rate based on TimeDBRA & k040CyclesPerDBRA		<10>
@@ -798,8 +699,8 @@ CheckFor040CacheInhibit								; <5> SAM
 
 ; Install the new dispatcher for systems that need it.
 
-;			import	InstallDispatch
-;			jsr		InstallDispatch
+			import	InstallDispatch
+			jsr		InstallDispatch
 
 ;——————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -959,7 +860,6 @@ DoWeHaveEnoughRAMToBoot
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
-		IF NOT forROM THEN					; <SM28>
 LoadTemporaryStripAddress
 
 ; Patch loading depends on StripAddress, so install a temporary version for the time before loading.
@@ -980,7 +880,6 @@ LoadTemporaryStripAddress
 			_SetTrapAddress newOS			; StripAddress doesn’t exist, use mine as a bootstrap
 			moveq	#1,d5					; <16> Use D5 to mean we patched _StripAddress.  Any number will do…
 @done
-		ENDIF
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
 LoadVMAndDebugger
@@ -1015,6 +914,14 @@ ChooseBufPtrLimit							;													<33>
 ; Put any VM limit to bufPtr’s descent into BootGlobals.bufPtrLimit(a5) (replacing the default).
 
 GetBufPtrLimit		equ			-4			; MemoryDispatch selector to get any bufPtr limit
+
+			move	#GestaltTrap,d0			; no ROM Gestalt means no MMU (Plus, SE, II?)
+			_GetTrapAddress newOS
+			move.l	a0,d1
+			move	#UnimplementedTrap,d0
+			_GetTrapAddress newTool
+			cmp.l	a0,d1
+			beq.s	@noVMLimit
 
 			move.l	#gestaltVMAttr,d0		; is VM on?
 			_Gestalt						;
@@ -1068,7 +975,7 @@ RelocateBootWorld
 
 			move.l	BootGlobals.logicalMemTop(a5), d0		; starting MemTop					<10>
 			cmp.l	BootGlobals.physicalMemTop(a5), d0		; did we add memory?				<10>
-			bls 	LoadUserAlerts							; if not, don’t bother				<10> <SM8> CSS 
+			bls.s	LoadUserAlerts							; if not, don’t bother				<10>
 
 			lsr.l	#1, d0									; new MemTop/2						<10>
 			move.l	d0, a1									; point to the new stack			<10>
@@ -1076,7 +983,7 @@ RelocateBootWorld
 ; fo the stack, so use the logical page size to figure out how many pages to bring in.			<12>
 			move.l	#gestaltLogicalPageSize, d0				; we want the page size				<12>
 			_Gestalt										; VM implements Gestalt				<12>
-			bne 	LoadUserAlerts							; huh? just bail…					<12> <SM8> CSS 
+			bne.s	LoadUserAlerts							; huh? just bail…					<12>
 			move.l	#kBootStackSizeNeeded, d1				; size of stack needed				<12>
 			move.w	a0, d0									; page size							<12>
 			divu	d0, d1									; number of pages we need			<12>
@@ -1115,14 +1022,12 @@ RelocateBootWorld
 			jmp		(sp)									; go to new code location			<10>
 
 FinishMovingBootWorld										;									<10>
-		IF NOT forROM THEN									;									<SM28> SAM
 			tst.w	d5										; <16> Check our _StripAddress semaphore
 			bz.s	@done									; <16> If D5 is not set, we didn’t patch _StripAddress
 
 			moveq	#$55, d0								;									<10>
 			lea 	TemporaryStripAddress, a0				;									<10>
 			_SetTrapAddress newOS							; retarget the interim StripAddress code	<10>
-		ENDIF
 @done														;									<10>
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1190,8 +1095,6 @@ ActivateTrackCache
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
-	IF NOT forROM THEN						; <SM2> rb <SM14> rb
-
 LoadFileSystemCache
 
 ; This makes assumptions about the RAM cache that are not true of the 6.X cache:
@@ -1216,115 +1119,12 @@ LoadFileSystemCache
 			moveq	#41,d0
 			bsr 	LoadLowerCaseptch
 
-	ENDIF									; <SM2> rb <SM14> rb
-
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
-
-		IF forROM THEN					;											<28>
-
-; In the SuperMario based ROMs, we do not run PTCH(0) or any other patches.  However, we do
-; need some of the functionality from PTCH(0).  So instead we will execute some of the code
-; which is relevant to SuperMario ROMs.  The code in here comes from the file BeforePatches.a
-; which gets compiled into PTCH(0), the Universal patch. (Or used to be-Universal). If the code
-; in this section gets too big, copy this file into a ROMBoot3.a file so that we do not bother
-; the system guys.
-
-; Make sure that ExpandMem is the latest, we leave this here because when the system changes, we
-; will need to recompile this gibbly resource and ship it with the system disks, therefore the
-; ROM will have an outdated version of ExpandMem.  The loading of new vectors from disk will
-; happen around this time, so the code that allocated the ExpandMem has already been executed
-; and there is no point on replacing it with a new vector.  So let's update ExpandMem. <28>
-
-
-			with	ExpandMemRec		;											<28>
-
-			movea.l ExpandMem,a0		; Let's see if we have the latest			<28>
-			move.l	emSize(a0),d0		; current size of ExpandMem record			<28>
-			cmpi.l	#emRecSize,d0		; already allocated new blocks?				<28>
-			bge.s	@noSpandex			; no change nessesary...  				    <28>
-
-; allocate a new block for the newer ExpandMem
-
-			movea.l a0,a1				; save original ExpandMem pointer			<28>
-			move.l	#emRecSize,d0		; allocate correct amount of space			<28>
-			_NewPtr ,SYS,CLEAR			; make pointer for a bigger and better copy	<28>
-			bne 	@ErrorXit			; no memory ? something must be really wrong <28>
-
-; a0 = pointer allocated for new expandMem of emRecSize bytes.
-; copy original bytes of expandMem into my local space.
-
-			move.l	emSize(a1),d0		; current size of ExpandMem record			<28>
-			exg 	a0,a1				; want source in a0							<28>
-			_BlockMove					; <29June89smb>	copy old data				<28>
-			move.w	#emCurVersion,emVersion(a1) ; version number					<28>
-			move.l	#emRecSize,emSize(a1) 	; size									<28>
-			move.l	a1,ExpandMem		; start using new expandMem					<28>
-
-; dispose of original ExpandMem pointer.
-			_DisposPtr					; still in a0 after move 					<28>
-			beq.s	@noSpandex			; exit if everything is ok					<28>
-
-@ErrorXit	_SysError					; <24Aug89smb>								<28>
-
-			endWith						;											<28>
-
-@noSpandex								; skip around when no room
-
-;____________________________________________________________________________________
-; Jam system version number.												<PP149>
-; *** we may not really want to do this in the ROM gibbly, but it doesn’t hurt
-
-			move.w	#SysVersForROM,SysVersion ; jam sys version number				<28>
-
-;____________________________________________________________________________________
-
-; Check to see if AppleTalk is active.  If it is not, set emAppleTalkInactiveOnBoot
-; to true.  Various other parts of the System will look at this global later on to
-; determine whether or not network code should be loaded.
-
-			move.b	SPConfig,d0				;  Get serial port configuration		<28>
-			and.b	#$0f,d0					;  Mask off Port B bits					<28>
-			beq.s	@appleTalkIsActive		;  Yes.  Don’t set emAppleTalkInactiveOnBoot <62>
-			cmp.b	#useATalk,d0			;  Configured for AppleTalk?			<28>
-			beq.s	@appleTalkIsActive		;  Yes.  Don’t set emAppleTalkInactiveOnBoot <28>
-
-			with	ExpandMemRec						; Get the system's globals	<28>
-			move.l	ExpandMem,a0						; 							<28>
-			move.w	#-1,emAppleTalkInactiveOnBoot(a0)	; just do it				<28>
-			EndWith										;							<28>
-
-@appleTalkIsActive										;							<28>
-
-; loop through all the open resource files, and clear the alternate attributes byte
-; then, set it for the system file
-
-SetupResourceFileAttributes					;											<28>
-			move.l	TopMapHndl,a0			;start with the first map					<28>
-@next										;											<28>
-			move.l	a0,d0					;are we done?								<28>
-			bz.s	@done					;											<28>
-			move.l	(a0),a0					;get the map pointer						<28>
-			bclr	#decompressionPasswordBit,mInMemoryAttr(a0)			; clear the flags for this map <28>
-			move.l	mNext(a0),a0			;go on to the next map						<28>
-			bra.s	@next					;											<28>
-@done										;											<28>
-			move.l	SysMapHndl,a0			;get the system map							<28>
-			move.l	(a0),a0					;											<28>
-			bset	#decompressionPasswordBit,mInMemoryAttr(a0)			; allow dcmps here 		<28>
-			bset	#dontCountOrIndexDuplicatesBit,mInMemoryAttr(a0)	; Don’t count duplicate resources in the System file <28>
-			bset	#twoDeepBit,mInMemoryAttr(a0)						; One deep calls on the System file will search two (or more) maps. <28>
-
-
-		ELSE								; not ROM, System version					<28>
 
 LoadPTCHZero
 
-; PTCH(0) does not get executed in SuperMario based ROMs, only in the System.			<28>
-
 			MOVEQ	#0,D0					; load patches for all ROMs
 			BSR 	LoadPTCH
-
-		ENDIF								; IF forROM									<28>
 
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1336,9 +1136,6 @@ LoadPTCHZero
 			move.l	d0,ExpandMemRec.emMinSysHeapFreeSpace(a0)
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
-
-	IF NOT forROM THEN						; don’t load ROM specfic patches or linked patches	<28>
-											; for SuperMario									<28>
 
 LoadPTCHROMSpecific
 		
@@ -1393,70 +1190,6 @@ LoadLinkedPatches
 					_SysError
 		
 @done
-
-	ENDIF									; IF NOT forROM									<28>
-
-; ——————————————————————————————————————————————————————————————————————————————————————————————————
-; Initialize all the System 7.0 Toolbox managers and finalize the VM installation
-; if its enabled.  Rewrote this (7/20/93) <SM28>.  Make Override needs to be called before
-; all the System 7 toolbox init code runs, TEInit after, and finally ROM component registration.	<SM28>
-;
-
-; In the SuperMario ROM, most of the 7.0 initialization routines have been grouped
-; together so that we can call them trough a 1 vector call.  This vector offset from
-; the start of the ROM is guaranteed not to change.  Later on we may want to change
-; this code so it can tell the vector routine which 7.0 Managers to initialize and
-; which ones not to initialize.  As in:  "We totally re-wrote the Sound Manager, so
-; don't bother installing the old one"
-
-	IF forROM THEN
-									; Override sys resources before initing the 7.0 toolbox stuff	<SM28>
-			
-			move.l	SysMapHndl,-(sp); Push the map to override (the System File map)
-			_MakeOverrideMap		; Override resources in the System with those in the 'romv'
-									; ROM resource.
-
-			WITH	ROMHeader
-			CLR.W	CurMap			; Make the System Map the current one
-
-			MOVE.L	ROMBase,A0					; Get base o ROM
-			ADD.L	InitSys7ToolboxOff(A0),A0	; Add in the offset to the routine of Doom
-			JSR		(A0)						; Call the 7.0 Toolbox initialization code	<SM28>
-					
-DoRegisterROMComponents
-			moveq	#42,d0							; Component Search selector for RegisterROMComponents					<70><72>
-
-			_ComponentDispatch						; register the components ('thng' rsrc's) in ROM
-			ENDWITH
-
-	ENDIF
-
-; ——————————————————————————————————————————————————————————————————————————————————————————————————
-
-; Load and Execute GoNative Loader
-LoadGoNative
-	
-			lea		KeyMap,A0				; Point to keymap					<76>
-			cmpi.l	#$03000000,(A0)			; Are both S & A down?
-			beq.s	@noLoad					; -> Nope, load as usual
-		;	cmpi.l	#$00200000,4(A0)		; Is N down?
-		;	beq.s	@noLoad					; -> Yes, (NSA) do not load the NTRBs
-			
-@load		move.w	#0,d0					; ID=0
-			move.l	#'gnld',d1				; type='gnld'
-			bsr		DetachAndExecute
-@noLoad
-
-
-; ——————————————————————————————————————————————————————————————————————————————————————————————————
-
-; Load and Execute Emulator Accelerations
-LoadEmulatorAccel
-	
-			move.b	#-1,ROMMapInsert
-			move.w	#1,d0					; ID=1
-			move.l	#'GARY',d1				; type='GARY'
-			bsr		DetachAndExecute
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -1648,6 +1381,9 @@ LoadSystemComponents						;													<9>
 
 ; Register any components lurking in the system file											<9>
 
+			btst	#extensionsEnabledBit,ExtensionsEnabledByte
+			bz.s	@skipThings
+
 ;pascal long RegisterComponentResourceFile(short resRefNum, short global)						<9>
 			clr.l	-(sp)					; return value										<9>
 			clr.w	-(sp)					; system map fref									<9>
@@ -1655,14 +1391,7 @@ LoadSystemComponents						;													<9>
 			_RegisterComponentResourceFile	;													<9>
 			addq	#4,sp					; ignore result										<9>
 
-;  In the case where a component had a cmpWantsRegisterMessage, it can happen that the component
-;  manager will clone the component and open it in the app heap  (if the sys heap is full).  Unfortunately,
-;  it looks like when that component is closed, the Component Manager globals still thinks that the cloned
-;  component is around.  This will most likely not be true after all the INITs load, since the sys heap 
-;  will grow pushing the app heap up which makes some handles to the "closed" component now invalid.
-;  The following call will make sure to remove any component instances left around in the app heap.
-
-			_CleanUpApplicationComponents	; clean up any components left in the app heap
+@skipThings
 
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1732,14 +1461,6 @@ LoadINITFiles
 			_ComponentDispatch					; look for 'thng's								<6>
 
 @skipINITs
-
-; ——————————————————————————————————————————————————————————————————————————————————————————————————
-
-;	Enable PowerDown Messages if Caboose is available											<SM15>
-
-			jsr		EnablePDMsgs
-
-;——————————————————————————————————————————————————————————————————————————————————————————————————
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -2227,8 +1948,8 @@ LoadINITFile
 ; <40> QuickTime components should not be registered on 68000 machines, since they all
 ;		assume the 020.
 
-			cmp.b	#cpu68020,CPUFlag		; <40> Are we on a 68000? (you mean, less than an '020 right? <SM28>)
-			blo.s	@skipQuickTimeFix		; <40> If so, don’t register QuickTime’s components
+			cmp.b	#cpu68000,CPUFlag		; <40> Are we on a 68000?
+			beq.s	@skipQuickTimeFix		; <40> If so, don’t register QuickTime’s components
 
 ;pascal long RegisterComponentResourceFile(short resRefNum, short global)				<9>
 			clr.l	-(sp)					; return value								<9>
@@ -2522,7 +2243,6 @@ GetINITResource
 			rts
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
-	IF NOT forROM THEN						; We's never gonna be a II 							<SM28>
 HandleMacIIWith030							; rewrite to simpler, more informed case			<48>
 
 ; Check for a Mac II ROM with a 68030.
@@ -2581,7 +2301,6 @@ HandleMacIIWith030							; rewrite to simpler, more informed case			<48>
 
 @bail
 			rts
-		ENDIF
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
 LoadVM
@@ -2592,9 +2311,14 @@ LoadVM
 			btst.b	#hwCbAUX,HWCfgFlags		; are we under A/UX?
 			bnz.s	@noVM
 
-	IF forROM THEN							; we want the newer VM in ROM						<SM10> rb
-			move.w	#mapTrue,ROMMapInsert	; use the ROM if available							<SM10> rb
-	ENDIF									;													<SM10> rb
+			moveq	#cpu68020,d0
+			cmp.b	cpuFlag,d0
+			blt.s	@yesVM
+			bgt.s	@noVM
+			cmp.b	MMUtype,d0
+			bgt.s	@noVM
+@yesVM
+
 			lea		VMName,a0				; put name of VM into CurApPtr						<37>
 			move.l	a0,CurNamePtr			; Put ptr to the VM string							<37>
 			moveq	#42,d0
@@ -2766,47 +2490,12 @@ DetachAndExecute
 ; Patches are called with their handle in D1.L.
 
 	
-	IF forROM THEN							; Special case ROM's VM					<SM10> rb
-			MOVE.L	D1,-(SP)				; save resource type					<SM10> rb
-			MOVE.W	D0,-(SP)				; save resource id						<SM10> rb
-	ENDIF									;										<SM10> rb
-
 			SUBQ	#4,SP					; make room on the stack
 			MOVE.L	d1,-(SP)
 			MOVE.W	d0,-(SP)
 			_GetResource					; get the resource handle
 			MOVE.L	(SP)+,D1				; save the resource handle
-			BNE.S	@GotResource			; did we find the resource?				<SM22> hy
-	IF forROM THEN							; <SM23> 
-			ADDA.L	#6,SP					; clean up stack and get out of here	<SM22> hy
-	ENDIF		
-			BRA.S	@skip					; we didn’t get it, so just go on		<SM22> hy
-	
-@GotResource								; found it								<SM22> hy
-
-	IF forROM THEN							;										<SM10> rb
-			CMP.L	#'ptch',2(SP)			; was this lowercase patch ?			<SM10> rb
-			BNE.S	@NotROM_VM				; if not, keep on						<SM10> rb
-			CMP.W	#42,(SP)				; was it id 42, VM ?					<SM10> rb
-			BNE.S	@NotROM_VM				; if not, don't special case			<SM10> rb
-			
-			MOVE.L	D1,A0					; put ROM's VM res handle in a0			<SM10> rb
-			MOVE.L	A0,-(SP)				; save this handle, potential ROM res	<SM10> rb
-			MOVE.L	(A0),A0					; let's get its pointer					<SM12> rb
-			MOVE.L	A0,D0					; copy resource pointer to D0			<SM10> rb
-			_StripAddress					; if in 24 bit mode, get rid of flags	<SM13> rb
-			MOVE.L	(SP)+,A0				; recover the resource handle			<SM10> rb
-			CMP.L	ROMBase,D0				; is it a ROM resource ?				<SM10> rb <SM13> rb
-			BLT.S	@NotROM_VM				; if not, don't copy to RAM, it's RAM	<SM10> rb
-			_HandToHand						; copy ROM to memory					<SM10> rb
-			MOVE.L	A0,D1					; and set their handle to ptch 42		<SM10> rb
-			_HLock							; make sure it's locked too				<SM10> rb
-			
-@NotROM_VM									;										<SM10> rb
-			ADDA.L	#6,SP					; recover saved type and id				<SM10> rb
-			
-	ENDIF																
-
+			BEQ.S	@skip
 			MOVE.L	D1,-(SP)				; detach it
 			_DetachResource
 			MOVE.L	D1,A0					; get the handle
@@ -3122,7 +2811,6 @@ AdjustBarrier	;																				<38>
 			rts
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
-	IF NOT forROM THEN								; not for us either... <SM28>
 TemporaryStripAddress
 
 ; This is a copy of StripAddress used on the Plus and SE during initialization.
@@ -3130,12 +2818,9 @@ TemporaryStripAddress
 
 			AND.L	Lo3Bytes,D0
 			RTS
-	ENDIF
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
 EraseMyIcon
-
-	IF NOT forROM THEN						; <28>
 
 ; Get rid of the happy Macintosh icon.
 ; The ROMs leave this icon on the screen and now that we have taken part of the
@@ -3168,23 +2853,6 @@ EraseMyIconTable
 			dc.w	kROMVersionPortable,$2B0C		; Portable
 			dc.w	kROMVersionIIci,$17DA			; IIci
 			dc.w	0
-
-	ELSE											;							<28>
-
-; SuperMario based ROMs have a vector at the start of the ROM where the			<28>
-; address of the EraseMyIcon routine from ROM is stored. So let's call it.		<28>
-
-			WITH	ROMHeader
-
-			MOVE.L	ROMBase,A0					; Get base o ROM
-			ADD.L	EraseIconOff(A0),A0			; Add in the offset to the Happy Mac erase code
-			JSR		(A0)						; Erase it.						<SM28>
-
-			ENDWITH
-
-			rts
-
-	ENDIF
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -3236,9 +2904,6 @@ CenterOnMainScreen
 
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 
-	IF NOT forROM THEN						; This patch is not needed when building this as	<28>
-											; a gibbly for SuperMario based ROMs.				<28>
-
 CachesOffMFMPatch
 
 			MOVE.L	(SP)+,DskRtnAdr		;Save return address
@@ -3265,54 +2930,6 @@ CachesOffMFMPatch
 
 
 EndCachesOffMFMPatch EQU	*
-
-	ENDIF									; IF NOT forROM										<28>
-; ——————————————————————————————————————————————————————————————————————————————————————————————————
-
-
-;__________________________________________________________________________________			<<SM15>> thru next <<SM15>>
-;
-;	EnablePDMsgs - Enable Eclipse PowerDown Messages
-;
-;		This causes Caboose PowerDown messages to be sent to Eclipse instead of
-;		having Caboose turn the power off FOR you.  This way, we can unmount volumes
-;		and flush file caches, etc.  The code that does this is initialized in the ROM
-;		but has problems running before the filesystem is initialized.  Hence, it lives
-;		here because this is where the ShutdownMgr finally gets itself established.
-;__________________________________________________________________________________
-
-
-EnablePDMsgs	
-;	Only perform this initialization on machines that have Caboose-style keyswitches			<5>
-;	(i.e.:  Eclipse + Zydeco)																	<5>
-;	AND now (i.e.:  Cyclone and Cyclone LC)														<5><SM13> rb
-;
-			move.l	d0,-(sp)						; save a handy working register				<5>
-			move.l	#KeyswMask,d0					; get isolation mask ready					<5>
-			and.l	UnivROMFlags,d0					; grab keyswitch bits in UnivROMFlags		<5>
-			sub.l	#KeyswCaboose,d0				; and check if we're a Caboose keyswitch	<5>
-			movem.l	(sp)+,d0						; restore D0 (MOVEM doesn't reset CCR)		<5><SM13> rb
-			blt.s	@exit							; IF Caboose-Style Keyswitch THEN			<5><SM13> rb
-;
-;		Enable Caboose/Cuda to send Power Down Messages
-;
-		WITH	EgretPB
-
-			movem.l	d0/a0-a1,-(sp)					;     create some work registers
-			suba.l	#EgretPbSize,sp					;     make room for PB
-			move.l	sp,a0							;     point A0 to parameter block
-			move.w	#(PseudoPkt << 8) \
-					+ EnDisPDM,pbCmdType(a0)		;     Enable PowerDown Messages
-			clr.l	pbParam(a0)						;     clr parm 								<SM6>
-			move.b	#PDMTurnOn,pbParam(a0)			;     Egret powerdown msg enable			<SM6>
-			clr.l	pbCompletion(a0)				;	  No Completion
-			_EgretDispatch
-
-			adda.l	#EgretPbSize,sp					;     discard the parameter block
-			movem.l	(sp)+,d0/a0-a1					;     restore registers
-@exit												; ENDIF
-			rts										; Return to Caller							<SM15>
-		ENDWITH
 
 
 EndOfBootCode

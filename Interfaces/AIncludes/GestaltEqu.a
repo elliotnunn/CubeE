@@ -10,63 +10,13 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM26>	 12/2/93	JDR		updated gestaltFinderAttr, added gestaltQuickTimeFeatures
-;	  <SM25>	 11/8/93	JRH		Added gestaltPowerBookDuo250 and gestaltPowerBookDuo270C.
-;	  <SM24>	10/28/93	SAM		Roll in <MC4> from mc900ftjesus.
-;	   <MC4>	10/28/93	SAM		Changed gestaltNativeCPUtype equates (making each cpu type take
-;									a range of 256 per architecture).
-;	  <SM23>	10/14/93	pdw		Added 'scsi' selector and bits.
-;	  <SM22>	09-24-93	jmp		Rolled in various equates from the Excelsior sources.
-;	  <SM21>	 8/12/93	BG		Updated the MachineType list to be somewhere closer to current.
-;	  <SM20>	  8/4/93	JDR		synch with Sound Mgr project.
-;		<19>	  8/4/93	IH		#1101633,1098397,1101795,1101636,1102280 <KON>: Fix 1102280. Add
-;									CloseView and Display Manager gestalt selectors.
-;	  <SM18>	 6/23/93	CSS		Update from Reality:
-;		<67>	  6/9/93	DRF		#1087472: Add gestaltFinderSupports4GBVolumes and
-;									gestaltFinderHandlesCFMFailures to gestaltFinderAttr.
-;		<66>	  6/1/93	DTY		Standardize Icon Utilities selector name.
-;		<65>	 5/11/93	JMF		Added equates for gestaltKeyboardType for the Apple
-;									Adjustable Keyboard (ISO & US) & Keypad
-;		<64>	 4/27/93	KIP		Add gestalt16BitSoundIO, gestaltStereoInput and
-;									gestaltLineLevelInput selectors.
-;		<63>	 3/29/93	ash		Added gestalt attribute/selectors for Macintosh PC Exchange as
-;									well as additional selector for Translation Manager.
-;		<62>	 3/29/93	ngk		Add GestaltValue macros
-;		<61>	 3/19/93	mgl		Add gestaltFinderAttr for Finder attributes.
-;		<60>	  3/5/93	JDR		Added gestalt16BitAudioSupport.
-;		<59>	 2/26/93	hjcr	Add the gestaltBgndMouseDownSupport bit
-;		<58>	 1/18/93	ash		Add selectors for Macintosh Easy Open and Translation Manager
-;	  <SM17>	 6/14/93	kc		Roll in Ludwig.
-;	   <LW3>	 4/29/93	fau		Bug #1081636:  Update from Reality:  changed some of the
-;									gestaltSoundattr bit assignments and added some others.
-;	  <SM16>	  3/2/93	CSS		Update from Horror. Comments follow:
-;		<H4>	12/15/92	RLE		add more released machines
-;		<H3>	 6/16/92	SWC		Added gestaltAppleEventsAttr.
-;		<H2>	11/12/91	jmp		Just brought this file slightly more up-to-date than it was;
-;	  <SM15>	 2/11/93	SAM		Added EMMU emulated MMU type. (Hooray for change SM14 !!!)
-;     <SM14>	02/10/93	HY		Remove change <SM13>.
-;	  <SM13>	01/11/93	HY		Added bit gestaltNoAtlkSupport in the gestaltMiscAttr selector.
-;	  <SM12>	12/13/92	SAM		Added gestaltNativeCPUtype and gestaltSysArchitecture.  Cleaned
-;									up this file (what a mess!)
-;	   <SM11>	10/27/92	fau		Added a gestaltHasEnhancedLTtlk bit to gestaltHardwareAttr.
-;	   <SM10>	 7/29/92	CSS		Update from Reality:
-;									<57> 7/28/92 JDR	<DCL> Added Sound Mgr 3.0 flags.
-;	   <SM9>	 7/28/92	WS		add realtime manager attribute for gestalt call
-;	   <SM8)	 7/20/92	CSS		Remove information about soundhardware from this file 
-;									as JDR has put the same information into GestaltEquPriv.a.
-;	   <SM7>	 7/15/92	RB		Added the gestalt result for Classic hardware.
-;	   <SM6>	 7/14/92	RB		Added the selector and types associated with sound hardware.
-;	   <SM5>	 6/10/92	CSS		Roll-in Reality changes:	
-;									<56> 6/5/92	 DC		Add the selector for checking for the presence of icon
-;														utilities.
-;									<55> 6/2/92	 JSM	#1031451 <csd>: Add gestaltPowerBook145.
-;									<54> 5/27/92 KIP	#1030293,<JDR>: Add gestaltPlayAndRecord bit for sound
-;														attributes.
-;									<53> 5/27/92 DCL	Moved gestaltQuadra950 into the public consciousness.
-;	   <SM4>	 5/20/92	KW		Put in Pandora additions P2
-;	   <SM3>	 5/19/92	CS		fix header
-;	   <SM2>	 5/19/92	CS		Integrated changes from Reality:
-;									<52> 4/9/92 JSM #1026795,<DTY>: Add gestaltMacLCII.
+;		<56>	 6/5/92		DC		Add the selector for checking for the presence of icon
+;									utilities.
+;		<55>	 6/2/92		JSM		#1031451 <csd>: Add gestaltPowerBook145.
+;		<54>	 5/27/92	KIP		#1030293,<JDR>: Add gestaltPlayAndRecord bit for sound
+;									attributes.
+;		<53>	 5/27/92	DCL		Moved gestaltQuadra950 into the public consciousness.
+;		<52>	  4/9/92	JSM		#1026795,<DTY>: Add gestaltMacLCII.
 ;		<51>	  1/7/92	KST		Added gestaltTSMgrVersion.
 ;		<50>	 12/3/91	SAM		Moved 'hwdr' bits gestaltHasSCSI961 and gestaltHasSCSI962 here
 ;									from the private Gestalt equates.
@@ -203,11 +153,6 @@ gestaltAppleTalkVersion		EQU		'atlk'    		; AppleTalk version
 gestaltAUXVersion			EQU 	'a/ux'    		; a/ux version, if present
 gestaltAUXNotPresent		EQU		0
 
-gestaltCloseViewAttr		EQU		'BSDa'			; CloseView attributes
-
-gestaltCloseViewEnabled					EQU 0		; Closeview enabled (dynamic bit - returns current state)
-gestaltCloseViewDisplayMgrFriendly		EQU 1		; Closeview compatible with Display Manager (FUTURE)
-
 gestaltComponentMgr 		EQU		'cpnt'			; Component Mgr version
 
 gestaltTSMgrVersion			EQU		'tsmv'			; Text Services Mgr version, if present
@@ -217,19 +162,6 @@ gestaltConnMgrPresent		EQU		0
 gestaltConnMgrCMSearchFix	EQU		1				; do we have fix to CMAddSearch?
 gestaltConnMgrErrorString	EQU		2
 gestaltConnMgrMultiAsyncIO	EQU		3
-
-gestaltNativeCPUtype		EQU		'cput'			; The native CPU type			<SM12><MC4>
-	; 68000 Architecture
-gestaltCPU68000				EQU 	$000
-gestaltCPU68010				EQU 	$001
-gestaltCPU68020				EQU 	$002
-gestaltCPU68030				EQU 	$003
-gestaltCPU68040				EQU 	$004
-	; PowerPC Architecture
-gestaltCPU601				EQU		$101			; IBM 601
-gestaltCPU603				EQU		$103
-gestaltCPU604				EQU		$104
-
 
 gestaltCRMAttr				EQU		'crm '			; comm resource mgr attributes
 gestaltCRMPresent			EQU		0				
@@ -247,11 +179,6 @@ gestaltDictionaryMgrPresent	EQU		0				; Dictionary Manager attributes
 gestaltDITLExtAttr			EQU		'ditl'    		; AppenDITL, etc. calls from CTB
 gestaltDITLExtPresent		EQU		0     			; True if calls are present
 
-gestaltDisplayMgrAttr		EQU		'dply'			; Display Manager attributes
-gestaltDisplayMgrPresent 	EQU		 0				; True if Display Mgr is present
-
-gestaltDisplayMgrVers		EQU		'dplv'			; Display Manager version
-
 gestaltEasyAccessAttr		EQU 	'easy'    		; Easy Access attributes
 gestaltEasyAccessOff		EQU		0     			; if Easy Access present, but off (no icon)
 gestaltEasyAccessOn			EQU		1     			; if Easy Access "On"
@@ -260,20 +187,9 @@ gestaltEasyAccessLocked		EQU		3     			; if Easy Access "Locked"
 
 gestaltEditionMgrAttr		EQU 	'edtn'    		; Edition Mgr attributes
 gestaltEditionMgrPresent	EQU		0     			; True if Edition Mgr present
-gestaltEditionMgrTranslationAware	EQU		1		; True if edition manager is translation manager aware
-gestaltTranslationMgrHintOrder		EQU		1		; True if hint order reversal in effect 
 
 gestaltAppleEventsAttr		EQU		'evnt'    		; Apple Events attributes
 gestaltAppleEventsPresent	EQU		0     			; True if Apple Events present
-
-gestaltFinderAttr			EQU		'fndr'			; Finder attributes
-gestaltFinderDropEvent		EQU		0				; Finder recognizes drop event
-gestaltFinderMagicPlacement	EQU		1				; Finder supports magic icon placement
-gestaltFinderCallsAEProcess	EQU		2				; Finder calls AEProcessAppleEvent
-gestaltOSLCompliantFinder	EQU		3				; Finder is scriptable and recordable
-gestaltFinderSupports4GBVolumes	EQU		4			; Finder correctly handles 4GB volumes
-gestaltFinderHandlesCFMFailures	EQU		5			; Finder handles Code Fragment Manager errors
-gestaltFinderHasClippings	EQU		6				; Finder supports Drag Manager clipping files
 
 gestaltFindFolderAttr		EQU  	'fold'    		; FindFolder attributes
 gestaltFindFolderPresent	EQU		0     			; True if FindFolder present
@@ -307,7 +223,6 @@ gestaltHasSoftPowerOff		EQU		19				; Capable of software power off
 gestaltHasSCSI961			EQU		21				; 53C96 SCSI controller on internal bus	<50>
 gestaltHasSCSI962			EQU		22				; 53C96 SCSI controller on external bus	<50>
 gestaltHasUniversalROM		EQU		24				; Do we gots a Universal ROM?			<49>
-gestaltHasEnhancedLtalk		EQU		30				; Do we have Enhanced LocalTalk
 
 gestaltHelpMgrAttr			EQU		'help'    		; Help Mgr Attributes
 gestaltHelpMgrPresent		EQU 	0     			; true if help mgr is present
@@ -327,9 +242,6 @@ gestaltADBKbdII				EQU		10
 gestaltADBISOKbdII			EQU		11
 gestaltPwrBookADBKbd		EQU		12				; <49>
 gestaltPwrBookISOADBKbd		EQU		13				; <49>
-gestaltAppleAdjustKeypad	EQU		14				; <65>
-gestaltAppleAdjustADBKbd	EQU		15				; <65>
-gestaltAppleAdjustISOKbd	EQU		16				; <65>
 
 
 gestaltLowMemorySize		EQU  	'lmem'    		; size of low-memory area
@@ -346,7 +258,6 @@ gestaltAMU					EQU 	1     			; address management unit
 gestalt68851				EQU 	2     			; 68851 PMMU
 gestalt68030MMU				EQU 	3     			; 68030 built-in MMU
 gestalt68040MMU				EQU 	4     			; 68040 built-in MMU
-gestaltEMMU1				EQU		5				; Emulated MMU type 1 (Power PC systems)
 
 gestaltNotificationMgrAttr	EQU		'nmgr'   		; notification manager attributes
 gestaltNotificationPresent	EQU		0    			; notification manager exists
@@ -367,16 +278,11 @@ gestaltTempMemTracked		EQU 	6         		; temporary memory handles are tracked
 gestaltIPCSupport			EQU 	7         		; IPC support is present
 gestaltSysDebuggerSupport	EQU 	8         		; system debugger support is present
 ; gestaltSkiaGlobalsSwitched is #9. I don't know why it is not here
-gestaltBgndMouseDownSupport	EQU		10				; Background mouse down support is present
 
 
 gestaltOSTable				EQU		'ostt'			; OS trap table base
 gestaltToolboxTable			EQU		'tbtt'			; Toolbox trap table base
 gestaltExtToolboxTable		EQU		'xttt'			; Extended Toolbox trap table base
-
-gestaltPCXAttr 				EQU 	'pcxg'			; PC Exchange attributes
-gestaltPCXHas8and16BitFAT	EQU		0				; PC Exchange supports both 8 and 16 bit FATs
-gestaltPCXHasProDOS 		EQU		1				; PC Exchange supports ProDOS
 
 gestaltLogicalPageSize		EQU		'pgsz'    		; logical page size
 
@@ -426,12 +332,8 @@ gestaltHasColor				EQU		0				; color quickdraw present							<37>
 gestaltHasDeepGWorlds		EQU		1				; GWorlds can be deeper than 1-bit					<37>
 gestaltHasDirectPixMaps		EQU		2				; PixMaps can be direct (16 or 32 bit)				<37>
 gestaltHasGrayishTextOr		EQU		3				; supports text mode grayishTextOr					<37>
-gestaltSupportsMirroring	Equ		4				; Supports video mirroring via the Display Manager.
 
 gestaltPhysicalRAMSize		EQU		'ram '    		; physical RAM size
-gestaltRBVAddr				EQU		'rbv '			; RBV base address									<SM4>
-gestaltSCCReadAddr			EQU		'sccr'			; SCC read base address								<SM4>
-gestaltSCCWriteAddr			EQU		'sccw'			; SCC write base address							<SM4>
 
 gestaltPopupAttr			EQU		'pop!'			; popup cdef attributes
 gestaltPopupPresent			EQU		0
@@ -439,25 +341,10 @@ gestaltPopupPresent			EQU		0
 gestaltResourceMgrAttr		EQU		'rsrc'    		; Resource Mgr attributes
 gestaltPartialRsrcs			EQU   	0     			; True if partial resources exist
 
-gestaltRealtimeMgrAttr		EQU		'rtmr'			; Realtime manager attributes						<SM9> WS
-gestaltRealtimeMgrPresent	EQU		0				; true if Realtime manager is present				<SM9> WS  
-
-gestaltScrapMgrAttr				EQU		'scra'		; Scrap manager attributes
-gestaltScrapMgrTranslationAware	EQU		0			; True if scrap manager is translation manager aware
-
 gestaltScriptMgrVersion		EQU		'scri'    		; Script Manager version number 					<08/05/89 pke>
 gestaltScriptCount			EQU		'scr#'    		; number of active script systems					<08/05/89 pke>
 
-gestaltSlotAttr				EQU		'slot'			; slot manager attributes							<SM4>
-gestaltSlotMgrExists		EQU		0				; true if slot mgr exists							<SM4>
-gestaltNuBusPresent			EQU		1				; NuBus slots are present							<SM4>
-gestaltSESlotPresent		EQU		2				; SE PDS slot present								<SM4>
-gestaltSE30SlotPresent		EQU		3				; SE/30 slot present								<SM4>
-gestaltPortableSlotPresent	EQU		4				; Portable's slot present							<SM4>
-
 gestaltNuBusConnectors		EQU		'sltc'			; bitmap of slots with NuBus connectors				<26>
-
-gestaltFirstSlotNumber		EQU		'slt1'			; returns first physical slot						<SM4>
 
 gestaltSoundAttr			EQU		'snd '        	; sound attributes
 gestaltStereoCapability		EQU		0         		; sound hardware has stereo capability
@@ -466,28 +353,15 @@ gestaltSoundIOMgrPresent	EQU		3				; The Sound I/O Manager is present
 gestaltBuiltInSoundInput	EQU		4				; built-in Sound Input hardware is present
 gestaltHasSoundInputDevice 	EQU		5				; Sound Input device available
 gestaltPlayAndRecord		EQU		6				; built-in hardware can play and record simultaneously
-gestalt16BitSoundIO			EQU		7				; sound hardware can play and record 16-bit samples
-gestaltStereoInput			EQU		8				; sound hardware can record stereo
-gestaltLineLevelInput		EQU		9				; sound input port requires line level
-													; the following bits are not defined prior to Sound Mgr 3.0
-gestaltSndPlayDoubleBuffer	EQU		10				; SndPlayDoubleBuffer available, set by Sound Mgr 3.0 and later
-gestaltMultiChannels		EQU		11				; multiple channel support, set by Sound Mgr 3.0 and later
-gestalt16BitAudioSupport	EQU		12				; 16 bit audio data supported, set by Sound Mgr 3.0 and later
 
 gestaltSpeechAttr 			EQU		'ttsc'			; Speech Manager attributes
 gestaltSpeechMgrPresent		EQU		0				; bit set indicates that Speech Manager exists
-
-gestaltSysArchitecture		EQU		'sysa'			; System architecture								<SM12>
-gestalt68k					EQU		1				; Motorola MC68k architecture
-gestaltPowerPC				EQU		2				; IBM PowerPC architecture
 
 gestaltStdNBPAttr			EQU		'nlup'			; standard nbp attributes
 gestaltStdNBPPresent		EQU		0
 
 gestaltStandardFileAttr				EQU		'stdf'  ; Standard File attributes
 gestaltStandardFile58				EQU   	0     	; True if selectors 5-8 (StandardPutFile-CustomGetFile) are supported
-gestaltStandardFileTranslationAware	EQU		1		; True if standard file is translation manager aware
-gestaltStandardFileHasColorIcons	EQU		2		; True if standard file has 16x16 color icons
 
 gestaltTextEditVersion		EQU		'te  '    		; TextEdit version number
 gestaltTE1					EQU 	1     			; TextEdit in MacIIci ROM
@@ -505,27 +379,15 @@ gestaltStandardTimeMgr		EQU		1         		; standard time mgr is present
 gestaltRevisedTimeMgr		EQU 	2         		; revised time mgr is present
 gestaltExtendedTimeMgr		EQU		3         		; extended time mgr is present
 
-gestaltVIA1Addr				EQU		'via1'			; VIA 1 base address								<SM4>
-gestaltVIA2Addr				EQU		'via2'			; VIA 2 base address								<SM4>
-
 gestaltVMAttr				EQU 	'vm  '    		; virtual memory attributes
 gestaltVMPresent			EQU 	0     			; virtual memory is present
 
-gestaltTranslationAttr		EQU		'xlat'			; Translation manager attributes
-gestaltTranslationMgrExists	EQU		0				; TRUE if translation manager exists
-
-gestaltIconUtilitiesAttr	EQU		'icon'			; Icon Utilities attributes
+gestaltIconUtilities		EQU		'icon'			; Icon Utilities attributes
 gestaltIconUtilitiesPresent	EQU		0				; true if icon utilities are present
 
 gestaltCompressionMgr		EQU		'icmp'			; returns version of the Image Compression Manager
 gestaltQuickTime			EQU		'qtim'			; returns version of QuickTime
-gestaltQuickTimeFeatures	EQU		'qtrs'			; return QuickTime features
 gestaltPPCQuickTimeLibPresent EQU	0
-
-gestaltSCSI 				EQU		'scsi'			; SCSI Manager attributes
-gestaltAsyncSCSI			EQU		0				; Supports Asynchronous SCSI 
-gestaltAsyncSCSIInROM		EQU		1				; Async scsi is in ROM (available for booting) 
-gestaltSCSISlotBoot			EQU		2				; This ROM supports Slot-style SCSI boots 
 
 
 **************************
@@ -554,55 +416,14 @@ gestaltClassicII			EQU		23				; <49>
 gestaltPowerBook100			EQU		24				; <49>
 gestaltPowerBook140			EQU		25				; <49>
 gestaltQuadra950			EQU		26				; <53>
-gestaltMacLCIII				EQU		27				; <SM21>
-gestaltPowerBookDuo210		EQU		29				; <H4>
-gestaltCentris650			EQU		30				; <SM21>
-gestaltPowerBookDuo230		EQU		32				; <H4>
-gestaltPowerBook180			EQU		33				; <H4>
-gestaltPowerBook160			EQU		34				; <H4>
-gestaltQuadra800			EQU		35				; <SM21>
 gestaltMacLCII				EQU		37				; <52>
-gestaltPowerBookDuo250		EQU		38				; 
-gestaltMacIIvx				EQU		45				; <SM21>
-gestaltColorClassic			EQU		49				; <SM21>
-gestaltPowerbook180c		EQU		50				; <SM21>
-gestaltCentris610			EQU		52				; <SM21>
 gestaltPowerBook145			EQU		54				; <55>
-gestaltLC520				EQU		56				; <SM21>
-gestaltCentris660AV			EQU		60				; <SM21>
-gestaltQuadra660AV			EQU		gestaltCentris660AV; thank you, Ian Diery
-gestaltPowerBookDuo270C		EQU		77				; 
-gestaltQuadra840AV			EQU		78				; <SM21>
 
 gestaltMachineIcon			EQU		'micn'        	; machine icon
 
 gestaltROMSize				EQU 	'rom '        	; ROM size
 gestaltROMVersion			EQU 	'romv'        	; ROM version
 gestaltSystemVersion		EQU  	'sysv'    		; system version
-
-gestaltInternalDisplay		EQU		'idsp'			; slot number of internal display location
-
-	IF &TYPE('_NewGestaltValue') = 'UNDEFINED' THEN
-
-		MACRO
-		_NewGestaltValue
-			move.w		#$0401,d0
-			dc.w		$ABF1
-		ENDM
-
-		MACRO
-		_ReplaceGestaltValue
-			move.w		#$0402,d0
-			dc.w		$ABF1
-		ENDM
-
-		MACRO
-		_DeleteGestaltValue
-			move.w		#$0203,d0
-			dc.w		$ABF1
-		ENDM
-
-	ENDIF	; _NewGestaltValue
 	
 	
 	

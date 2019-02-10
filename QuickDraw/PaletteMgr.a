@@ -9,18 +9,9 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM11>	10/28/93	SAH		Rolled out change SM9 because it brought out bugs in the font
-;									manager. Rolled out change 14 because it caused the bug that
-;									caused change SM9. Both of these are correct changes, we just
-;									need to take them out until FlushFonts really flushes ALL the
-;									fonts (for all processes)...
 ;	  <SM10>	10-19-93	jmp		Removed the ctSeed whacking (Kon explained the error of my
 ;									ways).  We’ll have to come up with some other method to fix
 ;									dimming.
-;	   <SM9>	 9/20/93	SAH		Fixed a bug in ActivatePalette where it would always mark black
-;									or white tolerant entries as handled. It really needed to make
-;									sure they weren't explicit as well.
-;	   <SM8>	 9/13/93	SAM		Added a "code" to PMExit to call _TrashProcess (HeapUtilities).
 ;	   <SM7>	08-03-93	jmp		Changed the SetDepth code so that the MenuBar gets redrawn first
 ;									after a depth switch.  This is the way the pre-System7 Monitors
 ;									'cdev' did things.  And it looks much nicer.
@@ -622,17 +613,6 @@ linkSize	DS.B		0						; linky number
 			WITH	PXVars
 			LINK	A6,#linkSize
 
-			movem.l	a0-a2/d0-d2,-(sp)		; Those pesky c routines					<mc8>
-			sub.l	a0,a0					; Pass the current process (0)
-			move.w	#12,d0					; _TrashProcess
-			;_FigmentDispatch				; let everyone know this stuff is gone
-			dc.w	$A0A4
-			movem.l	(sp)+,a0-a2/d0-d2		; Restore em
-
-		IF (forRom OR theFuture) THEN
-			MOVE.l	WindowList,wList(A6)	; <SM2> FM save the current window list
-		ENDIF
-		
 			TST.B	QDExist					; if InitGraf has not been called yet…
 			BNE.S	@doNothing				; (a5) not valid and there is nothing to do
 			CMP.L	#PMgrNil,PMgrHandle		; If the palette manager doesnt exist...
@@ -667,7 +647,7 @@ linkSize	DS.B		0						; linky number
 			JSR		CheckAllDeviceCluts		; A pretty simple patch, really.
 			CLR		-(SP)					; No Setentries on Scatter
 			JSR		ScatterDevices
-			BSR		CheckForJuggler			; Is Jugglertm active?
+			BSR.S	CheckForJuggler			; Is Jugglertm active?
 			BNE.S	@doNothing				; No=>WMgr is void, next line dangerous
 			JSR		UpdateDevices
 			MOVE.L	mainDevice,theGDevice
@@ -1243,14 +1223,7 @@ Correlate	PROC	EXPORT
 			MOVE.L	(A3),A3					; A3-> device colortable
 			CLR.L	D3						; Clear the upper bits, for BF ops
 ExplLoop	MOVE	ciUsage(A2),D7			; D7 = usage of this entry
-	if 0 then
-		; <SAH 28OCT93>
-		; I'm taking this code out for now. It causes us to not add entries that we used to add. This code
-		; is not installed for IIci ROMs. It only began being installed for SuperMario. By taking it out we
-		; bring the palette manager back to the Quadra Rom but bring back a bug with tolerant+explicit+
-		; inhibited...
 			BMI.S	ExplLoopEnd				; Already handled?
-	endif
 			BTST	#TolerantBit,D7			; A Tolerator?
 			BEQ.S	ExplLoopEnd				; No, try next
 			BTST	#ExplicitBit,D7			; Explicit Tolerator?

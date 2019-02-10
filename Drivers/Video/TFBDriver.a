@@ -9,8 +9,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM3>	 11/3/92	SWC		Changed SlotEqu.a->Slots.a and VideoEqu.a->Video.a.
-;		<SM2>	10/27/92	CSS		Changed some short branches to word branches.
 ;		 <8>	 8/21/91	JSM		Clean up header.
 ;		 <7>	  4/3/91	jmp		TFB registers are byte wide, but the TFB reset register was
 ;									being written to as a word.  So, I changed a Move.w to a Move.b
@@ -140,8 +138,8 @@
 				
 				Print		Off
 				INCLUDE		'ColorEqu.a'
-				INCLUDE		'Slots.a'
-				INCLUDE		'Video.a'
+				INCLUDE		'SlotEqu.a'
+				INCLUDE		'VideoEqu.a'
 			
 				INCLUDE		'TFBDepVideoEqu.a'
 				Print		On
@@ -811,11 +809,11 @@ SetGamma										; <C522/15Dec86> DAF
 			MOVE.L	D0,A1							; get pointer to new gamma table
 
 			TST.L	GVersion(A1)					; version, type = 0?
-			BNE 	BadCtl							; => no, return error <SM2> CSS
+			BNE.S	BadCtl							; => no, return error
 			CMP		#8,GDataWidth(A1)				; is data width 8?
-			BNE 	BadCtl							; => no, return error <SM2> CSS
+			BNE.S	BadCtl							; => no, return error
 			CMP		#256,GDataCnt(A1)				; 256 values per channel?
-			BNE 	BadCtl							; => no, return error <SM2> CSS
+			BNE.S	BadCtl							; => no, return error
 
 ; if new table is different size, reallocate memory
 

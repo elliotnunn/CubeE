@@ -9,8 +9,6 @@
 
 	Change History (most recent first):
 
-	   <SM4>	11/19/92	RB		Set ROMMapInsert to mapTRue to look for resources in ROM first.
-		<43>	11/13/92	JDR		Updated QuickDraw.h to not use the dangerous pattern type.
 		<42>	 11/7/92	JDR		Removed the PopupPrivateData record, which is now a public
 									structure.  Change occurances of the usage too,
 		<41>	 11/3/92	DTY		Strip out unnecessary includes.
@@ -287,6 +285,7 @@
 		Make popup return different part codes
 */
 
+#define dangerousPattern
 #include <Types.h>
 #include <Controls.h>
 #include <Fonts.h>
@@ -860,8 +859,7 @@ long DoTrack(ControlHandle hControl, short theVar)
 	useSpandex = (growWidth > 0);
 
 	if (useSpandex) {										// invoke spandex MDEF
-		*(short*) RomMapInsert = mapTrue;												// <SM4> rb
-		theHandle = (SpandexH) GetResource(SpandexResType, SpandexMDEF);				// <SM4> rb
+		theHandle = (SpandexH) GetResource(SpandexResType, SpandexMDEF);
 		if (theHandle != nil) {								// load in spandex MDEF
 			LoadResource( (Handle) theHandle );				// load in case of purged -- now unpurgeable so remove this
 			HLock( (Handle) theHandle );

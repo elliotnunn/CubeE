@@ -13,12 +13,6 @@
 ;									devices.
 ;	   <SM4>	  4/8/93	IH		Add some comments on Display Manager assumptions about
 ;									InitGDevice to InitGDevice header.
-;	   <SM3>	  2/4/93	CSS		Update from Horror:
-;		<H2>	 7/10/92	SWC		Made a change to GetDevPixMap to fix a problem with fixed
-;									devices. It was generating a new ctSeed unconditionally, which
-;									caused problems with the IconUtilities package since the Palette
-;									Manager would say that the tolerance between the device's and
-;									system CLUTs wasn't close enough to draw a multi-bit icon.
 ;	   <SM2>	 6/11/92	stb		<sm 6/9/92>stb Synched with QDciPatchROM.a, added comments to
 ;									DisposGDevice and InitGDevice.
 ;		 <8>	 7/24/90	gbm		get rid of stupid branch
@@ -782,17 +776,11 @@ GetFromSlot	MOVE.B	#mTable,spID(A0)			; the fixed table							<2.3>
 			MOVE.L	A1,spResult(A0)				; put handle in destination					<2.3>
 			_sReadStruct						; read the table from the ROM				<2.3>
 
-;••• <SM3> CSS rollin patch GetDevPixMapPatch from horror
-			MOVE.L	ctSeed(A1),D0				; get the current seed						<H2>
-			BEQ.S	@GetNewSeed					; -> it's zero, so generate a new one		<H2>
-			CMPI.L	#minSeed,D0					; is it a resource ID?						<H2>
-			BLE.S	@UseOriginalSeed			; -> yes, assume we know what we're doing	<H2>
 @GetNewSeed	SUBQ	#4,SP						; make room for function result				<2.3>
 			_rGetCTSeed							; get a new, unique ctable seed				<2.3>
 			MOVE.L	(SP)+,ctSeed(A1)			; put in the new seed						<2.3>
 @UseOriginalSeed
 												;   transindex/ctflags set below			<2.3>
-;••• <SM3> CSS end rollin GetDevPixMapPatch from Horror
 
 			MOVE.L	A4,spsPointer(A0)			; Restore the pointer to mode list.			<C742>
 			bra.s	TableOK

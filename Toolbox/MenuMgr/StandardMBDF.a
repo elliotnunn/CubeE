@@ -10,7 +10,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;		<SM3>	10/22/92	CSS		Change some branch short instructions to word branches.
 ;		<49>	 4/30/92	DTY		#1027995 <KSM>: SetTitleColor expects a4 to point to a MenuInfo
 ;									record on entry. The BannerMsg routine calls SetTitleColor
 ;									without setting up a4. This kinda makes sense, since the menu
@@ -826,7 +825,7 @@ SkipSysLoop
 DONEDRAWMLOOP
 				BSR		ClipMBar				; Restore the clip to the whole menu bar <10>
 				move	saveD3(a6), d0			; get savedID of hilited menu			<FJL A428>
-				beq 	DrawDone				; branch if none						<FJL A428> <SM3> CSS 
+				beq.s	DrawDone				; branch if none						<FJL A428>
 				move	d0,d3					; and put it in d3 too					<FJL A428>
 				bsr		GetTitleRect			; get selected title's rect				<FJL A428>
 				move.l	menuOH(a3,d3),a0		; get selected menuHandle				<FJL A428>
@@ -1468,7 +1467,7 @@ CalcBar
 				MOVE.L	SystemMenuList, A0		; Get system menulist
 				MOVE.L	(A0), A1				; deref system menulist handle
 				TST.W	lastMenu(A1)			; Are there any system menus?
-				BEQ 	SystemMenusAreIN		; Well, there aren't any -- so they are all in! <SM3> CSS 
+				BEQ.S	SystemMenusAreIN		; Well, there aren't any -- so they are all in!
 
 				BSR		FindFirstSystemMenu6BO	; See if the system menus are in.
 				BNE.S	SystemMenusAreIN		; Yes, they are (D0 is offset to 1st one)
@@ -1721,7 +1720,7 @@ HiliteBar
 				BSR		ClipMBar				;								<EMT S297>
 
 				MOVE.W	param2+2(A6),D0			; get the hilite selector
-				BEQ	FlipBar						; if index = 0 then flip bar		<FJL C175><35> <SM3> CSS 
+				BEQ.S	FlipBar						; if index = 0 then flip bar		<FJL C175><35>
 
 				CMP.W	#1,param2(a6)			; hi-word has hilite
 				BGT.S	DoneHilite				; if not in range we support then bye-bye

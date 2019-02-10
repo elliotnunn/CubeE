@@ -740,7 +740,7 @@
 			{14, 15, 46, 447},
 			StaticText {
 				disabled,
-				"About Keyboards"										//	<23>
+				"About Keyboards…"										//	<23>
 			}
 		}
 	};
@@ -763,7 +763,7 @@
 			{14, 17, 44, 422},
 			StaticText {
 				disabled,
-				"About Keyboards"										//	<23>
+				"About Keyboards…"										//	<23>
 			}
 		}
 	};
@@ -792,7 +792,7 @@
 			{14, 15, 46, 447},
 			StaticText {
 				disabled,
-				"About Keyboards"					
+				"About Keyboards…"					
 			}
 		}
 	};

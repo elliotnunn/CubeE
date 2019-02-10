@@ -12,9 +12,6 @@
 ;
 ;	   <SM6>	 9/12/93	SAM		Changed all instances of _Translate24to32 to _rTranslate24to32
 ;									so they can conditionalized out of the build.
-;	   <SM5>	  2/4/93	CSS		Update from Horror:
-;		<H3>	 7/13/92	djw		<GED> Overpatched DrawCursor, EraseCursor and SetCrsrData,
-;									vectorizing them to allow access later.
 ;	   <SM4>	 6/11/92	stb		<sm 6/9/92>stb Add comments from QDciPatchROM.a to ShowCursor,
 ;									SetCCursor
 ;	   <SM3>	 5/16/92	kc		Add forRom conditionals around last change.
@@ -549,19 +546,18 @@ HideCursor
 		;Fall into EraseCursor
 
 ;________________________________________________________________________
-;	<SM5> CSS Horror vectorized this vector.  We are supporting this to be
-;   compatible with Horror.
-;	EraseCursor calls a vectorized version of the routine via lomem.
-;	EraseCursor is vectorized to gain access to low level cursor blit routines.
-;	(NOTE: Vector is initialized in StartInit.a to routine named VEraseCursor.)
-
 ; EraseCursor is much like HideCursor, but doesn't decrement the CrsrState	<dvb 19sep88>
 
+			IMPORT	UNBLITCURSOR
 EraseCursor
-		move.l	EraseCrsrVector,-(sp)			;<SM5> CSS
-		rts										;jump to the vectored routine <SM5> CSS
-DoneHid	CLR.B	CRSRBUSY						;CHANGE COMPLETE
-		RTS
+			MOVE.B	#1,CRSRBUSY 					;MARK CHANGE IN PROGRESS
+			TST.B	CRSRVIS 						;IS CURSOR VISIBLE?
+			BEQ.S	DoneHid							;NO, DON'T TRY TO REMOVE IT
+			
+			BSR		UNBLITCURSOR					;Zap Pixels
+
+DoneHid		CLR.B	CRSRBUSY						;CHANGE COMPLETE
+			RTS
 
 
 ;_______________________________________________________________________
@@ -607,20 +603,24 @@ ShowCursor
 		;fall into DrawCursor
 
 ;________________________________________________________________________
-;	<SM5> CSS Horror vectorized this vector.  We are supporting this to be
-;   compatible with Horror.
-;   DrawCursor calls a vectorized version of the routine via lomem.
-;	DrawCursor is vectorized to gain access to low level cursor blit routines.
-;	(NOTE: Vector is initialized in StartInit.a to routine named VDrawCursor.)
-
 ; DrawCursor is much like ShowCursor, but doesn't increment the CrsrState	<dvb 19sep88>
 
+			IMPORT	BLITCURSOR
 DrawCursor
-		move.l	DrawCrsrVector,-(sp)			; <SM5> CSS
-		rts										;jump to the vectored routine <SM5> CSS
+			MOVE.B	#1,CRSRBUSY 					;MARK CHANGE IN PROGRESS
+		
+			TST		CRSRSTATE
+			BMI.S	DoneSho							;QUIT IF STILL HIDDEN
+			CLR 	CRSRSTATE						;DON'T LET CRSRSTATE GET > 0
+			TST.B	CRSRVIS 						;IS CURSOR ALREADY VISIBLE?
+			BNE.S	DoneSho							;YES, DON'T TRY TO REDRAW
+			TST.B	CrsrObscure						;Skip if obscured
+			BNE.S	DoneSho
 
-DoneSho	CLR.B	CRSRBUSY						;CHANGE COMPLETE
-		RTS
+			BSR		BLITCURSOR						;Do the real work: put pixels up
+
+DoneSho		CLR.B	CRSRBUSY						;CHANGE COMPLETE
+			RTS
 
 ;_______________________________________________________________________
 ;
@@ -908,8 +908,6 @@ SetCrsrData		PROC	EXPORT
 ;  This routine is called to initialize low-memory locations
 ;  to the necessary values for the grafDevice pointer in A1.
 ;
-				IMPORT	SetCrsrDelay			;<SM5> CSS
-				bsr.l	SetCrsrDelay			;<SM5> CSS
 				MOVE.L	CRSRPTR,A0				;get handle to cursor data
 				MOVE.L	(A0),A0					;get pointer to cursor data
 

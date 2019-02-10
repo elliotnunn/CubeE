@@ -9,8 +9,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;		 <5>	 9/29/92	DRF		Put back the END that got deleted in <4>
-;		 <4>	 9/25/92	DRF		Get rid of MyGestalt
 ;		 <2>	  1/3/91	fjs		(DFH) pass edit function keys to DAHandler
 ;		 <0>	 x/xx/86	PYG		New Today.
 ;
@@ -171,5 +169,23 @@ GSHSDone
 				rts
 				
 				ENDPROC
+
+
+
+				SEG			'Init'
+
+;---------------------------------------------------------------------------------------
+; "MyGestalt", resurrected, because it survived through to 7.1.1
+
+MYGESTALT		PROC		EXPORT
+
+				MOVE.L		8(SP),D0
+				_Gestalt
+				MOVE.L		4(SP),A1
+				MOVE.L		A0,(A1)
+				MOVE.L		(SP)+,A0
+				LEA.L		8(SP),SP
+				MOVE.W		D0,(SP)
+				JMP			(A0)
 
 				END

@@ -9,10 +9,6 @@
 
 	Change History (most recent first):
 
-	   <SM3>	 8/25/93	BH		Added dialogs for use by manual-eject drive software. This may
-									not be the most appropriate place for them, but they need a home
-									for now.
-	   <SM2>	 3/24/93	dwc		Changed to include AppleTalk resource AT58 instead of AT57.
 	   <290>	 1/23/92	hsK		Deleted 'dtab' resource which is no more used by the Dictionary
 									manager.
 	   <289>	 1/18/92	DTY		Lock the print driver so that it will get loaded low in the
@@ -1168,8 +1164,8 @@
 //__________________________________________________________________________________________________
 // AppleTalk
 
-	// AppleTalk 58 resources
- 	include $$Shell("Misc")"APTK58.rsrc" not 'ckid';
+	// AppleTalk 57 resources
+ 	include $$Shell("Misc")"APTK57.rsrc" not 'ckid';
 	
 	// ^^ incorporates the following:
 	// IncSys "AppleTalk.rsrc" not 'vers';
@@ -3530,78 +3526,4 @@ data 'ppat' (18, sysheap, purgeable) {
 
 #if hasAppleEventMgr
 	IncSys "AppleEventMgr.rsrc";
-#endif
-
-//__________________________________________________________________________________________________
-// Manual-eject drive stuff
-// This dialog and alert are used by the manual-eject drive software to communicate with the user
-// when a dirty disk has been manually-ejected.  This may not be the best place for them, but they
-// need to go somewhere for now.
-
-#if hasManEject
-resource 'DLOG' (-16413, sysheap, purgeable) {
-	{73, 114, 159, 411},
-	dBoxProc,
-	visible,
-	noGoAway,
-	0x0,
-	-16413,
-	""
-};
-
-resource 'DITL' (-16414, sysheap) {
-	{	/* array DITLarray: 2 elements */
-		/* [1] */
-		{60, 229, 80, 287},
-		Button {
-			enabled,
-			"OK"
-		},
-		/* [2] */
-		{9, 72, 54, 287},
-		StaticText {
-			disabled,
-			"Failing to update your disk may result i"
-			"n data loss."
-		}
-	}
-};
-
-resource 'DITL' (-16413, sysheap, purgeable) {
-	{	/* array DITLarray: 3 elements */
-		/* [1] */
-		{60, 229, 80, 287},
-		Button {
-			enabled,
-			"OK"
-		},
-		/* [2] */
-		{9, 72, 54, 287},
-		StaticText {
-			disabled,
-			"You may now safely remove the disk."
-		},
-		/* [3] */
-		{9, 10, 41, 42},
-		Icon {
-			disabled,
-			1
-		}
-	}
-};
-
-resource 'ALRT' (-16414, sysheap, purgeable) {
-	{73, 114, 159, 411},
-	-16414,
-	{	/* array: 4 elements */
-		/* [1] */
-		OK, visible, sound1,
-		/* [2] */
-		OK, visible, sound1,
-		/* [3] */
-		OK, visible, sound1,
-		/* [4] */
-		OK, visible, sound1
-	}
-};
 #endif

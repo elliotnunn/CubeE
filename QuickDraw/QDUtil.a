@@ -11,9 +11,6 @@
 ;	   <SM7>	 9/12/93	joe		seperately conditionalize out ElsieTranslate24To32.
 ;	   <SM6>	 9/12/93	SAM		Changed all instances of _Translate24to32 to _rTranslate24to32
 ;									so they can conditionalized out of the build.
-;	   <SM5>	 1/26/93	kc		Fix bug in GetAlphaMask. (renamed mask to alphaMask to avoid
-;									name collision)
-;	   <SM4>	 1/25/93	kc		Roll in Shannon Holland's alpha channel stuff.
 ;	   <SM3>	 7/16/92	CSS		Update from Reality:
 ;	   <R21>	 6/8/92		SAH		#1031825: Changed ColorMap to ignore the multColor flag.
 ;	   <SM2>	 6/11/92	stb		<sm 6/9/92>stb Synch with QDciPatch.a; added comments to
@@ -126,24 +123,6 @@
 ;  15Sep88	BAL		Compute slab bit-width as a long
 ;  19Sep88 	BAL		Altered ColorMap, DrawSlab to use common stack frame file 'Drawing Vars.a'
 ;  22Jan89	BAL		Altered DrawSlab loops to use patVPos as a long.
-
-
-;																	; <SM4>.start
-; Macros to set the alpha channel mask.
-; These will be moved into an interface file as soon as
-; the High Level API for manipulating the alpha channel is complete.
-;
-		MACRO
-		_GetForeAlphaMask
-		MOVE.W	#$0F,d0
-		JSR		([$E00+$3C0*4])
-		ENDM
-
-		MACRO
-		_GetBackAlphaMask
-		MOVE.W	#$10,d0
-		JSR		([$E00+$3C0*4])
-		ENDM															; <SM4>.end
 
 
 VisRgnChanged	PROC	EXPORT				;<26MAR90 KON>
@@ -569,7 +548,7 @@ VARSIZE			EQU		0					;SIZE OF LOCALS
 		BPL		@noalpha					;yes, alpha mode is illegal
 		MOVE.W	dstPix+pixelSize(A6),D0		;get depth of destination
 		CMP.W	#16,D0						;direct device?
-		BLT		@noalpha					;no, skip this stuff											; <SM4>
+		BLT.S	@noalpha					;no, skip this stuff											; <SM4>
 		MOVE.L	grafVars(A2),D4				;get grafvars handle
 		BEQ		@noalpha					;no grafvars, no alpha
 		MOVE.L	D4,A0						;copy handle
@@ -577,16 +556,13 @@ VARSIZE			EQU		0					;SIZE OF LOCALS
 		BTST	#PmNewGVBit-8,pmFlags(A1)	;make sure grafvars have been expanded
 		BEQ.S	@noalpha					;if not, bail
 		MOVE.B	streamMode(A1),alphaMode(A6);save alpha mode in stack frame
-		SUB		#18,SP						;make room on stack for results and first error					; <SM4>.start
-		move.l	a0,-(sp)					;push GrafVars handle											
-		PEA		14(SP)						;push pointer to where we want results for background stream	
-		subq	#2,sp						;room for error													
-		move.l	a0,-(sp)					;push GrafVars handle											
-		PEA		16(SP)						;push pointer to where we want results for foreground stream	
-		_GetForeAlphaMask					;get foreground stream and ratio								
-		addq	#2,sp						;clear error													
-		_GetBackAlphaMask					;get background stream and ratio								
-		addq	#2,sp						;clear error													; <SM4>.end
+		SUB		#16,SP						;make room on stack for results and first error					; <SM4>.start
+		PEA		backStream(A1)
+		PEA		12(SP)
+		PEA		foreStream(A1)
+		PEA		12(SP)
+		_StreamToMask
+		_StreamToMask
 		MOVE.L	(SP)+,D0					;get alpha mask
 		MOVE.L	(SP)+,D4					;get alpha fore color
 		CMP.W	#srcXor,D5					;are we xoring?
@@ -955,12 +931,6 @@ xrgbGray	DC.W	$7FFF,$7FFF,$7FFF		;GRAY
 AlphaDispatch	PROC	EXPORT
 
 		IMPORT	RSetHSize
-		IMPORT	SetForeAlpha												; <SM4>.start
-		IMPORT	SetBackAlpha
-		IMPORT	GetForeAlpha
-		IMPORT	GetBackAlpha
-		IMPORT	GetForeAlphaMask
-		IMPORT	GetBackAlphaMask											; <SM4>.end
 
 		JMP		@dispatch(PC,D0.W*4)
 @dispatch
@@ -975,12 +945,6 @@ AlphaDispatch	PROC	EXPORT
 		BRA.W	GetBackTransparency
 		BRA.W	ResizeGrafVars
 		BRA.W	GetStreamMode
-		BRA.W	SetForeAlpha												; <SM4>.start
-		BRA.W	SetBackAlpha
-		BRA.W	GetForeAlpha
-		BRA.W	GetBackAlpha
-		BRA.W	GetForeAlphaMask
-		BRA.W	GetBackAlphaMask											; <SM4>.end
 
 ;
 ; FUNCTION AlphaVersion:INTEGER;
@@ -1178,181 +1142,6 @@ StreamToMask PROC EXPORT
 		MOVE.L	D1,(A1)+					;save alphamask
 		MOVE.L	D0,(A1)+					;save alphacolor
 		RTD		#8
-
-
-;																													; <SM4>.start
-; FUNCTION SetForeAlpha(type: LONG; value: INTEGER) : OSErr
-;
-; On Entry:
-;	(on stack): return address
-;	(on stack): unsigned short alpha value
-;	(on stack): long alpha type
-;	(on stack): OSErr result
-;
-; On Exit:
-;	(on stack}: OSErr result
-
-SetForeAlpha PROC EXPORT
-
-alpha		EQU		4						;[unsigned word] alpha value
-type		EQU		alpha+2					;[long] alpha type
-error		EQU		type+4					;[word] OSErr result
-paramSize	EQU		type					;size of parameters
-
-		clr.w	error(sp)					;clear error result
-		move.w	alpha(sp),-(sp)				;push alpha value
-		_SetForeTransparency				;set the foreground transparency
-		RTD		#paramSize
-		
-		
-;
-; FUNCTION SetBackAlpha(type: LONG; value: INTEGER) : OSErr
-;
-; On Entry:
-;	(on stack): return address
-;	(on stack): unsigned short alpha value
-;	(on stack): long alpha type
-;	(on stack): OSErr result
-;
-; On Exit:
-;	(on stack}: OSErr result
-
-SetBackAlpha PROC EXPORT
-
-alpha		EQU		4						;[unsigned word] alpha value
-type		EQU		alpha+2					;[long] alpha type
-error		EQU		type+4					;[word] OSErr result
-paramSize	EQU		type					;size of parameters
-
-		clr.w	error(sp)					;clear error result
-		move.w	alpha(sp),-(sp)				;push alpha value
-		_SetBackTransparency				;set the background transparency
-		RTD		#paramSize
-
-
-		
-;
-; FUNCTION GetForeAlpha(VAR type: LONG; VAR value: INTEGER) : OSErr
-;
-; On Entry:
-;	(on stack): return address
-;	(on stack): long *alpha
-;	(on stack): long *type
-;	(on stack): OSErr result
-;
-; On Exit:
-;	(on stack}: OSErr result
-
-GetForeAlpha PROC EXPORT
-
-alpha		EQU		4						;[long] alpha value
-type		EQU		alpha+4					;[long] alpha type
-error		EQU		type+4					;[word] OSErr result
-paramSize	EQU		type					;size of parameters
-
-		clr.w	error(sp)					;clear error result
-		subq	#2,sp						;room for short result
-		_GetForeTransparency				;get the foreground transparency
-		move.w	(sp)+,d0					;get alpha result
-		move.l	alpha(sp),a0				;get alpha var
-		move.w	d0,(a0)						;write alpha
-		move.l	type(sp),a0					;get type var
-		move.l	#'vido',(a0)				;write type
-		RTD		#paramSize
-
-		
-;
-; FUNCTION GetBackAlpha(VAR type: LONG; VAR value: INTEGER) : OSErr
-;
-; On Entry:
-;	(on stack): return address
-;	(on stack): long *alpha
-;	(on stack): long *type
-;	(on stack): OSErr result
-;
-; On Exit:
-;	(on stack}: OSErr result
-
-GetBackAlpha PROC EXPORT
-
-alpha		EQU		4						;[long] alpha value
-type		EQU		alpha+4					;[long] alpha type
-error		EQU		type+4					;[word] OSErr result
-paramSize	EQU		type					;size of parameters
-
-		clr.w	error(sp)					;clear error result
-		subq	#2,sp						;room for short result
-		_GetBackTransparency				;get the background transparency
-		move.w	(sp)+,d0					;get alpha result
-		move.l	alpha(sp),a0				;get alpha var
-		move.w	d0,(a0)						;write alpha
-		move.l	type(sp),a0					;get type var
-		move.l	#'vido',(a0)				;write type
-		RTD		#paramSize
-
-
-		
-;
-; FUNCTION GetForeAlphaMask(grafVars: Handle,mask^: LONG) : OSErr
-;
-; On Entry:
-;	(on stack): return address
-;	(on stack): long mask ptr
-;	(on stack): long grafVars Handle
-;	(on stack): OSErr result
-;
-; On Exit:
-;	(on stack}: OSErr result
-;
-; Note:
-;	We assume that the GrafVars are expanded
-;
-
-GetForeAlphaMask PROC EXPORT
-
-alphaMask	EQU		4						;[long] grafVars handle
-GrafVarsH	EQU		alphaMask+4				;[long] grafVars handle <SM5>
-error		EQU		grafVars+4				;[word] OSErr result
-paramSize	EQU		grafVars				;size of parameters
-
-		clr.w	error(sp)					;clear error
-		move.l	([GrafVarsH,sp]),a0			;get ptr to GrafVars
-		pea		foreStream(a0)				;push pointer to foreground stream and ratio
-		move.l	alphaMask+4(sp),-(sp)		;push ptr to stream and mask
-		_StreamToMask
-		RTD		#paramSize
-		
-
-		
-;
-; FUNCTION GetBackAlphaMask(grafVars: Handle,mask^: LONG) : OSErr
-;
-; On Entry:
-;	(on stack): return address
-;	(on stack): long mask ptr
-;	(on stack): long grafVars Handle
-;	(on stack): OSErr result
-;
-; On Exit:
-;	(on stack}: OSErr result
-;
-; Note:
-;	We assume that the GrafVars are expanded
-;
-
-GetBackAlphaMask PROC EXPORT
-
-alphaMask	EQU		4						;[long] grafVars handle
-GrafVarsH	EQU		alphaMask+4				;[long] grafVars handle <SM5>
-error		EQU		grafVars+4				;[word] OSErr result
-paramSize	EQU		grafVars				;size of parameters
-
-		clr.w	error(sp)					;clear error
-		move.l	([GrafVarsH,sp]),a0			;get ptr to GrafVars
-		pea		backStream(a0)				;push pointer to background stream and ratio
-		move.l	alphaMask+4(sp),-(sp)		;push ptr to stream and mask
-		_StreamToMask
-		RTD		#paramSize																									; <SM4>.end
 
 
 GetCPixel FUNC  EXPORT

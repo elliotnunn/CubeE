@@ -6,13 +6,8 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM5>	  9/9/93	pdw		Added SetOSPassword.
-;	   <SM4>	 4/20/93	CSS		Update from Reality:
-;									<34>	 3/30/93	JDR		Added ioMisc.
-;	   <SM3>	 11/10/92	CSS		Rollins from Reality:
-;									<33>	10/28/92	JDR		Added Time Manager task record.
-;	   <SM2>	 5/17/92	kc		Add selectors for the _MemoryDispatch trap.
-;                                   Add CacheFlags and bCopybackMode Equates.
+;		<34>	 3/30/93	JDR		Added ioMisc.
+;		<33>	10/28/92	JDR		Added Time Manager task record.
 ;		<32>	12/31/91	RB		Added new exception vectors from Terror.
 ;		<31>	10/28/91	SAM/KSM	Rolled in Regatta file.
 ;		
@@ -293,7 +288,6 @@ TheGDevice		EQU 		$0CC8 					; (long) the current graphics device
 CQDGlobals		EQU 		$0CCC 					; (long) quickDraw global extensions
 
 DeskCPat  		EQU 		$0CD8 					; [PixPatHandle] Handle to desk pixPat
-SetOSPassword	EQU			$0CDC					; (long) used as password by SetOSDefault (StartMgr)
 
 TimeVIADB 		EQU 		$0CEA 					; (word) number of iter's of VIA access & DBRA.	<1.3>
 VIA2	   		EQU 		$0CEC 					; VIA2 base address [pointer]					<2.7>
@@ -1045,11 +1039,6 @@ RAMBase   		EQU 		$2B2  					; RAM base address [pointer]
 SysVersion		EQU 		$15A  					; version # of RAM-based system [word]
 RndSeed   		EQU 		$156  					; random seed/number [long]
 
-; Cache-related stuff
-
-CacheFlags		EQU			$B72					; cache flags [byte]							<T9>
-bCopybackMode	EQU			7						; bit indicating cache mode on 68040			<T9>
-
 ; fields for _GetDefaultStartup: [DefStartRec]
 ; SlotDev:
 sdExtDevID		EQU 		$0    					; [byte]
@@ -1602,16 +1591,6 @@ physical			EQU			*			; equivalent physical blocks
 size				EQU			*			; minimum size of table
 defaultSize			EQU			size + (MemoryBlock.size * defaultPhysicalEntryCount)
 					ENDR
-
-; selectors for the _MemoryDispatch trap
-holdMemory			EQU			0			; selector for _HoldMemory
-unholdMemory		EQU			1			; selector for _UnholdMemory
-lockMemory			EQU			2			; selector for _LockMemory
-lockMemoryContiguous EQU		4			; selector for _LockMemoryContiguous
-unlockMemory		EQU			3			; selector for _UnlockMemory
-getPhysical			EQU			5			; selector for _GetPhysical
-getReal				EQU			6			; selector for _GetReal call
-getPageDesc			EQU			7			; selector for _GetPageDesc call
 
 ;___________________________________________________________________________
 ;

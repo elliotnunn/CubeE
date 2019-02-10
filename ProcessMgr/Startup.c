@@ -9,9 +9,6 @@
 
 	Change History (most recent first):
 
-	  <SM28>	 7/21/93	joe		Back out <SM27>.
-		<27>	10/28/92	DTY		Use new Get/Set macros to access ExpandMem.
-		<26>	 9/25/92	DRF		Get rid of MyGestalt, since inline glue exists
 		<25>	 8/26/92	DTY		Change ModSquad’s funky conditional to use #ifdefs like everyone
 									else.
 		<24>	 8/26/92	DTY		Roll in latest changes for A/UX.
@@ -511,35 +508,35 @@ InitConfig(void)
 #endif HAS_AUX_PROCESSMGR
 
 	/* Check processor addressing mode */
-	if (Gestalt(gestaltAddressingModeAttr,&gestaltResult) == noErr)
+	if (MyGestalt(gestaltAddressingModeAttr,&gestaltResult) == noErr)
 		In32BitMode = ((gestaltResult & (1 << gestalt32BitAddressing)) != 0);
 
 	/* Check QuickDraw version */
-	if (Gestalt(gestaltQuickdrawVersion,&gestaltResult) == noErr)
+	if (MyGestalt(gestaltQuickdrawVersion,&gestaltResult) == noErr)
 		Colorized = ((gestaltResult & 0xFFFF) >= gestalt8BitQD);
 
 	/* Does this machine have an FPU? */
-	if (Gestalt(gestaltFPUType,&gestaltResult) == noErr)
+	if (MyGestalt(gestaltFPUType,&gestaltResult) == noErr)
 		MachineHasFPU = (gestaltResult != gestaltNoFPU);
 
 	/* Does this machine have an older style keyboard (without an escape key)? */
-	if (Gestalt(gestaltKeyboardType,&gestaltResult) == noErr)
+	if (MyGestalt(gestaltKeyboardType,&gestaltResult) == noErr)
 		MachineHasMacPlusKbd = (gestaltResult <= gestaltMacPlusKbd);
 
-	if (Gestalt(gestaltGraphicsVersion,&gestaltResult) == noErr)
+	if (MyGestalt(gestaltGraphicsVersion,&gestaltResult) == noErr)
 		skiaExists = true;
 	else
 		skiaExists = false;
 		
 #ifdef MODSQUAD
 	/* Check whether drag manager is installed. */
-	if (Gestalt(gestaltDragMgrVersion, &gestaltResult) == noErr)
+	if (MyGestalt(gestaltDragMgrVersion, &gestaltResult) == noErr)
 		gDragMgrIsAvailable = true;
 #endif
 
 #ifdef HAS_AUX_PROCESSMGR
 	/* Check whether we're running under AUX. */
-	if (Gestalt(gestaltAUXVersion, &gestaltResult) == noErr	&& AUX_EnableCoffLaunch())
+	if (MyGestalt(gestaltAUXVersion, &gestaltResult) == noErr	&& AUX_EnableCoffLaunch())
 		AUXIsPresent = true;
 #endif HAS_AUX_PROCESSMGR
 	}

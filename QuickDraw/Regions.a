@@ -7,7 +7,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM4>	 1/25/93	kc		Roll in Shannon Holland's alpha channel fix to DrawRgn.
 ;	   <SM3>	 6/11/92	stb		<sm 6/9/92>stb Synch with QDciPatchROM.a; comments added to
 ;									StdRgn, MapRgn
 ;	   <SM2>	 5/21/92	kc		Change the name of QuickDraws wrapper for NewHandle to
@@ -259,10 +258,8 @@ VARSIZE		EQU		BBOX					;SIZE OF LOCALS
 		PEA		BBOX(A6)					;PUSH SRCRECT
 		CLR.L	-(SP)						;NO MASKRECT
 		PEA		BBOX(A6)					;PUSH DSTRECT
-		MOVE	MODE(A6),D1					;PUSH MODE										; <SM4>
-		OR		#$8,D1						;set the pattern bit in case the user forgot to	; <SM4>
-		_GetStreamMode						;strip mode										; <SM4>
-		MOVE.W	D1,-(SP)					;save stripped mode								; <SM4>
+		MOVE	MODE(A6),-(SP)				;PUSH MODE
+		OR		#$8,(SP)					;set the pattern bit in case the user forgot to
 		MOVE.L	PAT(A6),-(SP)				;PUSH PAT
 		MOVE.L	CLIPRGN(A1),-(SP)			;PUSH CLIPRGN
 		MOVE.L	VISRGN(A1),-(SP)			;PUSH VISRGN

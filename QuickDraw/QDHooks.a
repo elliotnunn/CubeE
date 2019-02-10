@@ -9,8 +9,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM2>	 9/12/93	SAM		Removed rSwapMMUMode and rTranslate24to32 from the ROM build
-;									(SuperMario is a 32-bit mode only ROM).
 ;		 <5>	11/26/90	SMC		Added more macros for alpha channel bug fixes.  With BAL.
 ;		 <4>	10/31/90	SMC		Added macros for alpha channel bug fixes.
 ;		 <3>	 6/20/90	CL		Moving the rswapmmumode macro from CQD.a into this file so it
@@ -30,27 +28,15 @@
 CPU		EQU		$020
 	ENDIF
 
-	IF forROM THEN						; <SM2>
-		MACRO
-		_rSwapMMUMode
-		ENDM
-	ELSE
 		MACRO
 		_rSwapMMUMode
 		JSR		([$400+$5d*4])
 		ENDM
-	ENDIF
 
-	IF forROM THEN						; <SM2>
-		MACRO
-		_rTranslate24To32
-		ENDM
-	ELSE
 		MACRO
 		_rTranslate24To32
 		JSR		([$400+$91*4])
 		ENDM
-	ENDIF
 	
 		MACRO
 		_BitBlt

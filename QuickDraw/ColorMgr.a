@@ -5,19 +5,9 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM9>	11/29/93	SAM		Yet another getCTable mod.  Move the handle to the clut copy
-;									into A0 prior to the seed range check.
 ;	   <SM8>	 11/7/93	SAM		Changed GetCTable to get a new seed if the id > 1023 (kMinSeed).
-;	   <SM7>	 9/29/93	SAM		From mc900ftjesus
-;	   <MC4>	 9/27/93	SAM		Rewrote the guts of GetCTable.  The result of calling GetCtable
-;									is a Handle to a ram based copy of the clut (whether its in ROM
-;									or not).  It no longer requires that you have 2x sixeof(clut)
-;									heap space. Made GetCTable not set ctSeed if the ct ID is ≤ 8.
 ;	   <SM6>	 9/13/93	SAM		Changed all instances of _Translate24to32 to _rTranslate24to32
 ;									so they can conditionalized out of the build.
-;	   <SM5>	  3/3/93	PN		Fix the rGetResource in MakeITable by adjusting the CurMap to
-;									point to SysMap before calling rGetResource. Roll in patch
-;									StartRGetResourceFromSystemMapFormitqResources
 ;	   <SM4>	 1/21/93	KW		(LW3 fau) Rolled in the MySaveEntries patch:  In SaveEntries, if
 ;									the bpp is ≥ 16bpp it will exit with an error, but the code was
 ;									not returning the stack to it's correct state.  Renamed all the
@@ -418,10 +408,6 @@ AdjZone
 
 		move.w		#0,isTmpHandle(a6)	;assume handles are not in temp memory	<28Feb90 KON>
 
-; Here is the fix for rGetResource from ResourceMgrPatches.a
-		move.w	CurMap,-(sp)			; Save the current resource map. <SM5>
-		move.w	SysMap,CurMap			; <27> Start searching from the System file instead of the top <SM5>	
-
 ; allocate space on the heap for the queue, reading queue size from resource
 
 		SUBQ		#4,SP				; make room for the function return		<C835/20Feb87> DAF
@@ -430,8 +416,6 @@ AdjZone
 		_rGetResource					; system first, then ROM				<C835/20Feb87> DAF
 		MOVE.L		(SP)+,A0			; get the handle						<C835/20Feb87> DAF
 	
-		move.w		(sp)+,CurMap		; Restore the current resource map <SM5>
-		
 		MOVE.L		(A0),A0				; get the pointer in A0					<C835/20Feb87> DAF
 		MOVE.L		-12(A0,D7*4),D0		; get the queue size (adjust for no 1 or 2 bit resolutions) <C835/20Feb87> DAF
 		MOVE.L		D0,D3				; hold it for a second
@@ -2651,49 +2635,40 @@ notRes			MOVE	4(SP),D0				; Get requested ID
 				BRA.S	RTD2
 
 
-readIt			MOVEM.L	D6/D7,-(SP)				; Save some work registers					<SAM 27SEP93>
-				MOVE.W	#mapTrue,ROMMapInsert	; Put the ROM map at the lend of the list
-				SUBQ	#4,A7					; space for result
+readIt			SUBQ	#4,A7					; space for result
 				MOVE.L	#'clut',-(SP)			; resource type
-				MOVE	20(SP),-(SP)			; push ID number
+				MOVE	12(SP),-(SP)			; push ID number
 				_GetResource					; Get it.
-				MOVE.L	(SP)+,D7				; Did we get the resource?
-				BEQ.S	@readFail				; -> Nope, Clear A0 and exit.
+				MOVE.L	(SP)+,D0				; Did we get the resource?
+				BEQ.S	@otherThing
 
-				MOVE.L	D7,-(SP)				; Push the Resource Handle
+				MOVE.L	D0,-(SP)				; Push the Resource Handle
+				MOVE.L	D0,-(SP)				; Push the Resource Handle
 				_DetachResource					; Free it from the Map
+				MOVE.L	(SP)+,A0
+				_HNoPurge
 
-				MOVE.L	D7,D6					; Put the orig in D6
-				MOVE.L	D7,A0					; Get the handle in A0
-				MOVE.L	D7,A1					; Get the handle in A1
-				
-				MOVE.L	(A1),A1					; Get the ptr
-				CMP.L	ROMBase,A1				; Is the clut in ROM?
-				BLO.S	@SetTheSeed				; -> No. Its in RAM. Set the seed and leave
-				
-				_HandToHand						; Make a copy in a new handle in RAM
-				MOVE.L	A0,D6					; Save the copy in D6
-												
-				MOVE.L	D7,A0					; Get the resource handle in A0
-				_DisposHandle					; Free the ROM handle
-				
-				MOVE.L	D6,A0					; Move the copy into A0						<SM9>
-				TST.L	D6						; Did we get the copy?
-				BEQ.S	@ReadFail				; -> No. Clear A0 and exit
-				
-@SetTheSeed		CMPI.W	#1023,18(SP)			; Is this a request for a system clut?		<MC4><MC5>
-				BLS.S	@done					; -> Yes, leave the seed alone!				<MC4>
-				
-				CLR.L	-(SP)					; make room for function return
-				_rGetCTSeed						; get the next seed and leave it on the stack
-				MOVE.L	D6,A0					; Get the copy in A0
-				MOVE.L	(SP)+,([A0],ctSeed)		; Set the Seed in the copy
-				
-				_HNoPurge						; Make sure it doesn't go away
+				MOVE.L	(A0),A1
+				SUBQ	#4,SP
+				_rGetCTSeed
+				MOVE.L	(SP)+,(A1)
+
 				BRA.S	@Done					; -> Got It!
 
+@otherThing
+				MOVE	#$FFFF,RomMapInsert
+				SUBQ	#4,SP
+				MOVE.L	#'clut',-(SP)
+				MOVE	12(SP),-(SP)
+				_GetResource
+				MOVE.L	(SP)+,D0
+				BEQ.S	@readFail
+
+				MOVE.L	D0,A0
+				_HandToHand
+				BEQ.S	@done
+
 @readFail		SUBA.L	A0,A0					; A miserable failure.
-@done			MOVEM.L	(SP)+,D6/D7				; Restore the work registers
-				RTD		#2						; Lose ID, and go home.
+@done			RTD		#2						; Lose ID, and go home.
 
 

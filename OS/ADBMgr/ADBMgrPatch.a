@@ -9,7 +9,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM2>	 11/9/93	KW		added some eieioSTP macros.  Only active for CygnusX1 ROM
 ;		<13>	 2/12/92	JSM		Moved this file to ADBMgr folder, keeping all the old revisions.
 ;		<12>	 10/4/91	JSM		Change PsychoticFarmerOrLater conditionals to TheFuture.
 ;		<11>	 9/22/91	DTY		Change PsychoticFarmerAndLater to PsychoticFarmerOrLater.
@@ -164,9 +163,7 @@ InitADB		InstallProc	(SE,II,notAUX)
 			
 			movea.l	VIA,a1				; point to the VIA1 registers
 @wait		
-		eieioSTP
 			move.b	vBufB(a1),d0
-		eieioSTP
 			andi.b	#(1<<vFDesk2)|\
 					(1<<vFDesk1),d0		; look at state bits
 			cmpi.b	#(1<<vFDesk2)|\
@@ -174,9 +171,7 @@ InitADB		InstallProc	(SE,II,notAUX)
 			bne.s	@wait				; no, keep waiting...
 
 			ori.w	#NoIntMask,sr		; mask out interrupts							<1.2>
-		eieioSTP
 			move.b	vSR(a1),d0			; empty shift reg
-		eieioSTP
 
 			MOVE.L	ADBBase,A3			; point to ADB private data structures
 			
@@ -637,18 +632,9 @@ StartReqVIA
 
 			pea		RunADBRequest		; somthing in queue, run after a short delay
 			move.w	TimeViaDB,d0		; get 1ms VIA loop time constant
-
-	IF forSTP601 THENB
-		;•••• STP ••• eric -- let's double it??
-			lsr.w	#2,d0				; 1ms/8 = 125µs
-	ELSE
-
 			lsr.w	#4,d0				; 1ms/16 = 62.5µs
-	ENDIF
 @delay		
-		eieioSTP
 			btst.b	#0,vBufB(a1)		; timing base on BTST loop, we don't care
-		eieioSTP
 			dbra	d0,@delay			; wait at least 50µs for state change to occur
 @idle		bclr.b	#fDBBusy,FDBAuFlag(a3)	; allow explicit cmds to interrupt auto polling
 			rts							; if not, just let auto polling continue
@@ -712,45 +698,32 @@ StartReqVIA
 
 	if TheFuture then					;												<9>
 
-		eieioSTP
 			move.b	vBufB(a1),d1		; get current state								<8>
-		eieioSTP
 			andi.b	#(1<<vFDesk2)+\
 					(1<<vFDesk1),d1		;												<8>
 			cmpi.b	#(1<<vFDesk2)+\
 					(1<<vFDesk1),d1		; are we in state 3?							<8>
 			bne.s	@sendCont			; no, procede as usual							<8>
-		eieioSTP
 			btst.b	#vFDBInt,vBufB(a1)	; yes, test the FDBInt~ status					<8>
-		eieioSTP
 			beq.s	@sendExit			; asserted, xcvr already clocking autopoll data,<8>
 										; exit (wait for autopoll to complete)			<8>
 	endif								;												<9>
 	
 @sendCont	
-		eieioSTP
 			ori.b	#$1C,vACR(a1)		; set SR to shift-out with ext clk
-		eieioSTP
 			move.b	d3,vSR(a1) 			; load shift reg with cmd, start shifting
-		eieioSTP
 			move.b	d3,fDBCmd(a3)		; save the command
-		eieioSTP
 			andi.b	#-1-(1<<vFDesk2)-\
 					(1<<vFDesk1),vBufB(a1)	; force state bits to zero
-		eieioSTP
 @sendExit	move.l	(sp)+,ShiftIntResume(a3); save resume address
 			move.w	d0,sr				; restore interrupt mask
 			rts							; return to callers caller, wait for interrupt
 
 
 @waitForInput
-		eieioSTP
 			bclr.b	#4,vACR(a1)			; change to shift-in mode
-		eieioSTP
 			tst.b	vSR(a1) 			; empty shift reg to start shifting
-		eieioSTP
 			eor.b	d1,vBufB(a1)		; change the state
-		eieioSTP
 			move.l	(sp)+,ShiftIntResume(a3)	; save resume address
 			rts							; return to callers caller, wait for interrupt
 
@@ -760,12 +733,9 @@ StartReqVIA
 			moveq.l	#1,d0				; zero extend the index
 			add.b	(a0),d0				; get, and increment the index
 			move.b	d0,(a0)				; update the index
-		eieioSTP
 			move.b	vSR(a1),(a0,d0.w)	; save the new byte in the buffer
-		eieioSTP
 			eori.b	#(1<<vFDesk1)|\
 					(1<<vFDesk2),vBufB(a1)	; alternate between state 1 and state 2
-		eieioSTP
 			move.l	(sp)+,ShiftIntResume(a3)	; save resume address
 			rts							; return to callers caller, wait for interrupt
 
@@ -812,14 +782,10 @@ StartReqVIA
 			moveq.l	#(1<<vFDesk1)|\
 					(1<<vFDesk2),d1		; alternate between state 1 and state 2
 @sendByte	movea.l	ListenBuffPtr(a3),a0; get the buffer pointer
-		eieioSTP
 			move.b	(a0)+,vSR(a1)		; send the byte
-		eieioSTP
 			move.l	a0,ListenBuffPtr(a3); update the buffer pointer
 			subq.b	#1,fDBCnt(a3)		; decrement the send count
-		eieioSTP
 			eor.b	d1,vBufB(a1)		; change the state
-		eieioSTP
 			move.l	(sp)+,ShiftIntResume(a3)	; save resume address
 			rts							; return to callers caller, wait for interrupt
 			
@@ -836,9 +802,7 @@ StartReqVIA
 FDBShiftInt
 			movea.l	ADBBase,a3			; point to ADB globals in low memory
 			movea.l	ShiftIntResume(a3),a0	; get address to resume at
-		eieioSTP
 			btst.b	#vFDBInt,vBufB(a1)	; test the FDBInt~ status
-		eieioSTP
 			jmp		(a0)				; resume async processing
 			
 			Title	'KbdADB - ADB Manager  -  ReqDoneVIA'
@@ -1041,9 +1005,7 @@ GE1			jsrROM	GEmptyAddr			; get empty address space, D0 gets address (GEmptyAddr
 ;   more device in original address, we want to move the device back to 
 ;   original address.
 
-		eieioSTP
 			tst.b	(a0)				; did the device return data
-		eieioSTP
 			beq.S	@1					; no, branch 
 ; no timeout indication, 
 			bsr.s	CopyEntry			; copy entry into device table
@@ -1151,9 +1113,7 @@ GNextAddr
 
 MouseDrvr
 			lea		1(a0),a1			; skip over length byte, free up A0
-		eieioSTP
 			move.b	(a1)+,d2			; get first data byte (button, ∆ Vert)
-		eieioSTP
 
 ;	Update the mouse button state
 
@@ -1197,9 +1157,7 @@ MouseDrvr
 
 ;	Update the mouse horizontal position
 
-		eieioSTP
 			move.b	(a1),d2				; get the ∆ Horiz (low 7 bits)
-		eieioSTP
 		 	add.b	d2,d2				; shift high bit of ∆ into sign
 			beq.s	@horizDone			; if no change, nothing to update
 			asr.b	#1,d2				; shift ∆ back, sign extended

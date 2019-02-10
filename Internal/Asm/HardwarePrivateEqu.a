@@ -2095,7 +2095,7 @@ pdspSet			equ			7				; "0" clears, "1" sets for any bit field [0:6] containing a
 ; ???
 ;---------------------------------------------------
 
-seRegs			EQU 		$0C30 					; offset to Sys Error Regs w/o Overlay
+;seRegs			EQU 		$0C30 					; offset to Sys Error Regs w/o Overlay
 
 ;---------------------------------------------------
 ; Hardware configuration bits.
@@ -2155,30 +2155,30 @@ dsRectLen 		EQU 		(DSrectBR**$FFFF)-(DSrectTL**$FFFF)
 ; System Error Equates
 ;---------------------------------------------------
 
-seVars			EQU 		seRegs        			; start of system error data space (wrap city)
-seVSize   		EQU 		128       				; # of bytes in space
-seD0  			EQU 		seVars        			; loc of saved reg D0
-seA0  			EQU 		seD0+32       			; loc of saved reg A0
-seA7  			EQU 		seA0+28       			; loc of saved reg A7
-sePC  			EQU 		seA7+4        			; loc of saved PC
-seSR  			EQU 		sePC+4        			; loc of saved SR
-seAccess  		EQU 		seSR+2        			; PC address during bus/address error
-seCmdSize 		EQU 		seAccess+4    			; # of bytes of parameters passed in _debugger call
-se000BE   		EQU 		seCmdSize+2       		; 8 bytes of bus error info for 68000
-seLastVar 		EQU 		se000BE+8     			; last var in System Error data space
+;seVars			EQU 		seRegs        			; start of system error data space (wrap city)
+;seVSize   		EQU 		128       				; # of bytes in space
+;seD0  			EQU 		seVars        			; loc of saved reg D0
+;seA0  			EQU 		seD0+32       			; loc of saved reg A0
+;seA7  			EQU 		seA0+28       			; loc of saved reg A7
+;sePC  			EQU 		seA7+4        			; loc of saved PC
+;seSR  			EQU 		sePC+4        			; loc of saved SR
+;seAccess  		EQU 		seSR+2        			; PC address during bus/address error
+;seCmdSize 		EQU 		seAccess+4    			; # of bytes of parameters passed in _debugger call
+;se000BE   		EQU 		seCmdSize+2       		; 8 bytes of bus error info for 68000
+;seLastVar 		EQU 		se000BE+8     			; last var in System Error data space
 
 
 ;---------------------------------------------------
 ; ROM based debugger nub
 ;---------------------------------------------------
 
-rdPort			EQU 		seLastVar     			; Number of port currently in use (0 => no link, 1 => A, 2 => B)
-rdCode			EQU 		rdPort+2      			; Ptr to code download buffer.
-rdAtrap   		EQU 		rdCode+4      			; Saved Rom Atrap handler
-rdLowTrap 		EQU 		rdAtrap+4     			; low value for trap handling
-rdHiTrap  		EQU 		rdLowTrap+2       		; high value for trap handling
-rdResult  		EQU 		rdHiTrap+2    			; result of executing down-loaded code, etc. (16 bytes)
-rdEnd 			EQU 		rdResult+16       		; end of vars
+;rdPort			EQU 		seLastVar     			; Number of port currently in use (0 => no link, 1 => A, 2 => B)
+;rdCode			EQU 		rdPort+2      			; Ptr to code download buffer.
+;rdAtrap   		EQU 		rdCode+4      			; Saved Rom Atrap handler
+;rdLowTrap 		EQU 		rdAtrap+4     			; low value for trap handling
+;rdHiTrap  		EQU 		rdLowTrap+2       		; high value for trap handling
+;rdResult  		EQU 		rdHiTrap+2    			; result of executing down-loaded code, etc. (16 bytes)
+;rdEnd 			EQU 		rdResult+16       		; end of vars
 
 
 ;---------------------------------------------------
@@ -2188,10 +2188,10 @@ rdEnd 			EQU 		rdResult+16       		; end of vars
 ; NOTE: Keep mbDotAddr immediately before mBlocAddr
 
 mbBufSize 		EQU 		34
-mbBuffer  		EQU 		seLastVar     			; buffer for input
-mbSign			EQU 		mbBuffer+mbBufSize    	; ST => negative sign during conversion
-mbDotAddr 		EQU 		mbSign+2      			; saved address
-mBlocAddr 		EQU 		mbDotAddr+4       		; saved location
+;mbBuffer  		EQU 		seLastVar     			; buffer for input
+;mbSign			EQU 		mbBuffer+mbBufSize    	; ST => negative sign during conversion
+;mbDotAddr 		EQU 		mbSign+2      			; saved address
+;mBlocAddr 		EQU 		mbDotAddr+4       		; saved location
 
 
 ;---------------------------------------------------
@@ -2387,6 +2387,7 @@ stlDelay  		EQU 		$30   					; default bus settle delay		*** patch only ***
 ROMDoEject		EQU 		$40001E   				; jump to DoEject utility		*** patch only ***
 dACKRd			EQU 		$200  					; offset of psuedo-DMA - READ	*** patch only ***
 
+seRegs      EQU     $3FFC80           ; Sys Error Regs w/o Overlay
 
   				ELSEIF  	onMacPP THEN
 ;=======================================;
@@ -2507,6 +2508,7 @@ HeapStart 		EQU 		$1600 					; Aladdin starting point
 defSysHeap		EQU 		$18000    				; Default size of the system heap
 nDfltStackSize	EQU 		$2000 					; Default stack size
 
+seRegs      EQU     $3FFC80           ; Sys Error Regs w/o Overlay
 
   				ELSEIF  	onHcMac THEN
 ;===========================================;
@@ -2625,6 +2627,7 @@ HeapStart 		EQU 		$1E00 					; Portable starting point	<1.2>
 DefSysHeap		EQU 		$18000    				; Default size of the system heap
 NDfltStackSize	EQU 		$2000 					; Default stack size
 
+seRegs      EQU     $0C30           ; offset to Sys Error Regs w/o Overlay
 
   				ELSEIF  	onMac16 THEN
 ;===================================================;
@@ -2691,6 +2694,8 @@ numTrapMask   	EQU 		numTbTrap-1				; mask for number of tb traps
 HeapStart 		EQU 		$1E00 					; Laguna starting point	<1.2>
 DefSysHeap		EQU 		$18000    				; Default size of the system heap
 NDfltStackSize	EQU 		$2000 					; Default stack size
+
+seRegs      EQU     $0C30           ; offset to Sys Error Regs w/o Overlay
 
   				ELSEIF  	onMac32 THEN
 ;===================================================;

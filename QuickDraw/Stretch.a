@@ -886,16 +886,6 @@ skipTable
 		beq		@CheckSwapping				; not modecase: go on
 
 ;
-; This code reintroduced from version 54 for CubeE.
-;
-
-	if CubeE then							; <56>
-		move.l	([theGDevice]),a0			; <56> get a pointer to the device
-		tst.l	GDSearchProc(A0)			; <56> check the head of the search chain
-		beq		@CheckSwapping				; <56> no search proc: go on
-	endif									; <56> 
-
-;
 ; fcolor and bcolor were mapped using search proc by colormap.  We want to use
 ; the unmapped versions.
 ;

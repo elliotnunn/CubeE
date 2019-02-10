@@ -14,8 +14,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM5>	11/12/92	PN		Get rid of ≥ 020 conditionals for ROM builds
-;	   <SM4>	 11/6/92	SWC		Changed PackMacs.a->Packages.a.
 ;		<15>	 6/12/92	FM		remove MacsBug symbols and obsolete smgrKeepMacsBugSymbols
 ;									conditional. Replaced long divisions w/ a macro that uses a
 ;									divu.l instruction for 020 cpus and a subroutine otherwise.
@@ -209,7 +207,7 @@ CPU:	equ	0								; <06/30/89 pke>
 		load	'StandardEqu.d'
 		include	'ScriptPriv.a'
 		include	'SANEMacs.a'
-		include	'Packages.a'
+		include	'PackMacs.a'
 FixMathNonPortable	equ	1					; We require Mac Plus or newer		<4>
 		include	'FixMath.a'					; to get _FixDiv					<4>
 		import	StdUnlink
@@ -237,8 +235,12 @@ genCdevRangeHi	equ	$DA319179			; =3660681599, secs for 2019-Dec-31 23:59:59
 		macro
 			LongDiv
 			
-				machine	mc68020
+			IF &SETTING('MACHINE') = 'MC68000' THEN
+				bsr		LongDivFunc
+			ELSE
 				divs.l	d2,d0:d1			; do it
+			ENDIF
+
 			
 		endm
 
@@ -1214,6 +1216,74 @@ RD2SRegs	reg	a2/d3-d7
 
 
 ;============================================================================
+;    Arguments: d0:d1 = dividend (u64), d2 = divisor (u32)
+;    Returns: d0 = remainder (u32), d1 = quotient (u32)
+;============================================================================
+
+LongDivFunc	proc	export
+
+		cmp.b	#cpu68020, CPUFlag
+		blt.s	@useSANE
+
+@useDIVS
+		machine	MC68020
+		divs.l	d2,d0:d1
+		rts
+		machine	MC68000
+
+@useSANE
+
+DivRec		record  {oldA6},decr
+return		ds.l    1
+oldA6		ds.l    1
+divisor		ds.l	1
+dividend	ds.d	1
+argBuffer
+float80		ds.x	1
+remultiply	ds.d	1
+quotient	ds.l	1
+localFrame	equ		*
+			endr
+
+		with	DivRec
+
+		link	a6,#localFrame
+
+		lea		argBuffer(a6),a0
+		move.l	d0,(a0)+			; save dividend
+		move.l	d1,(a0)+			; ...
+		move.l	d2,(a0)				; and divisor
+
+		pea		dividend(a6)		; convert to 80-float
+		pea		float80(a6)
+		FC2X
+
+		pea		divisor(a6)			; divide via SANE
+		pea		float80(a6)
+		FDIVL
+
+		pea		float80(a6)			; quotient as long
+		pea		quotient(a6)
+		FX2L
+
+		move.l	quotient(a6),-(sp)	; get quotient * divisor
+		move.l	divisor(a6),-(sp)
+		pea		remultiply(a6)
+		_LongMul
+
+		move.l	quotient(a6),d1		; result: quotient
+
+		move.l	dividend+4(a6),d0	; result: remainder
+		sub.l	remultiply+4(a6),d0
+
+		unlk	a6
+		rts
+
+		endWith
+		endProc
+
+
+;============================================================================
 ;pascal void LongSecs2Date (longSecs, longDate, selector)
 ;    LongDate*		longSecs;
 ;    LongDateRec*	longDate;
@@ -1253,6 +1323,7 @@ RS2DRegs	reg	a2/d3-d7
 
 		with	LS2DRec,LongDateRec
 		import	MonthStarts,LeapStarts,secsInDayX
+		import	LongDivFunc
 
 		CheckSelector
 		link	a6,#localFrame

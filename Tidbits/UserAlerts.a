@@ -9,10 +9,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	   <SM2>	 8/25/93	BH		Added stuff for manual-eject drive support and tweaked the old
-;									disk-switch alert a bit.  The changes are all conditionalized
-;									with hasManEject.  There is probably a better way to do this,
-;									but this stuff needs somewhere to go for now.
 ;		<18>	 6/12/91	LN		removed #include 'HardwareEqu.a'
 ;		<17>	  3/4/91	dba		dty: get rid of SysVers conditionals
 ;		<16>	  2/7/91	dnf		kst, #79676: Use dsRecoverVCBPtr to draw the name of the volume
@@ -131,6 +127,7 @@ dsiRemoveDisk			equ		-16401	; <SM1> <BH 25Aug93>
 dstMissingPatch			equ		-20000
 dstParityError			equ		-20001
 dstSystemDamaged		equ		-20002
+dstSCSIWarn				equ		-20003
 
 dstApplicationBusy		equ		-20100
 dstFinderMissing		equ		-20101
@@ -184,17 +181,13 @@ dssCancel				equ		-23104
 ;
 ; Entry count: bump 1 for each new item.
 
-	IF NOT hasManEject THEN
-	NumEntries: set 47
-		; 11 alerts
-		; 10 texts
+	NumEntries: set 49
+		; 12 alerts
+		; 11 texts
 		;  4 icons
 		;  8 button lists
 		;  5 button strings
 		;  9 procs
-	ELSE						; if hasManEject
-		NumEntries: set 52		; 13 + 9 + 5 + 8 + 5 + 12
-	ENDIF
 	
 			dc.w	NumEntries
 
@@ -216,14 +209,7 @@ dssCancel				equ		-23104
 
 			; other errors
 
-	IF hasManEject THEN														; <SM1> <BH 25Aug93>
-			dc.w	dsRemoveDisk,10,0,0,dsiRemoveDisk,dspDrawRmvDsk,0		; eject request
-			dc.w	dsDirtyDisk,10,0,0,dsiInsertDisk,dspDrawDirtyDsk,0		; ejected dirty
-			dc.w	dsReinsert,10,0,0,dsiInsertDisk,dspDrawDiskName,0		; new disk-switch
-	ELSE
 			dc.w	dsReinsert,10,dstInsertDisk,0,dsiDiskSwap,dspDrawDiskName,0
-	ENDIF
-	
 			dc.w	dsStknHeap,10,dstGeneralError,0,dsiBomb,dspStackSniffError,dsbRestartResume
 
 			; Startup, INITs, or apps ate too much of BufPtr space or the current heap
@@ -246,6 +232,10 @@ dssCancel				equ		-23104
 			dc.w	dsNoPatch,10,dstMissingPatch,0,dsiStop,0,dsbRestart
 			dc.w	dsParityErr,10,dstParityError,0,dsiBomb,0,dsbRestart
 
+			; SCSI Disk Mode
+
+			dc.w	dsSCSIWarn,10,dstSCSIWarn,0,dsiStop,0,0
+
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 ;
 ; Text definitions.
@@ -265,7 +255,6 @@ GeneralErrorMessage
 			align
 @end
 
-	IF NOT hasManEject THEN		; Drawn by proc below in man-eject systems <SM1> <BH 25Aug93>
 InsertDiskMessage
 			dc.w	dstInsertDisk,@end-@rest
 @rest
@@ -274,7 +263,6 @@ InsertDiskMessage
 			DC.B	0
 			align
 @end
-	ENDIF	; NOT hasManEject
 	
 SwitchOffMessage
 			dc.w	dstSwitchOff,@end-@rest
@@ -358,6 +346,20 @@ SomebodyAteAlltheRAMMessage
 			align
 @end
 
+CableRemovedMessage
+			dc.w	dstSCSIWarn,@end-@rest
+@rest
+			dc.w	88,114
+			dc.b	'/'
+			dc.b	'Hard Disk Cable Warning/'
+			dc.b	'/'
+			dc.b	'You must first shutdown the Macintosh before/'
+			dc.b	'attaching any SCSI hard disk cables.  Disconnect/'
+			dc.b	'the cable from the back of the machine right now./'
+			dc.b	0
+			align
+@end
+
 ; ——————————————————————————————————————————————————————————————————————————————————————————————————
 ;
 ; icon definitions
@@ -385,7 +387,6 @@ BombIcon
 
 ; disk-switched icon
 
-	IF NOT hasManEject THEN	; <SM1> <BH 25Aug93>
 							; The disk-switch icon for manual-eject systems is different
 DiskSwapIcon
 			dc.w	dsiDiskSwap,@end-@rest
@@ -400,38 +401,6 @@ DiskSwapIcon
 			dc.l	$01000000, $03800080, $07C00000, $01000080
 			dc.l	$01000000, $00800100, $007B5400, $00000000
 @end
-
-	ELSE					; Disk insert and remove icons for manual-eject systems
-
-DiskInsertIcon				; Used by both disk-switch and manual-eject stuff
-			dc.w	dsiInsertDisk,@end-@rest
-@rest
-			dc.w	12,20,44,52
-			dc.l	$00000000, $00000000, $00000000, $0001FFF0
-			dc.l	$00011148, $00411144, $00E11044, $01F11FC4
-			dc.l	$03F90004, $00E10004, $00E13FE4, $00E14014
-			dc.l	$00E14014, $00E14C14, $00E15214, $00016214
-			dc.l	$00014414, $0001CFFC, $00008920, $00008620
-			dc.l	$00008020, $00008020, $00008020, $00008040
-			dc.l	$00008080, $00008100, $00010200, $00010400
-			dc.l	$0003FC00, $0003FC00, $0003FC00, $00000000
-@end
-
-DiskRemoveIcon
-			dc.w	dsiRemoveDisk,@end-@rest
-@rest
-			dc.w	12,20,44,52
-			dc.l	$00000000, $00000000, $00000000, $0001FFF0
-			dc.l	$00011148, $00E11144, $00E11044, $00E11FC4
-			dc.l	$00E10004, $00E10004, $00E13FE4, $03F94014
-			dc.l	$01F14014, $00E14C14, $00415214, $00016214
-			dc.l	$00014414, $0001CFFC, $00008920, $00008620
-			dc.l	$00008020, $00008020, $00008020, $00008040
-			dc.l	$00008080, $00008100, $00010200, $00010400
-			dc.l	$0003FC00, $0003FC00, $0003FC00, $00000000
-@end
-
-	ENDIF	; NOT hasManEject
 
 ; stop icon
 
@@ -822,7 +791,6 @@ MessagesTable
 
 EndDoSystemErrorButtons
 
-	IF NOT hasManEject THEN	; This proc has been replaced for man-eject systems <SM1> <BH 25Aug93>
 ; —————————————————————————————————————————————————
 ;
 ; DrawDiskName is used to by the disk switch alert
@@ -841,137 +809,6 @@ DrawDiskName
 			rts
 EndDrawDiskName
 	
-	ELSE
-
-; The following procedures are used to draw the various disk-insertion and disk-removal
-; syserr messages for manual-eject systems.  The old DrawDiskName has been superseded by
-; the one below for these systems.
-
-; These constants are used by the disk-message-drawing code that follows
-TextTop		EQU		24
-TextEdge	EQU		72
-LineHeight	EQU		16
-
-;________________________________________________________________________________
-; DrawNameStr is used by the following three procs to draw the name of the disk
-; they need in their alert boxes.  A pointer to the string to draw as the name is
-; passed on top of the stack.  The strings included in this proc are also used by
-; the other procs.
-;________________________________________________________________________________
-			dc.w	dspDrawNameStr,EndDrawNameStr-DrawNameStr
-DrawNameStr
-			MOVEA.L	(SP)+,A0		; pop return addr
-			MOVE.L	(SP)+,D0		; and parameter
-			MOVEM.L	A0/D0,-(SP)		; swap them on the stack
-			
-			MOVE.W	#210,-(SP)									; “
-			MOVE.L	#((TextTop+LineHeight)<<16)+TextEdge,-(SP)	; start of second line
-			_MoveTo												; go there
-			_DrawChar											; draw “
-			
-			_DrawString											; draw name (already on stack)
-			
-			MOVE.W	#211,-(SP)									; ”
-			MOVE.W	#46,-(SP)									; .
-			_DrawChar											; draw .
-			_DrawChar											; draw ”
-			
-			RTS
-			
-; These strings are used by the disk-message-drawing procedures
-				STRING	pascal
-InsertString	DC.B	'Please insert the disk'
-RemoveString	DC.B	'Please remove the disk'
-UpdateString1	DC.B	'It needs to be updated'
-UpdateString2	DC.B	'before you remove it.'
-FromString		DC.B	'from drive '
-				STRING	asis
-				ALIGN
-EndDrawNameStr
-
-; DrawDiskName draws the message "Please insert the disk 'xxxx'"  It is used by both
-; the old disk-switch syserr and the new manual-eject error for ejected dirty disks.
-; It gets the disk name from the dsRecoverNamePtr field of the filesystem vars as the
-; old disk-switch code did.
-			dc.w	dspDrawDiskName,EndDrawDiskName-DrawDiskName
-DrawDiskName
-			PEA		InsertString						; "Please insert the disk"
-			MOVE.L	#(TextTop<<16)+TextEdge,-(SP)		; start of top line
-			_MoveTo										; go there
-			_DrawString									; draw message
-			
-			MOVEA.L	FSVarsPtr,A1
-			MOVE.L	FSVars.dsRecoverNamePtr(A1),-(SP)	; get name string
-			BSR		DrawNameStr							; draw it on second line
-			
-			RTS
-EndDrawDiskName
-
-
-; DrawDirtyDisk draws the same message as DrawDiskName and adds "It needs to be updated
-; before you remove it" below.  It is used to request the return of a manually-ejected
-; dirty disk.
-			dc.w	dspDrawDirtyDsk,EndDrawDirtyDsk-DrawDirtyDsk
-DrawDirtyDsk
-			PEA		UpdateString2									; "before you remove it."
-			MOVE.L	#((TextTop+3*LineHeight)<<16)+TextEdge,-(SP)	; start of fourth line
-			PEA		UpdateString1									; "It needs to be updated"
-			MOVE.L	#((TextTop+2*LineHeight)<<16)+TextEdge,-(SP)	; start of third line
-			PEA		InsertString									; "Please insert the disk"
-			MOVE.L	#(TextTop<<16)+TextEdge,-(SP)					; start of top line
-			_MoveTo													; go there
-			_DrawString												; draw "Please insert..."
-			_MoveTo													; go to third line
-			_DrawString												; draw "It needs..."
-			_MoveTo													; go to fourth line
-			_DrawString												; draw "before you..."
-			
-			MOVEA.L	FSVarsPtr,A1
-			MOVE.L	FSVars.dsRecoverNamePtr(A1),-(SP)	; get name string
-			BSR		DrawNameStr							; draw it on second line
-			
-			RTS
-EndDrawDirtyDsk
-
-
-; DrawRmvDsk draws the message "Please remove the disk 'xxxx' from drive y."  It is used
-; by the _Eject trap to get the user to eject a disk from a manual-eject drive.  The name
-; and drive number are pointed to by the dsRecoverNamePtr field of the filesystem vars used
-; by the disk-insertion procs.  If no name is available, the name ptr is set to nil and the
-; proc does not draw it, producing "Please remove the disk from drive y."  There is always
-; a drive number available.
-			dc.w	dspDrawRmvDsk,EndDrawRmvDsk-DrawRmvDsk
-DrawRmvDsk
-			MOVEA.L	FSVarsPtr,A1
-			MOVEA.L	FSVars.dsRecoverNamePtr(A1),A1	; A1 -> struct { short drvNum; char *diskName; }
-			
-			PEA		RemoveString									; "Please remove the disk"
-			MOVE.L	#(TextTop<<16)+TextEdge,-(SP)					; start of top line
-			MOVE.W	#46,-(SP)										; .
-			MOVE.W	(A1),D0											; drive number
-			OR.B	#$30,D0											; ASCII equivalent
-			MOVE.W	D0,-(SP)
-			PEA		FromString										; "from drive "
-			MOVE.L	#((TextTop+LineHeight)<<16)+TextEdge,-(SP)		; start of second line
-			
-			TST.L	2(A1)											; disk name OK?
-			BEQ.S	@drawfrom										; no: skip to "from drive"
-			MOVE.L	2(A1),-(SP)										; get disk name
-			BSR		DrawNameStr										; draw it on second line
-			MOVE.L	#((TextTop+2*LineHeight)<<16)+TextEdge,(SP)		; start of third line for "from..."
-			
-@drawfrom	_MoveTo													; go to proper line
-			_DrawString												; draw "from drive "
-			_DrawChar												; draw number
-			_DrawChar												; draw .
-			_MoveTo													; go to top line
-			_DrawString												; draw "Please remove..."
-			
-			RTS
-EndDrawRmvDsk
-
-	ENDIF	; hasManEject
-
 ; —————————————————————————————————————————————————
 ;
 ; DrawCurrentName is used to draw the name of the INIT or application which ate up too much memory.

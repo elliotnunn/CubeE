@@ -9,11 +9,6 @@
 
 	Change History (most recent first):
 
-		 <7>	11/15/92	JDR		Changed QuickDraw.h to not use the dangerous pattern, which
-									defines a pattern as a struct. This code was calling BlockMove
-									to copy the 8 byte pattern, but patterns are structs so Pattern
-									= Pattern works fine. I fixed the includes a bit too, and the
-									dependencies were wrong by the way so I fixed them as well.
 		 <6>	 5/19/92	YK		#1030028: Remove <4> and <5> since SWM is not an application
 									now.    Roll back to <3>.
 		 <5>	 1/14/92	YK		Added checking code for TSM. Removed the include statement that
@@ -26,6 +21,7 @@
 
 */
 
+#define dangerousPattern
 #include <QuickDraw.h>
 #include <Windows.h>
 #include <Resources.h>
@@ -71,7 +67,7 @@ c_initwindows(void)
 		DSWNDUPDATE |= ((char)0x80);
 
 		SetPort(WMGRPORT);
-		DESKPATTERN = **GetPattern(deskPatID);
+		BlockMove(*GetPattern(deskPatID), &DESKPATTERN, sizeof(Pattern));
 		ShowCursor();
 
 		olda5 = ProcessMgrA5SimpleSetup();
