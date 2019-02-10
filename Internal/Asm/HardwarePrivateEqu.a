@@ -8,40 +8,10 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM30>	12/13/93	PN		Roll in KAOs and Horror changes to support Malcom and AJ
-;									machines
-;	  <SM29>	11/16/93	SAM		Added an eieio macro for use on systems that have non serialized
-;									i/o space.  Basically, the macro will expand to a 68k NOP if
-;									"forNonSerializedIO" is set to true.
-;	  <SM28>	 11/9/93	KW		added eieioSTP macro.  When forSTP601 is defined as True, a 68k
-;									nop instruction will be added.  Emulator turns 68k nop into
-;									eieio.  Only effects the CygnusX1 ROM
 ;	  <SM27>	  8/4/93	JDR		private sound defines are in SoundPrivate.a
-;	  <SM26>	 7/20/93	SAM		Fixed the ROMHeader record.  Added the fields the SuperMario
-;									guys forgot to add to the end of the structure.
-;	  <SM25>	 7/14/93	RC		Added BART nubus controller register defs for PDM and Cold
-;									Fusion
-;	  <SM24>	  5/6/93	SAM		More generic AMIC stuff.
-;	  <SM23>	 4/22/93	SAM		Added some general AMIC equates (for PDM).
 ;	  <SM22>	 3/31/93	chp		Synchronize SuperMario with changes from <LW2>.
 ;	   <LW2>	 2/24/93	chp		Added equates for the PSC wait/request multiplexer control bits
 ;									in VIA1.
-;	  <SM21>	01-12-93	jmp		Added in the CSC equates.
-;	  <SM20>	 12/4/92	SWC		Added ascPlayRecA to the ASC equates.
-;	  <SM19>	 12/1/92	EH		Added Pratt Memory controller equates and Via1 equates for
-;									Blackbird.
-;	  <SM18>	 11/6/92	rab		Roll in Horror changes. Comments follow:
-;	   <H28> 	10/12/92	BG		Added symbolic constants for refering to the CPU ID bits that
-;									describe CPU_SPEED and CPU_ID values for Wombat/WLCD/Vail040.
-;	   <H27>	  9/6/92	jab		Added SCSI configuration info for BIOS.
-;	   <H26>	 8/25/92	BG		Added definitions for BIOS configuration registers.
-;	  <SM17>	10/27/92	fau		Added a YMCABase to the YMCA equ's.
-;	  <SM16>	 9/30/92	fau		Added a couple of constants for YMCA register sizes to aid in
-;									the SizeMem programming;  renamed a couple of YMCA registers to
-;									something better.
-;	  <SM15>	 9/16/92	WS		Fix bug change / to _
-;	  <SM14>	 9/16/92	WS
-;	  <SM14>	 9/15/92	gjs		Added the YMCA equates for EVT-4.
 ;	  <SM13>	 8/17/92	CCH		Bumped HeapStart to $2800.
 ;	  <SM12>	  8/7/92	JDB		Changed Singer control register to have 0 for the output
 ;									attenuation and  5 for the input gain.
@@ -587,43 +557,6 @@ setIopRun		equ			(1<<iopRun)|\			; start iop running
 ;__________________________________________________________________________________________
 ;
 ;
-; The STP card has problems when accessing VIA's if the 601 instruction 'eieio' is not
-; not used to force in order execution. Macro expands to nop only when conditional build
-; flag forSTP601 is defined as TRUE.  The 68k nop instruction is turned into an eieio
-; instruction by the emulator.
-;__________________________________________________________________________________________
-
-	MACRO
-	eieioSTP	; do nop if forSTP601 is set, emulator does eieio for 68k nop
-		if forSTPnop then
-			nop								; force write to complete
-		endif
-	ENDM
-
-
-;__________________________________________________________________________________________ <SAM>
-; Enforce In-order Execution of I/O.
-;
-; This macro is for use on systems that have non-serialized memory-mapped I/O.
-; It will order loads and stores ensuring that all previous storage accesses
-; previously initiated by the processor are complete with respect to main storage.
-;
-; The macro will expand only if the build conditional "hasSerializedIO" is true.  It will
-; expand to a 68K "NOP" which the V0 emulator translates to a PowerPC "eieio" instrucion.
-;__________________________________________________________________________________________
-	MACRO
-	eieio									; do nop if nonSerializedIO is set
-		if nonSerializedIO then
-			nop								; force writes to complete
-		endif
-	ENDM
-
-
-
-
-;__________________________________________________________________________________________
-;
-;
 ; VIA1 or Equivalent Pin Definitions and Register Offsets - Multiple names for the same pin
 ; are grouped together.  New definitions for VIA1 pins are added such that the grouping is
 ; maintained.
@@ -694,10 +627,8 @@ vSCCWrReq 		EQU 		7 						; SCC write/request line
 vEclipseLED		EQU			0						; flashable Eclipse LED (how quaint!)		<23>
 vRTCData  		EQU 		0 						; real time clock data
 vRMP0			EQU			0						; Reserved for RMP (PSC only)
-vENetIDClk		EQU			0						; Ethernet ID ROM clock	for Whitney			<SM19>
 vRTCClk   		EQU 		1 						; real time clock clock pulses
 vRMP1			EQU			1						; Reserved for RMP (PSC only)
-vENetIDData   	EQU 		1 						; Ethernet ID ROM clock	for Whitney			<SM19>
 vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
 vRMP2			EQU			2						; Reserved for RMP (PSC only)
 vFDBInt   		EQU 		3 						; Front Desk bus interrupt
@@ -1138,9 +1069,7 @@ DAFB_CRB3			EQU			$3C				; vRAM Color Register, bank 3
 Swatch_BaseOffset	EQU			$100			; Swatch offset from DAFBBase
 Swatch_BaseOffset1	EQU			$124			; parameter offset
 Swatch_ParmSize1	EQU			$12				; size of Swatch parameter list
-; ••• This number is off by 2, we think.  BG/NJV
-; Swatch_NumRegs		Equ			30				; Number of Swatch registers.
-Swatch_NumRegs		Equ			28				; Number of Swatch registers.
+Swatch_NumRegs		Equ			30				; Number of Swatch registers.
 
 Swatch_Mode			EQU			$100			; Swatch general control
 Swatch_IntMsk		EQU			$104			; Swatch interrupt control
@@ -1188,7 +1117,6 @@ ACDC_ParmSize		EQU			$1				; size of ACDC parameter list
 ;----------
 
 Clk_BaseOffset		EQU			$300			; National offset from DAFBBase
-Clk_ChipIntOffset	EQU			$C0				; Clock Chip Interface offset from National offset from DAFBBase <H33>
 Clk_ParmSize		EQU			$10 			; size of National parameter list
 Clk_ParmSize1		Equ			$0A				; (Once programmed, the last six bytes are always the same.)
 
@@ -1217,44 +1145,6 @@ GSCDiag0			Equ		$1D						; Undocumented “diagnostic” registers.
 GSCDiag1			Equ		$1E
 GSCDiag2			Equ		$1F
 
-;----------
-; CSC register definitions (offsets from VDACAddr in ProductInfo) ($50F2 0000)					<H30> jmp
-;----------
-CSCDeviceID			Equ		$00						; Device revision register; read only.
-CSCPanelID			Equ		$02						; “Senseline” register; read only.
-CSCPanelIDControl	Equ		$04						; Extended senseline control.
-CSCPanelType		Equ		$06						; Controls mono/color, size, etc….
-CSCPanelSetup		Equ		$08						; Controls polarity, power, etc….
-CSCDataOutputForm	Equ		$0A						; Controls datapath output type.
-CSCFRCControl		Equ		$0C						; “DAC” control from CLUT for panel.
-CSCPolyMAdj			Equ		$0E						; M adjustment for FRC.
-CSCPolyNAdj			Equ		$10						; N adjustment for FRC.
-CSCDisplayDataForm	Equ		$12						; 1,2,4,8,16 bpp.
-CSCDisplayStatus	Equ		$14						; IFR,IER,blanking.
-CSCRefreshRate		Equ		$16						; Controls refresh cycles per scanline.
-CSCVRAMControl		Equ		$18						; Controls VRAM clocking.
-CSCHSkewHi			Equ		$1A						; Effectively, controls the horizontal
-CSCHSkewLo			Equ		$1C						;	timing.
-CSCACDClkHi			Equ		$1E						; Effectively, controls the dot-clock
-CSCACDClkLo			Equ		$20						; 	timing.
-CSCVSkewHi			Equ		$22						; Effectively, control the vertical
-CSCVSkewLo			Equ		$24						; 	timing.
-CSCMemConfig		Equ		$26						; Controls addressing for type of VRAM.
-CSCLPStart			Equ		$28						; Controls start of timing diagram.
-CSCLPWidth			Equ		$2A						; Controls width of timing diagram.
-CSCFLMControl		Equ		$2C						; What does this do?
-
-CSCFrstReg			Equ		CSCPanelType			; First CSC register we need to save/restore.
-CSCLastReg			Equ		CSCFLMControl+2			; Last  CSC register we need to save/restore.
-CSCNumRegs			Equ		((CSCLastReg-CSCFrstReg)/2) ; Total number of registers to save/restore.
-
-CSCGTweak			Equ		$3C						; For “tweaking” the gray-only panels.
-
-CSCAddrRegW			Equ		$40						; Sets the index of the NEXT Palette Write.
-CSCAddrRegR			Equ		$46						; Sets the index of the NEXT Palette Read.
-CSCDataReg			Equ		$42						; Accessed as an R-G-B tripple into the Palette.
-
-CSCMaskReg			Equ		$44						; Logically masks out video data; set to all $F's.
 
 ;----------
 ; Sonora register definitions (offsets from SonoraAddr in ProductInfo) ($50F0 0000)				<H4><H6>
@@ -1286,17 +1176,6 @@ SonoraSetClr	Equ			7						; on WRITEs, 1 = 1-bits in bits 0-6 write 1's
 SonoraVBLIRQEn	Equ			6						; Enable/Disable built-in video VBL
 
 ;----------
-; Additional register definitions implemented in the Ardbeg variation of the Sonora chip		<HK4><H31> thru next <H31>
-;----------
-
-ArdbegPwr		EQU			$00A					; Ardbeg chip Power Management register
-
-;----------
-; Power Management register bit definitions
-;----------
-ArdbegPwrSaver	EQU 		0						; 1=Monitor power saver mode enabled (monitor power is off) <H31>
-
-;----------
 ; Ariel register definitions (offsets from VDACAddr in ProductInfo) ($50F2 4000)				<H6>
 ;----------
 ArielAddrReg	Equ			0						; Offset to r/w address register
@@ -1304,33 +1183,7 @@ ArielDataReg	Equ			1						; Offset to r/w data register
 ArielConfigReg	Equ			2						; Offset to r/w control register
 ArielKeyReg		Equ			3						; Offset to r/w key color register
 
-;----------
-; FIFO Memory Definitions for Whitney/Hardrock machines
-;----------
-FIFOMEM_BASE	Equ			$50F24000				; Logical address assignment for base of FIFO's
-FIFO_0_OFFSET	Equ			(16*1024)
-FIFO_1_OFFSET	Equ			(32*1024)
-FIFO_2_OFFSET	Equ			(48*1024)
 
-;----------
-; Whitney register definitions <ged>
-;----------
-
-WhitneyPwrCtl	Equ			$50F96000				; Whitney power control register
-WhitneyRev		Equ			$50F96004				; Whitney revision register
-
-;----------
-; Whitney power register bit definitions 														<K4>
-;----------
-
-WhitneySCCclk	equ			7						; 1 = SCC pClk forced low
-WhitneyInt3En	equ			6						; 1 = MDM_IRQ_L causes level 3 interrupt
-WhitneySWIMclk	equ			5						; 1 = Swim clock forced low
-WhitneySWIMReset equ		4						; 0 = reset SWIM chip
-WhitneyKEYclk	equ			3						; 1 = KEY_C16 forced low
-WhitneySCCpwr	equ			2						; 1 = power off serial driver chip
-WhitneyEnetReset equ		1						; 0 = reset SONIC chip
-WhitneyEnetPwr	equ			0						; 1 = power off Sonic chip
 ;----------
 ; MMC register definitions (offsets from MMCAddr in ProductInfo) ($50F3 0400)				<P2><SM4> rb, start
 ;----------
@@ -1365,135 +1218,6 @@ MMC_ClockSelect	EQU			$48						; Endeavor Input Clock Select (NTSC/PAL) [M18].
 
 MMC_Bypass		EQU			$4C						; RGB or Composite bypass [M19].
 
-;----------
-; YMCA register definitions (offsets from YMCAAddr in ProductInfo) ($50F3 0400)			<SM16> fau, start
-;----------
-YMCABase		EQU			$50F30400				; Used in YMCASizeBank 'cause we ran out of registers.  <SM17>
-YMCAMaxSize		EQU			5						; Maximum value that can be programed into the size registers
-BankBdryRegSize	EQU			7						; Size in bits of the boundary registers
-BankSizeRegSize	EQU			3						; Size in bits of the size register
-
-YMCA_DRAMspeed0	EQU			$00						; DRAM timing register 0 [M0].
-YMCA_DRAMspeed1	EQU			$04						; DRAM timing register 1 [M1].
-
-YMCA_CPUspeed0	EQU			$08						; Clock speed 0 [M2].
-YMCA_CPUspeed1	EQU			$0C						; Clock speed 1 [M3].
-
-YMCA_ROMspeed0	EQU			$10						; ROM cycle time 0 [M4].
-YMCA_ROMspeed1	EQU			$14						; ROM cycle time 1 [M5].
-YMCA_ROMspeed2	EQU			$18						; ROM cycle time 2 [M6].
-
-YMCA_DSPspeed	EQU			$1C						; DSP clock speed [M7].
-
-YMCA_DRAMwidth0	EQU			$20						; DRAM width 0 [M8].
-YMCA_DRAMwidth1	EQU			$24						; DRAM width 1 [M9].
-YMCA_DRAMwidth2	EQU			$28						; DRAM width 2 [M10].
-YMCA_DRAMwidth3	EQU			$2C						; DRAM width 3 [M11].
-
-YMCA_EPROMmode	EQU			$30						; EPROM mode [M12].
-
-YMCA_040Mode	EQU			$34						; 040 Special Mode [M13].
-
-YMCA_CPUID0		EQU			$38						; CPU ID 0 [M14].
-YMCA_CPUID1		EQU			$3C						; CPU ID 1 [M15].
-YMCA_CPUID2		EQU			$40						; CPU ID 2 [M16].
-YMCA_CPUID3		EQU			$44						; CPU ID 3 [M17].
-
-YMCA__ClockSelect	EQU		$48						; Endeavor Input Clock Select [M18].
-YMCA_Bypass 		EQU		$4C						; Composite out or RGB [M19].
-
-YMCA_DRAMBank0_A20 EQU		$50						; DRAM Bank0 Addr A20 [M20].
-YMCA_DRAMBank0_A21 EQU		$54						; DRAM Bank0 Addr A21 [M21].
-YMCA_DRAMBank0_A22 EQU		$58						; DRAM Bank0 Addr A22 [M22].
-YMCA_DRAMBank0_A23 EQU		$5C						; DRAM Bank0 Addr A23 [M23].
-YMCA_DRAMBank0_A24 EQU		$60						; DRAM Bank0 Addr A24 [M24].
-YMCA_DRAMBank0_A25 EQU		$64						; DRAM Bank0 Addr A25 [M25].
-YMCA_DRAMBank0_A26 EQU		$68						; DRAM Bank0 Addr A26 [M26].
-YMCA_DRAMBank0_Sz0 EQU		$6C						; DRAM Bank0 Size 0   [M27].
-YMCA_DRAMBank0_Sz1 EQU		$70						; DRAM Bank0 Size 1   [M28].
-YMCA_DRAMBank0_Sz2 EQU		$74						; DRAM Bank0 Size 2   [M29].
-
-YMCA_DRAMBank1_A20 EQU		$78						; DRAM Bank1 Addr A20 [M30].
-YMCA_DRAMBank1_A21 EQU		$7C						; DRAM Bank1 Addr A21 [M31].
-YMCA_DRAMBank1_A22 EQU		$80						; DRAM Bank1 Addr A22 [M32].
-YMCA_DRAMBank1_A23 EQU		$84						; DRAM Bank1 Addr A23 [M33].
-YMCA_DRAMBank1_A24 EQU		$88						; DRAM Bank1 Addr A24 [M34].
-YMCA_DRAMBank1_A25 EQU		$8C						; DRAM Bank1 Addr A25 [M35].
-YMCA_DRAMBank1_A26 EQU		$90						; DRAM Bank1 Addr A26 [M36].
-YMCA_DRAMBank1_Sz0 EQU		$94						; DRAM Bank1 Size 0   [M37].
-YMCA_DRAMBank1_Sz1 EQU		$98						; DRAM Bank1 Size 1   [M38].
-YMCA_DRAMBank1_Sz2 EQU		$9C						; DRAM Bank1 Size 2   [M39].
-
-YMCA_DRAMBank2_A20 EQU		$A0						; DRAM Bank2 Addr A20 [M40].
-YMCA_DRAMBank2_A21 EQU		$A4						; DRAM Bank2 Addr A21 [M41].
-YMCA_DRAMBank2_A22 EQU		$A8						; DRAM Bank2 Addr A22 [M42].
-YMCA_DRAMBank2_A23 EQU		$AC						; DRAM Bank2 Addr A23 [M43].
-YMCA_DRAMBank2_A24 EQU		$B0						; DRAM Bank2 Addr A24 [M44].
-YMCA_DRAMBank2_A25 EQU		$B4						; DRAM Bank2 Addr A25 [M45].
-YMCA_DRAMBank2_A26 EQU		$B8						; DRAM Bank2 Addr A26 [M46].
-YMCA_DRAMBank2_Sz0 EQU		$BC						; DRAM Bank2 Size 0   [M47].
-YMCA_DRAMBank2_Sz1 EQU		$C0						; DRAM Bank2 Size 1   [M48].
-YMCA_DRAMBank2_Sz2 EQU		$C4						; DRAM Bank2 Size 2   [M49].
-
-YMCA_DRAMBank3_A20 EQU		$C8						; DRAM Bank3 Addr A20 [M50].
-YMCA_DRAMBank3_A21 EQU		$CC						; DRAM Bank3 Addr A21 [M51].
-YMCA_DRAMBank3_A22 EQU		$D0						; DRAM Bank3 Addr A22 [M52].
-YMCA_DRAMBank3_A23 EQU		$D4						; DRAM Bank3 Addr A23 [M53].
-YMCA_DRAMBank3_A24 EQU		$D8						; DRAM Bank3 Addr A24 [M54].
-YMCA_DRAMBank3_A25 EQU		$DC						; DRAM Bank3 Addr A25 [M55].
-YMCA_DRAMBank3_A26 EQU		$E0						; DRAM Bank3 Addr A26 [M56].
-YMCA_DRAMBank3_Sz0 EQU		$E4						; DRAM Bank3 Size 0   [M57].
-YMCA_DRAMBank3_Sz1 EQU		$E8						; DRAM Bank3 Size 1   [M58].
-YMCA_DRAMBank3_Sz2 EQU		$EC						; DRAM Bank3 Size 2   [M59].
-
-YMCA_DRAMBank4_A20 EQU		$F0						; DRAM Bank4 Addr A20 [M60].
-YMCA_DRAMBank4_A21 EQU		$F4						; DRAM Bank4 Addr A21 [M61].
-YMCA_DRAMBank4_A22 EQU		$F8						; DRAM Bank4 Addr A22 [M62].
-YMCA_DRAMBank4_A23 EQU		$FC						; DRAM Bank4 Addr A23 [M63].
-YMCA_DRAMBank4_A24 EQU		$100					; DRAM Bank4 Addr A24 [M64].
-YMCA_DRAMBank4_A25 EQU		$104					; DRAM Bank4 Addr A25 [M65].
-YMCA_DRAMBank4_A26 EQU		$108					; DRAM Bank4 Addr A26 [M66].
-YMCA_DRAMBank4_Sz0 EQU		$10C					; DRAM Bank4 Size 0   [M67].
-YMCA_DRAMBank4_Sz1 EQU		$110					; DRAM Bank4 Size 1   [M68].
-YMCA_DRAMBank4_Sz2 EQU		$114					; DRAM Bank4 Size 2   [M69].
-
-YMCA_DRAMBank5_A20 EQU		$118					; DRAM Bank5 Addr A20 [M70].
-YMCA_DRAMBank5_A21 EQU		$11C					; DRAM Bank5 Addr A21 [M71].
-YMCA_DRAMBank5_A22 EQU		$120					; DRAM Bank5 Addr A22 [M72].
-YMCA_DRAMBank5_A23 EQU		$124					; DRAM Bank5 Addr A23 [M73].
-YMCA_DRAMBank5_A24 EQU		$128					; DRAM Bank5 Addr A24 [M74].
-YMCA_DRAMBank5_A25 EQU		$12C					; DRAM Bank5 Addr A25 [M75].
-YMCA_DRAMBank5_A26 EQU		$130					; DRAM Bank5 Addr A26 [M76].
-YMCA_DRAMBank5_Sz0 EQU		$134					; DRAM Bank5 Size 0   [M77].
-YMCA_DRAMBank5_Sz1 EQU		$138					; DRAM Bank5 Size 1   [M78].
-YMCA_DRAMBank5_Sz2 EQU		$13C					; DRAM Bank5 Size 2   [M79].
-
-YMCA_DRAMBank6_A20 EQU		$140					; DRAM Bank6 Addr A20 [M80].
-YMCA_DRAMBank6_A21 EQU		$144					; DRAM Bank6 Addr A21 [M81].
-YMCA_DRAMBank6_A22 EQU		$148					; DRAM Bank6 Addr A22 [M82].
-YMCA_DRAMBank6_A23 EQU		$14C					; DRAM Bank6 Addr A23 [M83].
-YMCA_DRAMBank6_A24 EQU		$150					; DRAM Bank6 Addr A24 [M84].
-YMCA_DRAMBank6_A25 EQU		$154					; DRAM Bank6 Addr A25 [M85].
-YMCA_DRAMBank6_A26 EQU		$158					; DRAM Bank6 Addr A26 [M86].
-YMCA_DRAMBank6_Sz0 EQU		$15C					; DRAM Bank6 Size 0   [M87].
-YMCA_DRAMBank6_Sz1 EQU		$160					; DRAM Bank6 Size 1   [M88].
-YMCA_DRAMBank6_Sz2 EQU		$164					; DRAM Bank1 Size 2   [M89].
-
-YMCA_DRAMBank7_A20 EQU		$168					; DRAM Bank7 Addr A20 [M90].
-YMCA_DRAMBank7_A21 EQU		$16C					; DRAM Bank7 Addr A21 [M91].
-YMCA_DRAMBank7_A22 EQU		$170					; DRAM Bank7 Addr A22 [M92].
-YMCA_DRAMBank7_A23 EQU		$174					; DRAM Bank7 Addr A23 [M93].
-YMCA_DRAMBank7_A24 EQU		$178					; DRAM Bank7 Addr A24 [M94].
-YMCA_DRAMBank7_A25 EQU		$17C					; DRAM Bank7 Addr A25 [M95].
-YMCA_DRAMBank7_A26 EQU		$180					; DRAM Bank7 Addr A26 [M96].
-YMCA_DRAMBank7_Sz0 EQU		$184					; DRAM Bank7 Size 0   [M97].
-YMCA_DRAMBank7_Sz1 EQU		$188					; DRAM Bank7 Size 1   [M98].
-YMCA_DRAMBank7_Sz2 EQU		$18C					; DRAM Bank7 Size 2   [M99].
-
-YMCA_Test_Mode 		EQU		$190					; Enable Test Mode    [M100].
-YMCA_Refresh_Test   EQU		$194					; Refresh Test Mode   [M101].
-
-;													;											<SM16> fau, end
 ;----------
 ; MUNI (NuBus) register definitions																<P6>
 ;----------
@@ -1633,7 +1357,7 @@ MSCFlashWrEnb	EQU			$23						; flash ROM write enable
 MSCPowerCycle	EQU			$50FA0000-$50F26000		; CPU power off control register			<H2>
 
 ;  ======  VIA2 BufferB Equivalent		Address: $50F26000	 =====
-MSCEnableFPU	EQU			0						; 0 = enable on-board floating point processor	<H29>
+MSCExpansion	EQU			0						; 0 = enable on-board external cache (not currently used)
 ;v2PMack		EQU 		1 						; Power manager handshake acknowledge
 ;v2PMreq		EQU 		2 						; Power manager handshake request
 ;reserved3		EQU			3						; reserved
@@ -1721,84 +1445,6 @@ MSCDefConfig	EQU			(1<<MSC25MHz)|\			; 25MHz system								<H9>
 							(0<<MSCBank8M)|\		; assume 2MB each in banks 4-7				<H19>
 							(%000<<MSCSize0)		; set 2MB so there's real RAM for BootBeep	<H10>
 
-
-BIOSAddr		EQU			$50F18000				; verified by hasBIOSAddr in ExtValid		<H26><SM18>
-
-BIOS_Config		EQU			0						; contains bit 0:  0 = BCLK ≥ 33MHz			<H26>
-													;                  1 = BCLK ≤ 25MHz			<H26>
-BIOS_SONIC_SCSI	EQU			$200					; contains SONIC and SCSI parameters		<H26>
-BIOSSCSIFilter	EQU			$40						; bit 6 = SONIC stuff, all the rest are SCSI<H31>
-													; (bit 7 in BIOS is undefined)				<H31>
-BIOScfg20MHz	EQU			$1B						; 3-clk PDMA Write and Read 				<H27><SM18>
-BIOScfg25MHz	EQU			$3F						; 3-clk PDMA Write and Read/DRQCHK on		<H27><SM18>
-BIOScfg33MHz	EQU			$12						; 4-clk PDMA Write and Read 				<H27><SM18>
-BIOScfg40MHz	EQU			$00						; 5-clk PDMA Write and Read					<H27><SM18>
-
-BIOS_REVISION	EQU			$300					; bits 5:7 is BIOS revision number			<H26>
-bBIOSW1Cmplt	EQU			$2						; bit positions...			 				<H27>
-bBIOSR1Cmplt	EQU			$1						;					 						<H27>
-bBIOSSCSIBERR	EQU			$0						;						 					<H27>
-
-BIOS_PDMA		EQU			$300					; bits 0:2 are Pseudo-DMA control bits		<H26>
-BIOS_SCSI_RESID	EQU			$400					; bits 0:16 are latched SCSI data			<H26>
-BIOS_BRIGHTNESS	EQU			$500					; 8 bits of 0-$FF brightness				<H31>
-BIOS_CONTRAST	EQU			$501					; 8 bits of 0-$FF contrast					<H31>
-BIOS_Timeout	EQU			$600					; bits 0:11 are watchdog timer timeout cntr	<H26>
-
-BIOS_Config2	EQU			$100					; for Primus/Optimus bios					<H35>
-bBIOSBR30116BIT	EQU			$0						; bit positions...							<H35>
-bBIOSIOCSTime	EQU			$1						;											<H35>
-bBIOSENETIRQLVL	EQU			$2						;											<H35>
-
-;__________________________________________________________________________________________		<SM23> SAM
-;	AMIC (Apple Memory mapped I/O Controller) Creative name huh? Equates
-;	First used on PDM/Cold Fusion
-;__________________________________________________________________________________________
-
-AMICBase		EQU			$50F30000				; AMIC base
-AMICDMABase		EQU			$50F31000				; DMA Buffer Base Address (256k alignment)
-AMICSCSIDMABase	EQU			$0000					; SCSI DMA Buffer Base Address [scsi has its own buffer] (8 byte alignment)
-
-AMICSCSICntrl	EQU			$1008					; SCSI DMA control register
-
-AMICEnetTxCntrl	EQU			$0C20					; Ethernet transmit DMA control register
-AMICEnetRxCntrl	EQU			$1028					; Ethernet receive DMA control register
-
-AMICFloppyCntrl	EQU			$1068					; Floppy DMA control register
-
-AMICSCCTxACntrl	EQU			$1088					; SCC port A transmit DMA control register
-AMICSCCRxACntrl	EQU			$1098					; SCC port A receive DMA control register
-
-AMICSCCTxBCntrl	EQU			$10A8					; SCC port B transmit DMA control register
-AMICSCCRxBCntrl	EQU			$10B8					; SCC port B receive DMA control register
-
-AMICIrqBase		EQU			$50F2A000				; AMIC's interrupt register base
-AMICIrqFlags	EQU			$0000					; Interrupt source register
-AMICDMAFlags0	EQU			$0008					; DMA interrupt source register
-AMICDMAFlags1	EQU			$000A					; DMA interrupt source register
-
-PDMrbvSize 		EQU			768*1024				; 768k for RBV							<SM24>
-PDMDMAbufSize	EQU			160*1024				; 160k for the DMA buffer
-PDMDMAlogAddr	EQU			$61000000				; Logical address of the DMA buffer
-
-;__________________________________________________________________________________________
-;	BART (PDM/Cold Fusion NuBus Controller) Equates
-;	First used on PDM/Cold Fusion
-;__________________________________________________________________________________________
-BARTBase		EQU			$F0000000				; BART Register Base
-
-BARTResetReg	EQU			$F0000000				; bit zero of this register will reset NuBus
-BARTResetBit	EQU			$0
-
-BARTSlowReg		EQU			$F0000001				; Setting bit 8 will add wait states
-BARTSlowBit		EQU			$8
-
-BARTOffSltE		EQU			$F0000011				; Setting bit 8 will cause slot E to be disabled (for Cold Fusion)
-BARTOFFBit		EQU			$8
-
-BARTBurstReg	EQU			$80						; Offset from base to slot zero burst reg (not actually used directly)
-BARTBurstRegOff	EQU			$08						; Offset from Busrt Reg to next slot Reg ($80, $78, $70, $68 ... $10)
-BARTBurstBit	EQU			$8
 
 
 ;__________________________________________________________________________________________
@@ -1992,56 +1638,6 @@ NiagraFlashEnbl	EQU			$30000					; Enable flash from Niagra
 NiagraFPUAcc	EQU			$34000					; FPU access detected
 NiagraSpeedReg	EQU			$36000					; Returns the CPU clock frequency
 
-;---------------------------------------------------
-; Pratt Memory Controller Equates
-;---------------------------------------------------
-
-PrattChipID		EQU			$5ffffff8				; Pratt ID register address (chip version)		CSR0
-PrattSysStat	EQU			$0007					; CPU speed	register offset						CSR1								
-PrattROMSpeed	EQU			$000B					; ROM speed register offset						CSR2
-PrattRAMDensity	EQU			$000F					; RAM density register offset					CSR3
-PrattRAMConfig	EQU			$0013					; RAM configuration register offset				CSR4
-PrattRefresh	EQU			$0017					; RAM refresh register offset					CSR5
-PrattNapReg		EQU			$001B					; PowerCycling enable register offset			CSR6
-PrattVersion	EQU			$001F					; Unused register offset (always reads zero)	CSR7
-
-													;CSR1 System Status Register
-Pratt16MHzCPU	EQU			%00000000				; CPU speed reg config values (bits 0:1)
-Pratt20MHzCPU	EQU			%00000001				; 
-Pratt25MHzCPU	EQU			%00000010				; 
-Pratt33MHzCPU	EQU			%00000011				;
-PrattFlashLBit	EQU			2						; bit position for Flash detection (0 = Flash is present)
-PrattROMBit		EQU			3						; bit position for ROM boot (1 = ROM in system)
-
-Pratt250nsROM	EQU			%00000000				;CSR2 ROM speed reg config values
-Pratt200nsROM	EQU			%00000001				;
-Pratt150nsROM	EQU			%00000010				;
-Pratt120nsROM	EQU			%00000011				;
-
-													;CSR3/4 RAM sizing bit definitions
-PrattDensBits	EQU			%00001111				; bit mask showing active density config bits
-PrattBankBits	EQU			%00111111				; bit mask showing active bank occupancy bits
-PrattDefDensity	EQU			%00000111				; Default RAM Density value for Pratt (all 8MB banks)
-PrattDefConfig	EQU			%00111111				; Default RAM Bank Configuration for Pratt (all banks occupied)		
-PrattNumbanks	EQU			6						; Total number of RAM banks, onboard plus expansion
-
-Pratt0MBbank	EQU			%11111100				; Onboard RAM bank bit masks 
-Pratt2MBbank	EQU			%11111110
-Pratt4MBbank	EQU			%11111101
-Pratt8MBbank	EQU			%11111111
-
-Pratt0MBExBank	EQU			%11110011				; Expansion RAM bank bit masks
-Pratt2MBExBank	EQU			%11110011
-Pratt4MBExBank	EQU			%11111011
-Pratt8MBExBank	EQU			%11110111
-
-													;CSR5 Test Control Bits
-PrattFreqRfsh	EQU			0						; Pratt frequent refresh control bit
-PrattDBRfshOnly	EQU			1						; Do daughterboard refresh only bit
-PrattShortRamp	EQU			2						; Do short power rampup bit
-
-PrattPwrCyclBit	EQU			0						;CSR6 Power Cycling bit (= 1 to power cycle) 
-
 ;---------------------------------------------------								<SM4> rb, start
 ; Ponti Register Equates  (NiagraGUR register space + offset
 ;---------------------------------------------------
@@ -2073,109 +1669,7 @@ PontiLmpHWCtl		EQU			1				; (1 = Hardware control) 	- if set, hardware control l
 PontiLmpMux0		EQU			2				; (1 = 1/2 pot) 			- 1/2 scale pot reduction
 PontiLmpMux1		EQU			3				; (1 = 1/4 pot) 			- 1/4 scale pot reduction
 PontiLmpSPIDir		EQU			4				; (1 = shift out) 			- direction of shift register
-
-;---------------------------------------------------								<K9> HJR
-; HardRock Register Equates
-;---------------------------------------------------
-HardRockSlotBase	EQU			$FB000000
-
-HardRockCodecICR	EQU			HardRockSlotBase + $1020
-HardRockCodecSRCR	EQU			HardRockSlotBase + $1024
-HardRockCodecEnReg	EQU			HardRockSlotBase + $1028
-HardRockCodecOutAtt	EQU			HardRockSlotBase + $1030
-HardRockCodecInGain	EQU			HardRockSlotBase + $1034
-
-HardRockFifoBase	EQU			HardRockSlotBase + $2000
-HardRockFifoControl	EQU			HardRockSlotBase + $2000 +4
-
-HRChan_run12		EQU			12				; 1 = enable channel 12
-HRChan_run9			EQU			9				; 1 = enable channel 9
-HRChan_run7			EQU			7				; 1 = enable channel 7
-HRChan_run6			EQU			6				; 1 = enable channel 6
-HRChan_run5			EQU			5				; 1 = enable channel 5
-HRChan_run4			EQU			4				; 1 = enable channel 4
-HRChan_run3			EQU			3				; 1 = enable channel 3
-HRChan_run2			EQU			2				; 1 = enable channel 2
-HRChan_run1			EQU			1				; 1 = enable channel 1
-HRSPI_Voice_Sel		EQU			0				; 1 = Voice DMA data goes through SPI Interface
-												; 0 = Voice DMA data goes through CODEC Interface
-
-HardRockFifoCTL0	EQU			HardRockFifoBase + $10
-HardRockFifoCTL1	EQU			HardRockFifoBase + $20
-HardRockFifoCTL2	EQU			HardRockFifoBase + $30
-
-HardRockFifoBase0	EQU			HardRockFifoBase + $1C
-HardRockFifoBase1	EQU			HardRockFifoBase + $2C
-HardRockFifoBase2	EQU			HardRockFifoBase + $3C
-
-HardRockFifoRec		RECORD		0,Increment		; 
-HRFifoConfig		DS.W		1				; 0
-HRFifoInt			DS.W		1				; 2
-HRFifoReserved		DS.W		2				; 4
-HRFifoReadptr		DS.W		1				; 8
-HRFifoWriteptr		DS.W		1				; A
-HRFifoBase			DS.L		1				; C
-HRFiforecSize		EQU			*-HardRockFifoRec
-					ENDR
-
-HRFifoConfig64b		EQU			6				; Fifo config size of 64 bytes	
-HRFifoConfig128b	EQU			7				; Fifo config size of 128 bytes	
-HRFifoConfig256b	EQU			8				; Fifo config size of 256 bytes	
-HRFifoConfig512b	EQU			9				; Fifo config size of 512 bytes	
-HRFifoConfig1k		EQU			10				; Fifo config size of 1 kbytes	
-HRFifoConfig2k		EQU			11				; Fifo config size of 2 kbytes	
-HRFifoConfig4k		EQU			12				; Fifo config size of 4 kbytes	
-HRFifoConfig8k		EQU			13				; Fifo config size of 8 kbytes	
-
-HRFifoConfigVal		EQU			HRFifoConfig1k	; Currently set Fifo size to 1k
-HRFifoSz			EQU			$400			; $400 = #1024 = 1k
-HRFifoWrapVal		EQU			HRFifoSz-1
-
-HardRockFifoIntMsk0	EQU			HardRockFifoBase + $12
-HardRockFifoIntMsk1	EQU			HardRockFifoBase + $22
-HardRockFifoIntMsk2	EQU			HardRockFifoBase + $32
-
-HRIntMask			EQU			0				; 1 = interrupt masked, 0 = interrupt enabled
-
-HardRockReadIntRec	RECORD		0,Increment		; 
-HRIntFlags			DS.B		1
-HRRcvFlags			DS.B		1
-HRDataCount			DS.W		1
-					ENDR
-
-HardRockModemPwrReg	EQU			HardRockSlotBase + $20
-HardRockModemRstClr	EQU			2				; 0 = deassertion of CHIQUITA_RESET_L is high level
-												; 1 = deassertion of CHIQUITA_RESET_L is tristate level
-HardRockModem_RST	EQU			1				; 0 = assert CHIQUITA_RESET_L
-HardRockModem_PWR	EQU			0				; 1 = Enable power to modem
-
-HardRockModem_base	EQU			HardRockSlotBase + $4000
-
-HardRockSPIMdmCtl	EQU			$000
-HardRockSPIAck		EQU			2				; (1 = ack idle)
-HardRockSPIReq		EQU			3				; (1 = req idle)
-
-HardRockSndCtl		EQU			$400
-HardRockSndSPIIrqMsk EQU		0				; (1 = mask int)
-
-HardRockSPISftReg	EQU			$800
-
-HardRockLmpSftCtl	EQU			$C00
-HardRockLmpSPIDir	EQU			4				; (1 = shift out) 			- direction of shift register
-
-ModemExtCmdRec	RECORD			0,Increment		; 
-modemcmdsel		ds.b			1
-modemdata		ds.b			1
-				endr
-
-WriteFifoRect	RECORD			0,Increment		; 
-writeflags		ds.b			1
-writecnthi		ds.b			1
-writecntlo		ds.b			1
-writepad		ds.b			1				;															<K9>
-				endr
-
-
+												;									<SM4> rb, end
 ;-------------------------------------																		<H21> thru next <H21>
 ;	djMEMC memory controller equates
 ;-------------------------------------
@@ -2184,20 +1678,6 @@ writepad		ds.b			1				;															<K9>
 ;	Universal tables to hold this information.
 
 MEMCAddr			EQU		$50F0E000				; same for both Wombat + WLCD memory maps
-
-;	djMEMC-specific CPU_ID bit values
-
-djVIA_CPU_TYPE_MASK	EQU		%01000010				; PA6, PA1 = CPU type bits								<SM18>
-djCPU_TYPE_VAIL040	EQU		%00000000				; Vail 040   = 00										<SM18>
-djCPU_TYPE_FRIDGE	EQU		%00000010				; Frigidaire = 01										<SM18>
-djCPU_TYPE_WLCD		EQU		%01000000				; WLCD       = 10										<SM18>
-djCPU_TYPE_LEGO		EQU		%01000010				; Lego       = 11										<SM18>
-
-djVIA_CPU_SPEED_MASK EQU	%00010100				; PA4, PA2 = CPU speed bits								<SM18>
-djCPU_SPEED_20MHZ	EQU		%00000000				; 20MHz      = 00										<SM18>
-djCPU_SPEED_25MHZ	EQU		%00000100				; 25MHz      = 01										<SM18>
-djCPU_SPEED_33MHZ	EQU		%00010000				; 33MHz      = 10										<SM18>
-djCPU_SPEED_40MHZ	EQU		%00010100				; 40MHz      = 11										<SM18>
 
 MEMCRegisterStart	EQU		0
 MEMCIntleaveEnable	EQU		MEMCRegisterStart		; DRAM interleave enable reg.
@@ -2369,146 +1849,6 @@ bufWorldSize  	EQU 		8192		   			; total size of the BufPtr world		<H16>
 sampleSize		equ			4				; number of bytes per sample
 bufferSize		equ			960				; number of samples per buffer
 sampleRate		equ			24 * 1024		; 24KHz sample rate
-
-;---------------------------------------------------------------------
-;  Whitney Sound Register Offsets (from ASC base in UniversalTables.a)
-;---------------------------------------------------------------------
-wSndInABWritePtr	equ			$f54		; [word] A/B input FIFO write pointer (alias at $f04)
-wSndInAReadPtr		equ			$f52		; [word] A input FIFO read pointer
-wSndInBReadPtr		equ			$f56		; [word] B input FIFO read pointer
-
-wSndOutAWritePtr	equ			$f58		; [word] A output FIFO write pointer
-wSndOutBWritePtr	equ			$f5c		; [word] B output FIFO write pointer
-wSndOutABReadPtr	equ			$f5a		; [word] A/B output FIFO read pointer (alias at $f26)
-
-wSndControl			equ			$f40		; [byte] configures Singer power/FIFO size/sample rate, etc.
-wSndFIFOBase		equ			$f44		; [long] physical base address of FIFO
-wSndFIFOBaseHi		equ			$f44		; [word] high order (physical) word of FIFO base address in RAM
-wSndFIFOBaseLo		equ			$f46		; [word] low order word of FIFO base address in RAM
-
-wSndAData			equ			$1000		; [word] 16-bit sound in/out data for left channel
-wSndBData			equ			$1800		; [word] 16-bit sound in/out data for right channel
-
-wSndSingerCtl1		equ			$f48		; [word] Singer mute/input select/gain control
-wSndSingerCtl2		equ			$f4a		; [word] Singer attenuation/digital out control
-wSndSingerStat1		equ			$f4c		; [word] Singer valid/clipping/error/rev status
-wSndSingerStat2		equ			$f4e		; [word] Singer digital input status
-
-;---------------------------------------------------
-;  Whitney Sound Register Bit Definitions
-;---------------------------------------------------
-
-; === sndControl register ===
-wSampleRateMsk	equ			$03				; Mask for sample rate bits
-wFIFOSizeMsk	equ			$0C				; Mask for FIFO size bits
-
-wSampleRate		equ			0				; Sample rate field for Singer Serial Clock (2 bits)
-wSampleRate1	equ			0				;  lsbit
-wSampleRate2	equ			1				;  msbit
-
-wFIFOSize		equ			2				; FIFO size (2 bits)
-wFIFOSize1		equ			2				;  lsbit
-wFIFOSize2		equ			3				;  msbit
-
-wSingerClk		equ			4				; Singer master clock enable
-wSingerPower	equ			5				; Singer power enable
-wSingerSNDFlag	equ			6				; Singer sound flag
-;				equ			7				; unused
-
-; === sndSingerCtl1 register ===
-wRGainMsk		equ			$000F			; Mask for right channel input gain
-wLGainMsk		equ			$00F0			; Mask for left channel input gain
-wRGain			equ			0				; Singer right input A/D gain (4 bits)
-wRGain1			equ			0				;  lsb
-wRGain2			equ			1
-wRGain3			equ			2
-wRGain4			equ			3				;  msb
-
-wLGain			equ			4				; Singer left input A/D gain (4 bits)
-wLGain1			equ			4				;  lsb
-wLGain2			equ			5
-wLGain3			equ			6
-wLGain4			equ			7				;  msb
-
-wInSelRight		equ			8				; Input select for right channel
-wInSelLeft		equ			9				; Input select for left channel
-
-wMute			equ			10				; Mute enable
-
-wWordAOut		equ			11				; Word A Out 17:21 (5 bits) - 0's, see Singer spec
-;				equ			12
-;				equ			13
-;				equ			14
-;				equ			15
-
-; === sndSingerCtl2 register ===
-wDigOut			equ			0				; Singer digital output (4 bits)
-wDigOut4		equ			0				;  output 4
-wDigOut3		equ			1				;  output 3
-wDigOut2		equ			2				;  output 2
-wDigOut1		equ			3				;  output 1
-
-wRAtten			equ			4				; Singer right D/A attenuation (4 bits)
-wRAtten1		equ			4				;  lsb
-wRAtten2		equ			5
-wRAtten3		equ			6
-wRAtten4		equ			7				;  msb
-
-wLAtten			equ			8				; Singer left D/A attenuation (4 bits)
-wLAtten1		equ			8				;  lsb
-wLAtten2		equ			9
-wLAtten3		equ			10
-wLAtten4		equ			11				;  msb
-
-
-wWordBOut		equ			12				; Word B Out 49:52 (5 bits) - 0's in SM1, see Singer spec
-;				equ			13
-;				equ			14
-;				equ			15
-
-; === sndSingerStat1 register ===
-wRev			equ			0				; Singer revision number (4 bits)
-wRev1			equ			0				;  lsb
-wRev2			equ			1
-wRev3			equ			2
-wRev4			equ			3				;  msb
-
-wErr			equ			4				; Singer error code (4 bits)
-wErr1			equ			4				;  lsb
-wErr2			equ			5
-wErr3			equ			6
-wErr4			equ			7				;  msb
-
-wRClip			equ			8				; Right clipping indicator
-wLClip			equ			9				; Left clipping indicator
-
-wADValid		equ			10				; A/D valid data indicator
-
-wWordAIn		equ			11				; Word A In 17:21 (5 bits), see Singer spec
-;				equ			12
-;				equ			13
-;				equ			14
-;				equ			15
-
-; === sndSingerStat2 register ===
-wDigIn			equ			0				; Singer digital input (4 bits)
-wDigIn4			equ			0				;  input 4
-wDigIn3			equ			1				;  input 3
-wDigIn2			equ			2				;  input 2
-wDigIn1			equ			3				;  input 1
-
-wWordBIn		equ			4				; Word B In 49:60 (12 bits), see Singer spec
-;				equ			5
-;				equ			6
-;				equ			7
-;				equ			8
-;				equ			9
-;				equ			10
-;				equ			11
-;				equ			12
-;				equ			13
-;				equ			14
-;				equ			15
 
 ;---------------------------------------------------
 ;  PSC Hardware Defs
@@ -2873,9 +2213,6 @@ CheckSum1			DS.L		1					; $0034 checksum 1
 CheckSum2			DS.L		1					; $0038 checksum 2
 CheckSum3			DS.L		1					; $003C checksum 3
 RomSize				DS.L		1					; $0040 HiRam stuffs size of ROM in bytes here
-EraseIconOff		DS.L		1					; $0044 Offset to code to ease the Happy Mac icon
-InitSys7ToolboxOff	DS.L		1					; $0048 Offset to System 7.0 toolbox init code
-SubVers				DS.L		1					; $004C Yet another subversion (sigh)
 				ENDR
 
 
@@ -2888,49 +2225,6 @@ locValid2		EQU			6						; this must be 0
 inEmulatorBit	EQU			1						; running in emulator
 inRamBit		EQU			0						; running in ram
 
-;----------
-; TestInRam Macro																	<4.4>
-;
-; This macro tests the RomLoc byte in the ROM header to determine the ROM is located
-; in RAM.
-;----------
-			MACRO
-				TestInRam	&reg
-			    lea		@testInRamData,&reg
-				move.w	#$1,(&reg)					; write to "ROM"
-				tst.w	@testInRamData				; did it stick?
-				bra.s	@testDone
-@testInRamData	dc.w	0
-@testDone
-			ENDM
-
-;----------
-; WhitneyRevAtLeast Macro
-;	Sets the Z bit in the CCR if Whitney revision is greater or equal to &rev parameter passed in
-;	 else clears the Z bit
-; NOTE: This macro no longer supports the original rev Whitney b/c the hack used will interfere with
-;		modem operation.
-;----------
-			MACRO
-				WhitneyRevAtLeast	&rev
-				cmpi.b	#&rev,WhitneyRev
-				bmi.s	@older
-				ori		#$04,CCR				;set the Z bit
-				bra.s	@exit
-@older			andi	#$FB,CCR				;clear the Z bit
-@exit
-			ENDM	
-
-;----------
-; PrattFlashSystem Macro
-;	Sets the Z bit in the CCR if Pratt detects Flash on the expansion board,
-;	 else clears the Z bit
-;----------
-PrattSysStatReg	EQU		$50080007
-			MACRO
-				PrattFlashSystem	
-				btst.b	#PrattFlashLBit,PrattSysStatReg		; Is this a flash rom system
-			ENDM	
 
 ForAmusementOnly	equ		0
 				If	ForAmusementOnly then
