@@ -187,6 +187,43 @@
 __INCLUDINGHARDWAREPRIVATEEQU__	SET	1
 
 
+  				IF  		(&TYPE('onMac') = 'UNDEFINED') THEN 
+onMac 			EQU 		0
+  				ENDIF
+
+  				IF  		(&TYPE('onMacPP') = 'UNDEFINED') THEN
+onMacPP   		EQU 		0
+  				ENDIF
+
+  				IF  		(&TYPE('onNuMac') = 'UNDEFINED') THEN
+onNuMac   		EQU 		0
+  				ENDIF
+
+  				IF  		(&TYPE('onHafMac') = 'UNDEFINED') THEN
+onHafMac   		EQU 		0
+  				ENDIF
+
+  				IF  		(&TYPE('onHcMac') = 'UNDEFINED') THEN
+onHcMac   		EQU 		0
+  				ENDIF
+
+  				IF  		(&TYPE('onMac16') = 'UNDEFINED') THEN
+onMac16   		EQU 		0
+  				ENDIF
+
+  				IF  		(&TYPE('onMac32') = 'UNDEFINED') THEN
+onMac32   		EQU 		0
+  				ENDIF
+
+onAnything		EQU 		onMac|onMacPP|onHcMac|onHafMac|onNuMac|onMac16|onMac32
+
+
+; *** If HWNonPortable is defined to be non-zero, Then a machine type must be specified!
+; *** If a machine is specified, HWNonPortable must be non-zero, specified or not.
+  				IF  		(&TYPE('HWNonPortable') = 'UNDEFINED') THEN
+HWNonPortable 	EQU 		onAnything
+  				ENDIF
+
 
 ;__________________________________________________________________________________________
 ;
@@ -2226,16 +2263,7 @@ inEmulatorBit	EQU			1						; running in emulator
 inRamBit		EQU			0						; running in ram
 
 
-ForAmusementOnly	equ		0
-				If	ForAmusementOnly then
-;__________________________________________________________________________________________
-;
-;
-; Old 16 bit Equates for onMac, onMacPP, and onHcMac
-;
-;
-;__________________________________________________________________________________________
-
+				If	onMac then
 ;=======================================;
 ;  Macintosh Plus Hardware Information	;
 ;=======================================;
@@ -2252,12 +2280,12 @@ viaIntMask		EQU 		$0100 					; mask for VIA (and VBL) interrupts
 loIntMask 		EQU 		$0100
 
 ; === VIA1 BUFFER A ===
-;vSound			EQU 		$7    					; sound volume bits (0..2)
+vSound			EQU 		$7    					; sound volume bits (0..2)
 vSndPg2   		EQU 		3 						; select sound page 2 if 0
-;vOverlay  		EQU 		4 						; overlay bit (overlay when 1)
-;vHeadSel  		EQU 		5 						; head select line for Sony
+vOverlay  		EQU 		4 						; overlay bit (overlay when 1)
+vHeadSel  		EQU 		5 						; head select line for Sony
 vPage2			EQU 		6 						; select video page 2 if 0
-;vSCCWrReq 		EQU 		7 						; SCC write/request line
+vSCCWrReq 		EQU 		7 						; SCC write/request line
 
 vAOut 			EQU 		(vSound)|\				; sound volume bits are outputs
 							(1<<vSndPg2)|\			; sound page 2 select is an output
@@ -2275,14 +2303,14 @@ vAInit 			EQU 		(1)|\					; sound volume level initially 1
 
 
 ; === VIA1 BUFFER B ===
-;vRTCData  		EQU 		0 						; real time clock data
-;vRTCClk   		EQU 		1 						; real time clock clock pulses
-;vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
+vRTCData  		EQU 		0 						; real time clock data
+vRTCClk   		EQU 		1 						; real time clock clock pulses
+vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
 vSW   			EQU 		3 						; mouse switch (0 when down)
 vX2   			EQU 		4 						; mouse X level
 vY2   			EQU 		5 						; mouse Y level
 vH4   			EQU 		6 						; horizontal sync
-;vSndEnb   		EQU 		7 						; /sound enable (reset when 1)
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)
 
 vBOut 			EQU 		(1<<vRTCData)|\			; real time clock data initially an output
 							(1<<vRTCClk)|\			; real time clock clock is an output
@@ -2359,6 +2387,7 @@ ROMDoEject		EQU 		$40001E   				; jump to DoEject utility		*** patch only ***
 dACKRd			EQU 		$200  					; offset of psuedo-DMA - READ	*** patch only ***
 
 
+  				ELSEIF  	onMacPP THEN
 ;=======================================;
 ;	Macintosh SE Hardware Information	;
 ;=======================================;
@@ -2375,12 +2404,12 @@ viaIntMask		EQU 		$0100 					; mask for VIA (and VBL) interrupts
 loIntMask 		EQU 		$0100
 
 ; === VIA1 BUFFER A ===
-;vSound			EQU 		$7    					; sound volume bits (0..2)
-;vSync 			EQU 		3 						; Synchronous modem
+vSound			EQU 		$7    					; sound volume bits (0..2)
+vSync 			EQU 		3 						; Synchronous modem
 vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)
-;vHeadSel  		EQU 		5 						; head select line for Sony
+vHeadSel  		EQU 		5 						; head select line for Sony
 vPage2			EQU 		6 						; select video page 2 if 0
-;vSCCWrReq 		EQU 		7 						; SCC write/request line
+vSCCWrReq 		EQU 		7 						; SCC write/request line
 
 vAOut 			EQU 		(vSound)|\				; sound volume bits are outputs
 							(1<<vSync)|\			; Synchronous modem is an output
@@ -2399,15 +2428,15 @@ vAInit 			EQU 		(1)|\					; sound volume level initially 1
 
 
 ; === VIA1 BUFFER B ===
-;vRTCData  		EQU 		0 						; real time clock data
-;vRTCClk   		EQU 		1 						; real time clock clock pulses
-;vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
-;vFDBInt   		EQU 		3 						; Front Desk bus interrupt
-;vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
-;vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
+vRTCData  		EQU 		0 						; real time clock data
+vRTCClk   		EQU 		1 						; real time clock clock pulses
+vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
+vFDBInt   		EQU 		3 						; Front Desk bus interrupt
+vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
+vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
 vSCSIMask 		EQU 		6 						; SCSI IRQ mask
 vH4   			EQU 		vSCSIMask				; SCSI IRQ mask (was horiz. sync)
-;vSndEnb   		EQU 		7 						; /sound enable (reset when 1)
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)
 
 vBOut 			EQU 		(1<<vRTCData)|\			; real time clock data initially an output
 							(1<<vRTCClk)|\			; real time clock clock is an output
@@ -2478,6 +2507,7 @@ defSysHeap		EQU 		$18000    				; Default size of the system heap
 nDfltStackSize	EQU 		$2000 					; Default stack size
 
 
+  				ELSEIF  	onHcMac THEN
 ;===========================================;
 ;	Macintosh Portable Hardware Information	;
 ;===========================================;
@@ -2506,12 +2536,12 @@ vAInit			EQU 		$00   					; VBufA initial values
 vPMreq			EQU 		0 						; Power manager handshake request
 vPMack			EQU 		1 						; Power manager handshake acknowledge
 vTestJ			EQU 		2 						; Test jumper
-;vSync 			EQU 		3 						; Synchronous modem
+vSync 			EQU 		3 						; Synchronous modem
 vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)
-;vHeadSel  		EQU 		5 						; head select line for Sony
+vHeadSel  		EQU 		5 						; head select line for Sony
 vStereo   		EQU 		6 						; Stereo sound enable
-;vSCCWrReq 		EQU 		7 						; SCC write/request line		(input)
-;vSndEnb   		EQU 		7 						; /sound enable (reset when 1)	(output)
+vSCCWrReq 		EQU 		7 						; SCC write/request line		(input)
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)	(output)
 
 vBOut 			EQU 		(1<<vPMreq)|\			; Power mgr handshake request is an output
 							(0<<vPMack)|\			; Power mgr handshake acknowledge is an input
@@ -2595,6 +2625,7 @@ DefSysHeap		EQU 		$18000    				; Default size of the system heap
 NDfltStackSize	EQU 		$2000 					; Default stack size
 
 
+  				ELSEIF  	onMac16 THEN
 ;===================================================;
 ;	Universal 16 bit Macintosh Hardware Information	;
 ;===================================================;
@@ -2608,43 +2639,43 @@ viaIntMask		EQU 		$0100 					; mask for VIA (and VBL) interrupts
 loIntMask 		EQU 		$0100
 
 ; === VIA1 BUFFER A ===
-;vSound			EQU 		$7    					; sound volume bits (0..2)
+vSound			EQU 		$7    					; sound volume bits (0..2)
 vSndPg2   		EQU 		3 						; select sound page 2 if 0
-;vSync 			EQU 		3 						; Synchronous modem
-;vOverlay  		EQU 		4 						; overlay bit (overlay when 1)
-;vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)
-;vHeadSel  		EQU 		5 						; head select line for Sony
+vSync 			EQU 		3 						; Synchronous modem
+vOverlay  		EQU 		4 						; overlay bit (overlay when 1)
+vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)
+vHeadSel  		EQU 		5 						; head select line for Sony
 vPage2			EQU 		6 						; select video page 2 if 0
-;vSCCWrReq 		EQU 		7 						; SCC write/request line
+vSCCWrReq 		EQU 		7 						; SCC write/request line
 
 ; === VIA1 BUFFER B ===
-;vRTCData  		EQU 		0 						; real time clock data
-;vRTCClk   		EQU 		1 						; real time clock clock pulses
-;vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
+vRTCData  		EQU 		0 						; real time clock data
+vRTCClk   		EQU 		1 						; real time clock clock pulses
+vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
 vSW   			EQU 		3 						; mouse switch (0 when down)
-;vFDBInt   		EQU 		3 						; Front Desk bus interrupt
+vFDBInt   		EQU 		3 						; Front Desk bus interrupt
 vX2   			EQU 		4 						; mouse X level
-;vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
+vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
 vY2   			EQU 		5 						; mouse Y level
-;vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
+vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
 vH4   			EQU 		6 						; horizontal sync
 vSCSIMask 		EQU 		6 						; SCSI IRQ mask
-;vSndEnb   		EQU 		7 						; /sound enable (reset when 1)
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)
 
 vPMreq			EQU 		0 						; Power manager handshake request
 vPMack			EQU 		1 						; Power manager handshake acknowledge
 vTestJ			EQU 		2 						; Test jumper
-;vSync 			EQU 		3 						; Synchronous modem
-;vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)
-;vHeadSel  		EQU 		5 						; head select line for Sony
+vSync 			EQU 		3 						; Synchronous modem
+vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)
+vHeadSel  		EQU 		5 						; head select line for Sony
 vStereo   		EQU 		6 						; Stereo sound enable
-;vSCCWrReq 		EQU 		7 						; SCC write/request line		(input)
+vSCCWrReq 		EQU 		7 						; SCC write/request line		(input)
 
 ; === VIA1 BUFFER A/B ===
-;vSync 			EQU 		3 						; Synchronous modem						<3.1>
+vSync 			EQU 		3 						; Synchronous modem						<3.1>
 vDriveSel 		EQU 		4 						; int drive select (lower drive when 1)	<3.1>
-;vHeadSel  		EQU 		5 						; head select line for Sony				<3.1>
-;vSCCWrReq 		EQU 		7 						; SCC write/request line				<3.1>
+vHeadSel  		EQU 		5 						; head select line for Sony				<3.1>
+vSCCWrReq 		EQU 		7 						; SCC write/request line				<3.1>
 
 ; === Hardware Base Addresses ===
 
@@ -2660,9 +2691,336 @@ HeapStart 		EQU 		$1E00 					; Laguna starting point	<1.2>
 DefSysHeap		EQU 		$18000    				; Default size of the system heap
 NDfltStackSize	EQU 		$2000 					; Default stack size
 
+  				ELSEIF  	onMac32 THEN
+;===================================================;
+;	Universal 32 bit Macintosh Hardware Information	;
+;===================================================;
+
+machine   		EQU 		6						; for patch file $067C					<3.5>
+
+; === Interrupt Masks ===
+hiIntMask 		EQU 		$0700					; programmer switch only
+pwrOffEnbl		EQU 		$2500					; mask to allow poweroff interrupts
+sccIntMask		EQU 		$0400					; SCC interrupt level
+sccEnblMask   	EQU 		$FBFF					; mask to enable SCC interrupts
+slotIntMask   	EQU 		$0200		   			; slot's interrupt level	<v1.4><1.9>
+viaIntMask		EQU 		$0100					; VIA1 interrupt level
+loIntMask 		EQU 		$0100
+
+; === VIA1 BUFFER A ===
+vSound			EQU 		$7    					; sound volume bits (0..2)	(output)
+vTestJ			EQU 		0 						; Burn In Test jumper		(input)
+vCpuId0			EQU			1						; CPU Identification bit 0	(input)
+vCpuId1			EQU			2						; CPU Identification bit 1	(input)
+vSync 			EQU 		3 						; Synchronous modem
+vOverlay  		EQU 		4 						; overlay bit (overlay when 1)
+vCpuId2			EQU			4						; CPU Identification bit 2
+vHeadSel  		EQU 		5 						; head select line for Sony
+vRev8Bd   		EQU 		6 						; =0 for rev 8 board
+vCpuId3			EQU			6						; CPU Identification bit 3
+vSCCWrReq 		EQU 		7 						; SCC write/request line
+
+; === VIA1 BUFFER B ===
+vRTCData  		EQU 		0 						; real time clock data
+v0reserved		EQU			0						; reserved bit in Erickson				<6>
+vRTCClk   		EQU 		1 						; real time clock clock pulses
+v1reserved		EQU			1						; reserved bit in Erickson				<6>
+vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
+v2reserved		EQU			2						; reserved bit in Erickson				<6>
+vFDBInt   		EQU 		3 						; Front Desk bus interrupt
+xcvrsesbit		EQU			3						; Egret transceiver session bit			<6>
+vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
+viafullbit		EQU			4						; Egret via full bit					<6>
+vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
+syssesbit		EQU			5						; Egret system session bit				<6>
+vPGCEnb			EQU			6						; Parity Generator/Checker enable (0 for enable)
+v6reserved		EQU			6						; reserved bit in Erickson				<6>
+vPGCErr			EQU			7						; Parity Generator/Checker error	(input)
+v7reserved		EQU			7						; reserved bit in Erickson				<6>
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)		(output)
 
 
-  				ENDIF								; ForAmusementOnly
+; === Hardware Base Addresses ===
+
+WrOffs			EQU			0						; SCSI write addrs are same as read base
+
+MskIOP1			EQU			1						; IOP 1 (SWIM) is level 1 interrupt
+MskVIA1			EQU			1						; VIA 1 is level 1
+MskADB			EQU			1						; ADB is level 1
+Msk60Hz			EQU			1						; 60 Hz is level 1
+MskSCSI			EQU			2						; SCSI is level 2
+MskSound		EQU			2						; sound is level 2						<4.5>
+MskSlots		EQU			2						; slots are level 2 interrupts
+MskRTC			EQU			3						; RTC is level 3
+MskIOP0			EQU			4						; IOP 0 (& SCC chip) is level 4
+MskPwrOff		EQU			6						; Poweroff button is level 6
+MskNMI			EQU			7						; NMI switch is level 7
+
+; === System Software Information ===
+snd2MemTop		EQU 		$300  					; SoundLow to Memtop
+pwm2MemTop		EQU 		$2FF  					; PWMBuffer to MemTop
+bufWorldSize  	EQU 		snd2MemTop    			; total size of the BufPtr world
+seRegs			EQU 		$0C30 					; offset to Sys Error Regs w/o Overlay
+
+
+  				ELSEIF  	onHafMac THEN
+;===================================;
+;	Mac IIci Hardware Information	;
+;===================================;
+
+machine   		EQU 		6
+
+; === Interrupt Masks ===
+hiIntMask 		EQU 		$0700 					; programmer switch only
+pwrOffEnbl		EQU 		$2500 					; mask to allow poweroff interrupts
+sccIntMask		EQU 		$0400 					; SCC interrupt level
+sccEnblMask   	EQU 		$FBFF 					; mask to enable SCC interrupts
+via2IntMask   	EQU 		$0200 					; VIA2 interrupt level		<v1.4><1.9>
+slotIntMask   	EQU 		via2IntMask   			; slot's interrupt level	<v1.4><1.9>
+viaIntMask		EQU 		$0100 					; VIA1 interrupt level
+loIntMask 		EQU 		$0100
+
+; === VIA1 BUFFER A ===
+vSound			EQU 		$7    					; sound volume bits (0..2)	(output)
+vTestJ			EQU 		0 						; Burn In Test jumper		(input)
+vCpuId0			EQU			1						; CPU Identification bit 0	(input)
+vCpuId1			EQU			2						; CPU Identification bit 1	(input)
+vSync 			EQU 		3 						; Synchronous modem
+vCpuId2			EQU			4						; CPU Identification bit 2
+vHeadSel  		EQU 		5 						; head select line for Sony
+vCpuId3			EQU			6						; CPU Identification bit 3
+vSCCWrReq 		EQU 		7 						; SCC write/request line
+
+vAOut 			EQU 		(vSound)|\				; sound volume bits are outputs
+							(1<<vSync)|\			; Synchronous modem is an output
+							(0<<vCpuId2)|\			; CPU Identification bit 2 is an input
+							(1<<vHeadSel)|\			; head select line is an output
+							(0<<vCpuId3)|\			; CPU Identification bit 3 is an input
+							(0<<vSCCWrReq)			; SCC write/request line is an input
+
+vAInit 			EQU 		(1)|\					; sound volume level initially 1
+							(0<<vSync)|\			; Synchronous modem disabled (active high)
+							(0<<vCpuId2)|\			; CPU Identification bit 2 is an input
+							(1<<vHeadSel)|\			; head select line is an output
+							(0<<vCpuId3)|\			; CPU Identification bit 3 is an input
+							(0<<vSCCWrReq)			; SCC write/request line is an input
+
+vBufD 			EQU 		vBufA 					; disk head select is buffer A
+
+
+; === VIA1 BUFFER B ===
+vRTCData  		EQU 		0 						; real time clock data
+vRTCClk   		EQU 		1 						; real time clock clock pulses
+vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
+vFDBInt   		EQU 		3 						; Front Desk bus interrupt
+vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
+vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
+vPGCEnb			EQU			6						; Parity Generator/Checker enable (0 for enable)
+vPGCErr			EQU			7						; Parity Generator/Checker error	(input)
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)		(output)
+
+vBOut 			EQU 		(1<<vRTCData)|\			; real time clock data initially an output
+							(1<<vRTCClk)|\			; real time clock clock is an output
+							(1<<vRTCEnb)|\			; clock enable is an output
+							(0<<vFDBInt)|\			; Front Desk bus interrupt is an input
+							(1<<vFDesk1)|\			; FDB state bit 0 is an output
+							(1<<vFDesk2)|\			; FDB state bit 1 is an output
+							(1<<vPGCEnb)|\			; PGC enable is an output
+							(1<<vSndEnb)			; sound enable is an output
+
+vBInit 			EQU 		(1<<vRTCData)|\			; real time clock data is one
+							(1<<vRTCClk)|\			; real time clock clock is high
+							(1<<vRTCEnb)|\			; clock initially disabled
+							(0<<vFDBInt)|\			; Front Desk bus interrupt is an input
+							(1<<vFDesk1)|\			; FDB state bit 0 is initially state 3
+							(1<<vFDesk2)|\			; FDB state bit 1 is initially state 3
+							(1<<vPGCEnb)|\			; Parity Checking is initially disabled
+							(1<<vSndEnb)			; sound is disabled
+
+
+; === RBV BUFFER B ===
+RvBInit			EQU			(1<<RvCDis)|\			; cache disabled	<3.3>
+							(1<<RvBusLk)|\			; Bus unlocked
+							(1<<RvPowerOff)|\		; Power on
+							(1<<RvCFlush)|\			; don't flush cache
+							(0<<RvTM1A)|\			; NuBus timeout bits are inputs
+							(0<<RvTM0A)|\			; NuBus timeout bits are inputs
+							(0<<RvSndExt)|\			; sound/speaker mode is an input
+							(1<<RvPGCTest)			; generate correct parity
+
+
+; === Hardware Base Addresses ===
+
+VBase 			EQU 		$50F00000   			; VIA base address
+AVBufA			EQU 		VBase+vBufA 			; VIA buffer A
+AVBufB			EQU 		VBase+vBufB  			; VIA buffer B
+
+SCCRBase  		EQU 		$50F04000   			; SCC base read address
+SCCWBase  		EQU 		$50F04000   			; SCC base write address
+sccWrite  		EQU 		SCCWBase-SCCRBase		; general offset for write from read
+
+NewSCSIBase   	EQU 		$50F10000 				; rev8 base addr SCSI interface
+NewSCSIDMA		EQU 		$50F12000 				; rev8 base addr SCSI DMA (corrected)
+NewSCSIHsk		EQU 		$50F06000 				; rev8 base addr SCSI handshake
+MacSCSIBase   	EQU 		$50F10000 				; base addr SCSI interface
+MacSCSIDMA		EQU 		$50F12000 				; base addr SCSI DMA
+MacSCSIHsk		EQU 		$50F06000 				; base addr SCSI handshake
+wrOffs			EQU 		0 						; write addrs are same as read base
+
+SndBase			EQU 		$50F14000 				; sound chip's base address
+
+; === Video Parameters ===
+
+RBVBase			EQU			$50F26000				; RBV base address				<v1.4><1.4>
+vDACBase		EQU			$50F24000				; base of clut
+
+; === System Software Information ===
+snd2MemTop		EQU 		$300  					; SoundLow to Memtop
+pwm2MemTop		EQU 		$2FF  					; PWMBuffer to MemTop
+bufWorldSize  	EQU 		snd2MemTop    			; total size of the BufPtr world
+seRegs			EQU 		$0C30 					; offset to Sys Error Regs w/o Overlay
+
+  				ELSEIF  	onNuMac THEN
+;=======================================================;
+;	Macintosh II, IIx, IIcx, SE30 Hardware Information	;
+;=======================================================;
+
+hwCfgBits 		EQU 		hwCmSCSI++hwCmClock++hwCmFPU++hwCmMMU++hwCmADB
+machine   		EQU 		1
+rom85Bits 		EQU 		$3F   					; New ROMs, Power Off ability.
+
+; === Interrupt Masks ===
+hiIntMask 		EQU 		$0700 					; programmer switch only
+pwrOffEnbl		EQU 		$2500 					; mask to allow poweroff interrupts
+sccIntMask		EQU 		$0400 					; SCC interrupt level
+sccEnblMask   	EQU 		$FBFF 					; mask to enable SCC interrupts
+via2IntMask   	EQU 		$0200 					; VIA2 interrupt level		<v1.4><1.9>
+slotIntMask   	EQU 		via2IntMask   			; slot's interrupt level	<v1.4><1.9>
+viaIntMask		EQU 		$0100 					; VIA1 interrupt level
+loIntMask 		EQU 		$0100
+
+; === VIA1 BUFFER A ===
+vSound			EQU 		$7    					; sound volume bits (0..2)	(output)
+vSync 			EQU 		3 						; Synchronous modem
+vOverlay  		EQU 		4 						; overlay bit (overlay when 1)
+vHeadSel  		EQU 		5 						; head select line for Sony
+vRev8Bd   		EQU 		6 						; =0 for rev 8 board
+vSCCWrReq 		EQU 		7 						; SCC write/request line
+
+vAOut 			EQU 		(vSound)|\				; sound volume bits are outputs
+							(1<<vSync)|\			; Synchronous modem is an output
+							(1<<vOverlay)|\			; overlay bit is an output
+							(1<<vHeadSel)|\			; head select line is an output
+							(0<<vRev8Bd)|\			; board ID is an input
+							(0<<vSCCWrReq)			; SCC write/request line is an input
+
+vAInit 			EQU 		(1)|\					; sound volume level initially 1
+							(0<<vSync)|\			; Synchronous modem disabled (active high)
+							(0<<vOverlay)|\			; overlay is turned off
+							(0<<vHeadSel)|\			; head select line is an output
+							(0<<vRev8Bd)|\			; board ID is an input
+							(0<<vSCCWrReq)			; SCC write/request line is an input
+
+vBufD 			EQU 		vBufA 					; disk head select is buffer A
+
+
+; === VIA1 BUFFER B ===
+vRTCData  		EQU 		0 						; real time clock data
+vRTCClk   		EQU 		1 						; real time clock clock pulses
+vRTCEnb   		EQU 		2 						; clock enable (0 for enable)
+vFDBInt   		EQU 		3 						; Front Desk bus interrupt
+vFDesk1   		EQU 		4 						; Front Desk bus state bit 0
+vFDesk2   		EQU 		5 						; Front Desk bus state bit 1
+;				EQU			6						; unused
+vSndEnb   		EQU 		7 						; /sound enable (reset when 1)		(output)
+
+vBOut 			EQU 		(1<<vRTCData)|\			; real time clock data initially an output
+							(1<<vRTCClk)|\			; real time clock clock is an output
+							(1<<vRTCEnb)|\			; clock enable is an output
+							(0<<vFDBInt)|\			; Front Desk bus interrupt is an input
+							(1<<vFDesk1)|\			; FDB state bit 0 is an output
+							(1<<vFDesk2)|\			; FDB state bit 1 is an output
+							(1<<vSndEnb)			; sound enable is an output
+
+vBInit 			EQU 		(1<<vRTCData)|\			; real time clock data is one
+							(1<<vRTCClk)|\			; real time clock clock is high
+							(1<<vRTCEnb)|\			; clock initially disabled
+							(0<<vFDBInt)|\			; Front Desk bus interrupt is an input
+							(1<<vFDesk1)|\			; FDB state bit 0 is initially state 3
+							(1<<vFDesk2)|\			; FDB state bit 1 is initially state 3
+							(0<<vSndEnb)			; sound is enabled
+
+
+; === VIA2 BUFFER A ===
+v2AOut			EQU 		(0<<v2IRQ1)|\     		; slot 1 interrupt is an input
+  				(0<<v2IRQ2)|\ 						; slot 2 interrupt is an input
+  				(0<<v2IRQ3)|\ 						; slot 3 interrupt is an input
+  				(0<<v2IRQ4)|\ 						; slot 4 interrupt is an input
+  				(0<<v2IRQ5)|\ 						; slot 5 interrupt is an input
+  				(0<<v2IRQ6)|\ 						; slot 6 interrupt is an input
+  				(1<<v2RAM0)|\ 						; ram size bit 0 is an output
+  				(1<<v2RAM1)   						; ram size bit 1 is an output
+
+v2AInit			EQU			(0<<v2IRQ1)|\			; slot 1 interrupt is an input
+							(0<<v2IRQ2)|\			; slot 2 interrupt is an input
+							(0<<v2IRQ3)|\			; slot 3 interrupt is an input
+							(0<<v2IRQ4)|\			; slot 4 interrupt is an input
+							(0<<v2IRQ5)|\			; slot 5 interrupt is an input
+							(0<<v2IRQ6)|\			; slot 6 interrupt is an input
+							(0<<v2RAM0)|\			; or ram size bit 0 with 0
+							(0<<v2RAM1)				; or ram size bit 1 with 0
+
+
+; === VIA2 BUFFER B ===
+v2BOut			EQU			(0<<v2CDis)|\			; cache disabled	<3.3>
+  				(0<<v2BusLk)|\						; Bus unlocked
+  				(0<<v2PowerOff)|\ 					; Power on
+  				(0<<vFC3)|\   						; don't flush cache
+  				(0<<v2TM1A)|\ 						; NuBus timeout bits are inputs
+  				(0<<v2TM0A)|\ 						; NuBus timeout bits are inputs
+  				(0<<v2SndExt)|\   					; sound/speaker mode is an input
+  				(1<<v2VBL)							; 60Hz pseudo VBL output
+
+v2BInit			EQU			(1<<v2CDis)|\			; cache disabled (input when not in use)	<3.3>
+							(0<<v2BusLk)|\			; Bus unlocked	(input when not in use)
+							(1<<v2PowerOff)|\		; Power on	(input when not in use)
+							(0<<vFC3)|\				; don't flush cache	(input when not in use)
+							(0<<v2TM1A)|\			; NuBus timeout bits are inputs
+							(0<<v2TM0A)|\			; NuBus timeout bits are inputs
+							(0<<v2SndExt)|\			; sound/speaker mode is an input
+							(0<<v2VBL)				; 60Hz pseudo VBL output
+
+
+; === Hardware Base Addresses ===
+
+VBase 			EQU 		$50F00000     			; VIA base address
+AVBufA			EQU 		VBase+vBufA       		; VIA buffer A
+AVBufB			EQU 		VBase+vBufB       		; VIA buffer B
+
+VBase2			EQU 		$50F02000 				; VIA2 base address				<v1.4>
+
+SCCRBase  		EQU 		$50F04000     			; SCC base read address
+SCCWBase  		EQU 		$50F04000     			; SCC base write address
+sccWrite  		EQU 		SCCWBase-SCCRBase     	; general offset for write from read
+
+NewSCSIBase   	EQU 		$50F10000     			; rev8 base addr SCSI interface
+NewSCSIDMA		EQU 		$50F12000     			; rev8 base addr SCSI DMA (corrected)
+NewSCSIHsk		EQU 		$50F06000     			; rev8 base addr SCSI handshake
+MacSCSIBase   	EQU 		$50F10000     			; base addr SCSI interface
+MacSCSIDMA		EQU 		$50F12000     			; base addr SCSI DMA
+MacSCSIHsk		EQU 		$50F06000     			; base addr SCSI handshake
+wrOffs			EQU 		0 						; write addrs are same as read base
+
+SndBase   		EQU 		$50F14000     			; sound chip's base address
+
+; === System Software Information ===
+snd2MemTop		EQU 		$300  					; SoundLow to Memtop
+pwm2MemTop		EQU 		$2FF  					; PWMBuffer to MemTop
+bufWorldSize  	EQU 		snd2MemTop    			; total size of the BufPtr world
+seRegs			EQU 		$0C30 					; offset to Sys Error Regs w/o Overlay
+
+
+  				ENDIF
 
 HardwarePrivate EQU 		1
 
