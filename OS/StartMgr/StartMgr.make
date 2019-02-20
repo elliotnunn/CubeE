@@ -242,7 +242,7 @@ Boot3Objects			=	"{ObjDir}Boot3.a.o"									∂
 									"{IntAIncludes}BootEqu.a"						∂
 									"{IntAIncludes}ScriptPriv.a"					∂
 									"{StartDir}Boot3.a"
-	Asm {StdAOpts} -d SONYNONPORTABLE=1 -o "{Targ}" "{StartDir}Boot3.a"
+	Asm {StdAOpts} -d SONYNONPORTABLE=1 -d onMac=1 -o "{Targ}" "{StartDir}Boot3.a"
 
 
 "{ObjDir}DispatchPatch.a.o"		ƒ 	"{ObjDir}StandardEqu.d"							∂
