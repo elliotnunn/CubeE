@@ -165,6 +165,7 @@ size			equ		*
 				ENDR
 
 GestaltGlobals	RECORD	0
+longH
 tableH			ds.l	1						; handle to table of longs
 maxSlots		ds.l	1						; number of entries in table
 memSize			ds.l	1						; amount of memory in this machine

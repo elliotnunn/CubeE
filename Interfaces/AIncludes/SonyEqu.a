@@ -80,9 +80,21 @@ onMacPP   		EQU 		0
 onNuMac   		EQU 		0
   				ENDIF
 
+          IF      (&TYPE('onHafMac') = 'UNDEFINED') THEN
+onHafMac      EQU     0
+          ENDIF
+
   				IF  		(&TYPE('onHcMac') = 'UNDEFINED') THEN
 onHcMac   		EQU 		0
   				ENDIF
+
+          IF      (&TYPE('onMac16') = 'UNDEFINED') THEN
+onMac16       EQU     0
+          ENDIF
+
+          IF      (&TYPE('onMac32') = 'UNDEFINED') THEN
+onMac32       EQU     0
+          ENDIF
 
 ; forDiskDup should be set to 0 for most uses
 
