@@ -203,6 +203,10 @@
 ;									implemented.
 ;		 <1>	10/17/91	DTY		first checked in
 
+	IF &TYPE('PrNonPortable') = 'UNDEFINED' THEN
+		PrNonPortable: EQU 1
+	ENDIF
+
 			include		'Traps.a'
 			include		'SysEqu.a'
 			include		'SysErr.a'

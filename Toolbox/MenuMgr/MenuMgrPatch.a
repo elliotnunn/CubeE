@@ -70,7 +70,8 @@
 		endif											; <12>
 	endif												; <12>
 	
-			load		'StandardEqu.d'
+			include		'MenuMgr.a'
+
 			include		'LinkedPatchMacros.a'
 			include		'ScriptPriv.a'					; <13>
 
@@ -102,8 +103,6 @@
 			MakePatch	InsrtResMenu,$A951,(Plus,SE,II,IIci,Portable)
 			MakePatch	DelMenuItem,$A952
 			MakePatch	MenuChoice,_MenuChoice,(Plus,SE,Portable)
-
-			include		'MenuMgr.a'
 
 ;————————————————————————————————————————————————————————————————————————————————————————————————————
 ;	SetClipForCallDrawMDEF

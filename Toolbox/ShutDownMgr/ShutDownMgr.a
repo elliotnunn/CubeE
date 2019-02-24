@@ -20,9 +20,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM33>	 11/6/93	SAM		Roll <MC8> from mc900ftjesus.
-;	   <MC8>	 11/6/93	SAM		Now handle the restart from the "..safe to switch off..." case
-;									correctly (ie restore the nanok warmstart).
 ;	  <SM32>	 11/6/93	SAM		Roll <MC7> from mc900ftjesus.
 ;	   <MC7>	 11/6/93	SAM		Changed ClearWarmStart to check for a V0 style emulator and if
 ;									present to clear the emu warmstart flag.
@@ -393,7 +390,7 @@ ShutDown		move.l	(SP)+,D2			; save return
 				move.w	(SP)+,D0			; get opcode word
 				move.l	D2,-(SP)			; restore the return
 				subq	#SDPowerOff,D0
-				bcs.w	ShutInit			; if d0=0, _SDInit a selector in ROM versions
+				bcs.w	@unknownSelector
 				beq		ShutPower			; if d0=1, Shutdown
 
 				subq	#SDInstall-SDPowerOff,D0	
@@ -531,7 +528,6 @@ ShutRestart
 
 				move.l	#emuWarmStartConst,D0	; Does the upper long match?
 				move.l	#WmStConst,D1			; Does the upper long match?
-				bsr		UpdateEmuWarmstart		; Write the warmstart (We may have come from a shutdown...) <MC8>
 							
 				tst.l	VMGlobals				; Is VM running?
 				bmi.s	@noVM					; -> No.  Assume we're in Supervisor Mode				
@@ -920,40 +916,6 @@ DoUnmount
 
 @AllFlushed
 			add.W	#IOQElSize,SP				; deallocate pBlock
-			
-	; Wait for all floppy drives that have diskettes inserted to eject, or for 2 seconds,
-	; whichever comes first.  (Note:  This should now be “universal,” even
-	; for CPUs that don’t have auto-eject floppy mechanisms.)
-
-taskActive	equ		7							; High bit of qType word is active flag.
-
-			moveq.l	#(tmXQSize/2)-1,D0			; Set up the init-loop counter.
-@clrTask	clr.w	-(Sp)						; Allocate and clear a TMTask record.
-			dbra	D0,@clrTask					; Do it one word at a time.
-			move.l	Sp,A0						; Point to the TMTask record.
-			_InsXTime							; Install it.
-			
-			move.l	#2*1000*1000,D0				; We need ~1.5sec, but we’ll say 2sec for safety.
-			neg.l	D0							; (Negate for µsec timer.)
-			_PrimeTime							; Start the TMTask.
-
-			move.l	DrvQHdr+QHead,D0			; Now, get a pointer to the first drvQElem.
-@Repeat		move.l	D0,A1						; Copy the drvQElem pointer into A1.
-			cmpi.w	#-5,dqRefNum(A1)			; If this isn’t a floppy (.Sony) driver drive,
-			bne.s	@Until						;	then just go on.
-			
-@WaitEject	btst.b	#taskActive,qType(A0)		; If the TMTask has completed,
-			beq.s	@TimedOut					;	then we can now exit this loop.
-			move.l	-4(A1),D0					; Otherwise, get the drvQElem flags.
-			andi.l	#$00FF0000,D0				; If the media is still in the mechanism,
-			bne.s	@WaitEject					;	then just wait.
-			
-@Until		move.l	qLink(A1),D0				; Otherwise, get the next entry in the queue.
-			bne.s	@Repeat						; Loop until done.
-			
-@TimedOut	_RmvTime							; Remove TMTask.
-
-			adda.w	#tmXQSize,Sp				; Reclaim the stack space.
 		  	rts
 
 ;_______________________________________________________________________					<5>
@@ -972,87 +934,8 @@ ClearWarmStart
 			
 			moveq	#0,D0							; hi long
 			moveq	#0,D1							; lo long
-			bsr.l	UpdateEmuWarmstart				; Clear the warmstart					<MC8>	
 			
 			rts
-
-
-
-;_______________________________________________________________________					<MC8> SAM
-;
-; UpdateEmuWarmstart - 
-;
-;	 The emulator warmstart flag lives in the writeprotected diagnostic info block in the Nanokernel's
-;	 data page.  We need to "map" the diag page to a normally mapped page of RAM, write the warmstart
-;	 constant, and remap the memory back the way it was.  Oh, I'm using logical page number 1
-;	 (i.e. $1000 - 4k pages). Oh, yeah, the RAM at $1000 never actually gets modified...
-;
-;	Entry - D0.l warmstart low
-;			D1.1 warmstart high
-;
-;_______________________________________________________________________					<MC8>
-			Export	UpdateEmuWarmstart
-
-UpdateEmuWarmstart	
-			With	nkDiagInfo	
-
-			testFor	has68kEmulator					; Does this machine have a V0 style emulator?
-			beq		@Done							; -> Nope, we're done.  Exit.
-			
-			move	SR,-(SP)						; Save SR
-			ori.w	#hiIntMask,SR					; Disable interrupts
-			movem.l	D2-D7,-(SP)						; Save some D regs
-			
-			move.l	D0,D6
-			move.l	D1,D7
-			move.w	#12,D2							; Shift Count (12 bits in 4k)
-			
-			lea		1,A0							; Logical page #1 ($1000)
-			_nkGetPTEntryGivenPage					; Get its Pte
-			move.l	D0,D3							; Save the Pte in D3
-			
-			move.l	(nkDiagInfoPtr),D0				; Get the DiagPage Logical Address
-			move.l	D0,D5							; Make a copy
-			and.l	#4096-1,D5						; Get the offset into the page
-			
-			lsr.l	D2,D0							; Make it a page number
-	
-			move.l	D0,A0							; Page into A0
-			_nkGetPTEntryGivenPage					; Get the Diag Pte
-			move.l	D0,D4							; Save it
-			
-			lea		1,A0							; Get the buffer page number in A0
-			lea		1,A1							; Say page is inited (#1)
-			_nkMMUMarkBacking						; Mark this page as outta here
-	
-			lea		1,A0							; Logical Page number of the buffer
-			move.l	D4,D0							; Get the Diag Pte
-			lsr.l	D2,D0							; Get its Physical Page number
-			move.l	D0,A1							; Set Physical Page
-			_nkMMUMarkResidentGlue					; Map the diag's physical address to the buffer's logical addr
-	
-			lea		$1000,A0						; Get our logical starting point
-			add.l	D5,A0							; Add in the offset from the start of the diag page
-			
-			move.l	D6,DiagWarmStartLow(A0)
-			move.l	D7,DiagWarmStartHigh(A0)
-	
-			lea		1,A0							; Get the lo Page number in A0
-			lea		1,A1							; Say page is inited (#1)
-			_nkMMUMarkBacking						; Mark this page as outta here
-	
-			lea		1,A0							; Get the lo Page number in A0
-			move.l	D3,D0							; Get the LoPage's Pte
-			lsr.l	D2,D0							; Get its Physical Page number
-			move.l	D0,A1							; Set Physical Page
-			_nkMMUMarkResidentGlue					; Move the HiPage to the loPage's logical addr
-	
-			movem.l	(SP)+,D2-D7						; Save some D regs
-			move	(SP)+,SR						; Restore IRQ enable state
-
-@Done		rts										; all done
-			
-			EndWith
 
 ;_______________________________________________________________________					<5>
 ; ZapVCBQueue - This routine goes through the VCB Queue, and calls HUnmountVol for each entry.
@@ -1122,7 +1005,7 @@ BlankDesktop
 
 			; allocate a grafPort using the stack and initialize it
 
-			BigJsr	AllocFakeRgns,A1		; init dummy vis and clip to wide-open			
+;			BigJsr	AllocFakeRgns,A1		; init dummy vis and clip to wide-open			
 			MOVE.L	A6,-(SP)				; push address of grafPort
 			_InitPort						; initialize the port.  This particular case
 											;  doesn’t move memory, even when it calls COPYRGN!

@@ -258,7 +258,7 @@ DoOld				MOVE.L		(SP)+, A1
 wlBringToFront		PatchProc	_BringToFront
 
 					MOVE.L		4(SP), -(SP)
-					CLR.W		DragFlag										<LW2>
+;					CLR.W		DragFlag										<LW2>
 					IMPORT		BringToFrontGuts
 					LEA			BringToFrontGuts, A0
 					IMPORT		TwoByFour

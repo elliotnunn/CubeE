@@ -34,21 +34,11 @@ LoadProcessManagerSegmentsLowerInSysHeap	InstallProc	(Plus,SE,II,IIci,Portable)
 				_CurResFile						; Remember the current resource file
 				clr.w	-(sp)
 				_UseResFile						; Work on the System file
-				move.b	ResLoad,-(sp)			; Save current resource load state
 				
 				lea		ProcessManagerSegmentTable,a4	; Table of Process Manager segments to load low
 @loadLoop
 				move.w	(a4)+,d7				; Get the segment number
 				bz.s	@doneWithSegments		; Did ’em all
-				sf		ResLoad					; Don’t load in resources
-				subq	#8,sp					; Space for _SizeResource result too
-				move.l	#kProcessManagerSegmentType,-(sp)
-				move.w	d7,-(sp)
-				_Get1Resource
-				_SizeRsrc						; Find out how big it is
-				move.l	(sp)+,d0				; Get the size
-				_ResrvMem ,Sys					; Make some space low in the heap
-				st		ResLoad					; Load it in for real now
 				subq	#4,sp
 				move.l	#kProcessManagerSegmentType,-(sp)
 				move.w	d7,-(sp)
@@ -57,7 +47,6 @@ LoadProcessManagerSegmentsLowerInSysHeap	InstallProc	(Plus,SE,II,IIci,Portable)
 				bra.s	@loadLoop
 				
 @doneWithSegments
-				move.b	(sp)+,ResLoad			; Restore resource load state
 				_UseResFile						; The current resource file is on the stack
 				rts
 
@@ -66,5 +55,10 @@ ProcessManagerSegmentTable
 				dc.w	$BFB0					; KernelSeg
 				dc.w	$BFB2					; EPPCSeg
 				dc.w	0						; End of table
+
+
+				dcb.b $200, $20
+
+
 				EndProc
 				End

@@ -10,8 +10,6 @@
 ;	Change History (most recent first):
 ;
 ;	  <SM10>	  6/7/93	wc		(Really BT)Fix a stupid bug of mine.
-;	   <SM9>	  6/6/93	BT		Add gestaltRISCV0ResMgrPatches to 'bugy' bits if rom is built
-;									with this option.
 ;	   <SM8>	  6/3/93	SAM		Updating the list of machine icons from the Gibbly project.
 ;	   <SM7>	 5/10/93	CSS		For 'bugy' return that the gestaltmtCheckFix has been fixed in
 ;									SuperMario. Also, update the support of bugy to include bits
@@ -188,7 +186,6 @@ getBugFixes		Proc	Entry
 ************************************************************************
 
 getBugFixesTwo		Proc	Entry
-		IF hasRISCV0ResMgrPatches THEN
 			 	move.l	#											\
 						(1<<gestaltEgretSCCFix)					|	\
 						(1<<gestaltEgretRdTimeFix)				|	\
@@ -197,22 +194,8 @@ getBugFixesTwo		Proc	Entry
 						(1<<gestaltSCSIFastAckFix)				|	\
 						(1<<gestaltPowerOffDelayFix)			|	\
 						(1<<gestaltGetIndResourceSysMapHandleFix) |	\
-						(1<<gestaltMoveHHiExtraStackSpace)		|	\
-						(1<<gestaltRISCV0ResMgrPatches)				\						<SM9> BT
+						(1<<gestaltMoveHHiExtraStackSpace)			\
 						, d0
-		ELSE
-			 	move.l	#											\
-						(1<<gestaltEgretSCCFix)					|	\
-						(1<<gestaltEgretRdTimeFix)				|	\
-						(1<<gestaltEgretIRQPatch)				|	\
-						(1<<gestaltEgretTickHandlerFix)			|	\
-						(1<<gestaltSCSIFastAckFix)				|	\
-						(1<<gestaltPowerOffDelayFix)			|	\
-						(1<<gestaltGetIndResourceSysMapHandleFix) |	\
-						(1<<gestaltMoveHHiExtraStackSpace)		|	\
-						(0<<gestaltRISCV0ResMgrPatches)				\						<SM9> BT
-						, d0
-		ENDIF
 				
 				import	stdResult
 				lea		stdResult,a0

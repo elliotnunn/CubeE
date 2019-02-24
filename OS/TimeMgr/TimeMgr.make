@@ -23,9 +23,3 @@ TimeMgrObjs	=					"{ObjDir}TimeMgr.a.o"								∂
 									"{TimeMgrDir}TimeMgr.a"
 	Asm {StdAOpts} -o "{Targ}" "{TimeMgrDir}TimeMgr.a"
 
-
-"{ObjDir}TimeMgrPatch.a.o"		ƒ	"{ObjDir}StandardEqu.d"							∂
-									"{IntAIncludes}HardwarePrivateEqu.a"			∂
-									"{TimeMgrDir}TimeMgrPatch.a"
-	Asm {StdAOpts} -o "{Targ}" "{TimeMgrDir}TimeMgrPatch.a"
-

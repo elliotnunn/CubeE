@@ -55,6 +55,7 @@ Conds = ∂
 					hasAppleEventMgr=TRUE					∂
 					DBLite=FALSE							∂
 					NewBuildSystem=TRUE						∂
+					hasLayerlessApps=FALSE					∂
 					IopADB=FALSE ViaADB=TRUE PwrMgrADB=TRUE hasEgret=FALSE ∂
 					SystemSixOrLater=TRUE SystemSevenOrLater=TRUE Pre70=FALSE CubeE=TRUE Supports24Bit=TRUE TheFuture=FALSE ∂
 
@@ -161,7 +162,44 @@ ResourceFiles = ∂
 					"{MiscDir}APTK57.rsrc"					∂
 
 LinkedPatchObjs = ∂
-					"{ObjDir}SonyPatches.a.o"				∂
+					"{ObjDir}PatchProtector.a.o"			∂
+					"{ObjDir}ProcessManagerSegmentTweaks.a.o"	∂
+##					"{ObjDir}GestaltPatches.a.o"			∂
+##					"{ObjDir}ShutDownMgrPatches.a.o"		∂
+#					"{ObjDir}ADBMgrPatch.a.o"				∂
+#					"{ObjDir}AllB&WQDPatch.a.o"				∂
+#					"{ObjDir}backlightpatch.a.o"			∂
+#					"{LibDir}HelpMgr.lib"					∂
+#					"{ObjDir}ControlMgrPatches.a.o"			∂
+#					"{ObjDir}DeskMgrPatches.a.o"			∂
+#					"{ObjDir}DialogDispatch.a.o"			∂
+#					"{ObjDir}DialogMgrPatches.a.o"			∂
+#					"{ObjDir}DialogMgrExtensions.c.o"		∂
+#					"{ObjDir}DispatchHelper.a.o"			∂
+#					"{ObjDir}FileMgrPatches.a.o"			∂
+#					"{ObjDir}GetMgrPatches.a.o"				∂
+#					"{ObjDir}LaterFileMgrPatches.a.o"		∂
+#					"{ObjDir}MemoryMgrPatches.a.o"			∂
+#					"{ObjDir}MenuMgrPatch.a.o"				∂
+#					"{ObjDir}MenuMgrPatchII.a.o"			∂
+#					"{ObjDir}SystemMenusPatch.a.o"			∂
+#					"{LibDir}DialogMgr.lib"					∂
+#					"{ObjDir}MungerPatches.a.o"				∂
+#					"{ObjDir}NotificationMgrPatch.a.o"		∂
+#					"{ObjDir}PowerMgrPatches.a.o"			∂
+#					"{ObjDir}QuickDrawPatches.a.o"			∂
+#					"{ObjDir}ResourceMgrExtensions.a.o"		∂
+#					"{ObjDir}ResourceMgrPatches.a.o"		∂
+#					"{ObjDir}ResourceOverridePatches.a.o"	∂
+#					"{ObjDir}ScrapMgrPatches.a.o"			∂
+#					"{ObjDir}SlotMgrPatch.a.o"				∂
+#					"{ObjDir}SonyPatches.a.o"				∂
+#					"{ObjDir}TextEditPatchIIciROM.a.o"		∂
+#					"{ObjDir}TimeMgrPatch.a.o"				∂
+#					"{ObjDir}ToolboxEventMgrPatches.a.o"	∂
+#					"{ObjDir}WindowList.a.o"				∂
+#					"{ObjDir}WindowMgrPatches.a.o"			∂
+#					"{IfObjDir}interface.o"					∂
 
 
 All								ƒ	"{BuildDir}System" "{BuildDir}ProcessMgrINIT"
@@ -244,11 +282,238 @@ LinkPatchToolObjs = "{Sources}LinkedPatches:LinkPatchLib.o" "{ObjDir}LinkPatch.a
 	Link -t MPST -c 'MPS ' -o {Targ} {LinkPatchToolObjs}
 
 # The actual linked patches (lpch)
+"{ObjDir}PatchProtector.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{Sources}LinkedPatches:PatchProtector.a"
+	Asm {StdAOpts} -o {Targ} "{Sources}LinkedPatches:PatchProtector.a"
+
+"{ObjDir}ProcessManagerSegmentTweaks.a.o"	ƒ	"{ObjDir}StandardEqu.d"				∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{Sources}Patches:ProcessManagerSegmentTweaks.a"
+	Asm {StdAOpts} -o {Targ} "{Sources}Patches:ProcessManagerSegmentTweaks.a"
+
+########################################################################
+
+"{ObjDir}AllB&WQDPatch.a.o"				ƒ	"{AIncludes}SysErr.a"					∂
+											"{AIncludes}Traps.a"					∂
+											"{AIncludes}QuickEqu.a"					∂
+											"{AIncludes}SysEqu.a"					∂
+											"{ColorQDDir}Classic:GrafTypes.m.a"		∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{AIncludes}FixMath.a"					∂
+											"{AIncludes}ToolEqu.a"					∂
+											"{IntAIncludes}fontPrivate.a"			∂
+											"{ColorQDDir}GetPMData.a"				∂
+											"{AIncludes}QDOffscreenEqu.a"			∂
+											"{ColorQDDir}Classic:ClassicGWorld.a"	∂
+											"{ColorQDDir}Patches:QuickPolysClassicPatch.a"	∂
+											"{ColorQDDir}Patches:DrawPicture32Patch.a"	∂
+											"{ColorQDDir}Patches:AllB&WQDPatch.a"
+	Asm {StdAOpts} -o {Targ} -i "{ColorQDDir}" -i "{ColorQDDir}Classic:" -i "{ColorQDDir}Patches:" "{ColorQDDir}Patches:AllB&WQDPatch.a"
+
+"{ObjDir}QuickDrawPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{AIncludes}paletteEqu.a"				∂
+											"{IntAIncludes}palettePriv.a"			∂
+											"{IntAIncludes}colorequ.a"				∂
+											"{ColorQDDir}qdHooks.a"					∂
+											"{AIncludes}VideoEqu.a"					∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{IntAIncludes}fontPrivate.a"			∂
+											"{ColorQDDir}DrawingVars.a"				∂
+											"{ColorQDDir}DrawingVars.a"				∂
+											"{AIncludes}GestaltEqu.a"				∂
+											"{ColorQDDir}DrawingVars.a"				∂
+											"{ColorQDDir}DrawingVars.a"				∂
+											"{ColorQDDir}Patches:QuickDrawPatches.a"
+	Asm {StdAOpts} -o {Targ} -i "{ColorQDDir}" "{ColorQDDir}Patches:QuickDrawPatches.a"
+
+"{ObjDir}backlightpatch.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{AIncludes}ATalkEqu.a"					∂
+											"{IntAIncludes}UniversalEqu.a"			∂
+											"{BackLightDir}backlightpatch.a"
+	Asm {StdAOpts} -o {Targ} "{BackLightDir}backlightpatch.a"
+
 "{ObjDir}SonyPatches.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
 											"{AIncludes}SonyEqu.a"					∂
 											"{IntAIncludes}LinkedPatchMacros.a"		∂
 											"{SonyDir}SonyPatches.a"
-	Asm {StdAOpts} -d SonyNonPortable=1 -o {Targ} "{SonyDir}SonyPatches.a"
+	Asm {StdAOpts} -d SonyNonPortable=1 -d onMac32=1 -o {Targ} "{SonyDir}SonyPatches.a"
+
+"{ObjDir}ScrapMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{ScrapMgrDir}ScrapMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{ScrapMgrDir}ScrapMgrPatches.a"
+
+"{ObjDir}GetMgrPatches.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{ToolboxDir}GetMgr:GetMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{ToolboxDir}GetMgr:GetMgrPatches.a"
+
+"{ObjDir}TextEditPatchIIciROM.a.o"		ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{AIncludes}GestaltEqu.a"				∂
+											"{IntAIncludes}SysPrivateEqu.a"			∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}ScriptPriv.a"			∂
+											"{IntAIncludes}TextEditPriv.a"			∂
+											"{IntAIncludes}fontPrivate.a"			∂
+											"{ToolboxDir}TextEdit:TextEditPatchIIciROM.a"
+	Asm {StdAOpts} -o {Targ} "{ToolboxDir}TextEdit:TextEditPatchIIciROM.a"
+
+"{ObjDir}MungerPatches.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{ToolboxDir}Munger:MungerPatches.a"
+	Asm {StdAOpts} -o {Targ} "{ToolboxDir}Munger:MungerPatches.a"
+
+"{ObjDir}MenuMgrPatchII.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{MenuMgrDir}MenuMgrPatchII.a"
+	Asm {StdAOpts} -o {Targ} "{MenuMgrDir}MenuMgrPatchII.a"
+
+"{ObjDir}MenuMgrPatch.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}ScriptPriv.a"			∂
+											"{MenuMgrDir}MenuMgr.a"					∂
+											"{MenuMgrDir}MenuMgrPatch.a"
+	Asm {StdAOpts} -o {Targ} "{MenuMgrDir}MenuMgrPatch.a"
+
+"{ObjDir}ResourceOverridePatches.a.o"	ƒ	"{AIncludes}Traps.a"					∂
+											"{AIncludes}SysEqu.a"					∂
+											"{AIncludes}SysErr.a"					∂
+											"{IntAIncludes}SysPrivateEqu.a"			∂
+											"{AIncludes}ToolEqu.a"					∂
+											"{IntAIncludes}fontPrivate.a"			∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{AIncludes}Private.a"					∂
+											"{IntAIncludes}ResourceMgrPriv.a"		∂
+											"{ResourceMgrDir}ResourceOverridePatches.a"
+	Asm {StdAOpts} -o {Targ} "{ResourceMgrDir}ResourceOverridePatches.a"
+
+"{ObjDir}ResourceMgrPatches.a.o"		ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}fontPrivate.a"			∂
+											"{IntAIncludes}ResourceMgrPriv.a"		∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{ResourceMgrDir}ResourceMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{ResourceMgrDir}ResourceMgrPatches.a"
+
+"{ObjDir}ControlMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}LayerEqu.a"				∂
+											"{IntAIncludes}ControlPriv.a"			∂
+											"{ControlMgrDir}ControlMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{ControlMgrDir}ControlMgrPatches.a"
+
+"{ObjDir}NotificationMgrPatch.a.o"		ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{NotificationDir}NotificationMgrPatch.a"
+	Asm {StdAOpts} -o {Targ} "{NotificationDir}NotificationMgrPatch.a"
+
+"{ObjDir}WindowList.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}LayerEqu.a"				∂
+											"{AIncludes}ToolEqu.a"					∂
+											"{WindowMgrDir}WindowList.a"
+	Asm {StdAOpts} -o {Targ} "{WindowMgrDir}WindowList.a"
+
+"{ObjDir}WindowMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LayerEqu.a"				∂
+											"{AIncludes}PaletteEqu.a"				∂
+											"{IntAIncludes}PalettePriv.a"			∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{WindowMgrDir}WindowMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{WindowMgrDir}WindowMgrPatches.a"
+
+"{ObjDir}ModalDialogMenuPatches.a.o"	ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}InternalMacros.a"		∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}DialogsPriv.a"			∂
+											"{IntAIncludes}MenuMgrPriv.a"			∂
+											"{DialogDir}ModalDialogMenuPatches.a"
+	Asm {StdAOpts} -o {Targ} "{DialogDir}ModalDialogMenuPatches.a"
+
+"{ObjDir}DialogMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}LayerEqu.a"				∂
+											"{DialogDir}DialogMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{DialogDir}DialogMgrPatches.a"
+
+"{ObjDir}DeskMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{ToolboxDir}DeskMgr:DeskMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{ToolboxDir}DeskMgr:DeskMgrPatches.a"
+
+"{ObjDir}PowerMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{AIncludes}ATalkEqu.a"					∂
+											"{IntAIncludes}UniversalEqu.a"			∂
+											"{IntAIncludes}IOPrimitiveEqu.a"		∂
+											"{IntAIncludes}PowerPrivEqu.a"			∂
+											"{PowerMgrDir}PowerMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{PowerMgrDir}PowerMgrPatches.a"
+
+"{ObjDir}ADBMgrPatch.a.o"				ƒ	"{AIncludes}SysEqu.a"					∂
+											"{AIncludes}ToolEqu.a"					∂
+											"{AIncludes}SysErr.a"					∂
+											"{AIncludes}Private.a"					∂
+											"{AIncludes}QuickEqu.a"					∂
+											"{AIncludes}Traps.a"					∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{AIncludes}ApplDeskBus.a"				∂
+											"{IntAIncludes}AppleDeskBusPriv.a"		∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}InternalOnlyEqu.a"		∂
+											"{ADBDir}ADBMgrPatch.a"
+	Asm {StdAOpts} -o {Targ} "{ADBDir}ADBMgrPatch.a"
+
+"{ObjDir}SlotMgrPatch.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{AIncludes}RomEqu.a"					∂
+											"{IntAIncludes}UniversalEqu.a"			∂
+											"{IntAIncludes}SlotMgrEqu.a"			∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}PatchMacros.a"			∂
+											"{SlotMgrDir}SlotMgrPatch.a"
+	Asm {StdAOpts} -o {Targ} "{SlotMgrDir}SlotMgrPatch.a"
+
+"{ObjDir}LaterFileMgrPatches.a.o"		ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{HFSDir}LaterFileMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{HFSDir}LaterFileMgrPatches.a"
+
+"{ObjDir}FileMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}FileMgrPrivate.a"		∂
+											"{HFSDir}Extensions:CatSrchPriv.a"		∂
+											"{IntAIncludes}BTreeEqu.a"				∂
+											"{HFSDir}Extensions:DTDBMgrPriv.a"		∂
+											"{HFSDir}Extensions:DTDBMgrEqu.a"		∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{HFSDir}Extensions:QMgrEqu.a"			∂
+											"{AIncludes}GestaltEqu.a"				∂
+											"{IntAIncludes}MFPrivate.a"				∂
+											"{AIncludes}Processes.a"				∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{IntAIncludes}SysPrivateEqu.a"			∂
+											"{AIncludes}SCSIEqu.a"					∂
+											"{IntAIncludes}SCSIPriv.a"				∂
+											"{AIncludes}SonyEqu.a"					∂
+											"{IntAIncludes}InternalMacros.a"		∂
+											"{HFSDir}FileMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} -d SonyNonPortable=1 -d onMac32=1 -i "{HFSDir}Extensions:" "{HFSDir}FileMgrPatches.a"
+
+"{ObjDir}MemoryMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{AIncludes}GestaltEqu.a"				∂
+											"{MemoryMgrDir}MemoryMgrPatches.a"
+	Asm {StdAOpts} -o {Targ} "{MemoryMgrDir}MemoryMgrPatches.a"
+
+"{ObjDir}TimeMgrPatch.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{TimeMgrDir}TimeMgrPatch.a"
+	Asm {StdAOpts} -o {Targ} "{TimeMgrDir}TimeMgrPatch.a"
 
 "{LibDir}LinkedPatches.lib"				ƒ	{LinkedPatchObjs}
 	Lib {StdLibOpts} -o {Targ} {LinkedPatchObjs}

@@ -31,7 +31,7 @@
 	IF &TYPE('__INCLUDINGDIALOGSPRIV__') = 'UNDEFINED' THEN
 __INCLUDINGDIALOGSPRIV__	SET	1
 
-	IF forROM OR TheFuture THEN
+;	IF forROM OR TheFuture THEN
 
 	; format of globals in emDialogGlobals
 
@@ -43,7 +43,7 @@ SavedMenuState		ds.l	1
 DialogMgrGlobalsSize equ	*
 					endr
 
-	ENDIF						; forROM OR TheFuture
+;	ENDIF						; forROM OR TheFuture
 
 ; bits for flag byte
 cannotTwitchOutOfDialogBit		EQU 7
