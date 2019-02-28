@@ -585,6 +585,7 @@ RAMSysInit	PROC	EXPORT
 
 			move.b	SPConfig,d0				; <26> Get serial port configuration
 			and.b	#$0f,d0					; <26> Mask off Port B bits
+			beq.s	@appleTalkIsActive
 			cmp.b	#useATalk,d0			; <26> Configured for AppleTalk?
 			beq.s	@appleTalkIsActive		; <26> Yes.  Don’t set emAppleTalkInactiveOnBoot
 

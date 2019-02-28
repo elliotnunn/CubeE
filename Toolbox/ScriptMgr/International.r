@@ -646,7 +646,7 @@
 
 	resource 'STR#' (kKeybdMenuItemsID, sysHeap, purgeable) { {			// strings for menu items			<x121><25>
 		"\0x00";														// marker for default keybd			<2><9>
-		"About Keyboards";												//									<2><23>
+		"About Keyboards…";												//									<2><23>
 //		"Next Script";													// currently not used
 //		"Next Keyboard in Script";										// currently not used
 	} };

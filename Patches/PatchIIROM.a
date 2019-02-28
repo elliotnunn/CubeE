@@ -6982,6 +6982,7 @@ InitSlotStuff
 
 
 ;Copy the tickCounts into the new structures
+			move.l	#-1,SlotVBLQ
 			moveq	#sNumSlots-1,d1				; move sNumSlots queue headers
 			lea		([SlotQDT],\				; point to ticks for last slot
 					slotVBLInfos+slotTickCount-\
