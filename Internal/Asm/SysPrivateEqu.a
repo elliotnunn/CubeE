@@ -8,44 +8,6 @@
 ;
 ;	Change History (most recent first):
 ;
-;		<85>	 5/20/93	KWR		Added emSpeechRecognitionGlobals and bumped the version number
-;		<84>	 5/20/93	PKE		Delete names for obsolete fields emNumer, emDenom (they are now
-;									unused).
-;		<81>	 3/29/93	DTY		Added emAuxiliaryWindowHashTable and
-;									emAuxiliaryControlHashTable.
-;		<80>	 3/26/93	YK		Add emHasMultiScript.  This flag will be true if non-Roman
-;									script system is installed, but still be zero until the Procee
-;									Mgr is initialized.  Most of the code for multi lingual support
-;									can be skipped by checking this value.
-;		<79>	 3/25/93	DTY		Add field to store PixMapHandle used for drawing defproc
-;									gadgets.
-;		<78>	 3/18/93	SES		Steven Swenson - added a longword to ExpandMemRec for the
-;									globals for the Internal Modem Manager.
-;		<77>	 3/11/93	ngk		Rename emUsed2 to emWindowMgrFlags
-;		<76>	 3/10/93	GMA		General synch with SuperMario and Ludwig. Adding in Reno info.
-;	  <SM21>	 3/10/93	GS		Getting in touch with Reality...
-;		<75>	  3/7/93	DTY		Add Tinge Manager information.
-;		<74>	 2/25/93	IH		Change type of emDisplayManagerGlobals from Handle to Ptr.
-;		<73>	 2/23/93	ngk		Add emTranslationMgrGlobals
-;		<72>	 2/23/93	IH		Add emDisplayMgrGlobals and Get/Set macros
-;		<71>	12/22/92	YK		Added emLanguagePackGlobals in the first long of two in the
-;									emUnused3 spot.
-;	  <SM20>	 2/20/93	SAM		Added emDMADispGlobs for DMA Manager/Dispatcher globals.
-;	  <SM19>	 1/27/93	PN		Add emStartTicks extended memory global for "startticks" in
-;									ListMgrPack
-;		<SM1>	12/09/92	HI		Added emIsDragging field to be used as a flag to determine
-;									whether OSEventAvail was called from DragTheRgn or not. The
-;									flag is set by DragTheRgn only. OSEventAvail uses this flag
-;									to bypass the HelpMgr patch code if called from DragTheRgn.
-;									(Hoon Im)
-;		<70>	10/27/92	JMF		Added emButtonManagerGlobals in the emUnused1 spot and added
-;									emSerialManagerGlobals in the first long of three in the 
-;									emUnused3 spot.
-;		<69>	10/15/92	aen		Change 'fndr' names to 'emFndr'
-;		<68>	10/14/92	gs		Steal a long word from emUnused1 for FSCommon Library.
-;		<67>	10/14/92	aen		Added fndrDeskRgn, fndrDeskRgnTracking, fndrDeskRgnChange, and bumped
-;									the version number to 0x129 for Bungee Finder support of UltraDesk
-;									(Andy Nicholas).
 ;		<66>	 10/8/92	KST		emUnused4 is now used by WS II printing stuff.
 ;		<65>	 7/21/92	bbm		Add emNetBootGlobals for Network Booting and Appletalk stuff.
 ;									(see Steve Roth)
@@ -374,39 +336,11 @@ emLowMemoryPrintingGlobals	ds.l	1				; Handle to globals used by LowMemoryPrinti
 
 emNetBootGlobals			ds.l	1				; Handle to globals used by emNetBootGlobals for Network Booting and Appletalk stuff.	<65>
 
-emFndrDeskRgn				ds.l	1				; Handle to region maintained by Bungee Finder if fndrDeskRgnTracking is true <67> <69>
-
-emFndrDeskRgnTracking		ds.w	1				; If true, the Bungee Finder will keep an up-to-date region handle in fndrDeskRgn of the icons on the desktop <67> <69>
-
-emFndrDeskRgnChange			ds.w	1				; Always incremented by the Bungee Finder for every change made to the desktop <67> <69>
-
-emDisplayManagerGlobals		ds.l	1				; Pointer to globals used by Display Manager
-
-emTranslationMgrGlobals		ds.l	1				; Pointer to globals used by Translation Manager (Macintosh Easy Open)	<73>
-
-emTingeInfo					ds.l	1				; Handle to color information kept by the Tinge Manager
-
-emIsDragging				ds.b	1				; Set within DragTheRgn and cleared before exiting; if true, HelpMgr
-emIsDraggingSlop			ds.b	3				; patch in OSEventAvail is bypassed.		<SM1>
-
-emRenoGlobals				ds.l	1				; Ptr to Reno Globals						<LW2>
-
-emDMADispatchGlobals		ds.l	1				; DMA dispatch globals ptr					<SM20>
-
-emInternalModemMgrGlobals	ds.l	1				; Internal modem manager globals 			<78>
-
-emGadgetPixMap				ds.l	1				; PixMapHandle used by defprocs to draw gadgets
-
-emAuxiliaryWindowHashTable	ds.l	1				; Pointer to auxiliary window record hash table
-emAuxiliaryControlHashTable	ds.l	1				; Pointer to auxiliary control record hash table
-
-emSpeechRecognitionGlobals	ds.l	1				; Speech Recognition Globals				<85><KWR>
-
 ; NOTE: When adding new fields here, be sure to update the high-level language header files as well
 ; (currently {CInternal}ExpandMemPriv.h is the one)
 ; Be sure to update the Reality sources when you change this file (and the version number)
 
-emCurVersion		EQU			$0130				; version 
+emCurVersion		EQU			$0128				; version 
 
 emRecSize			equ			*					; size for this version
 size				equ			*
