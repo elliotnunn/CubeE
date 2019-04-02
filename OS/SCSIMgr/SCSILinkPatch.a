@@ -493,6 +493,7 @@ SCSIBusyCommon
 ;
 ; 	In SuperMario, this is part of SCSIGlobals.
 
+	export SCSIBusyVector
 FreeHookPending	dc.l	0					; location of pending free-hook flag
 SCSIBusyVector	dc.l	0
 

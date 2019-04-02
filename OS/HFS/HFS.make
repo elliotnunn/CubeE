@@ -207,6 +207,10 @@ HFSObjs							=	"{LibDir}BTreeMgr.lib"							∂
 	C {StdCOpts} -o "{Targ}" "{HFSExtensionsDir}FSSpecCalls.c"
 
 
+"{ObjDir}CMSvcsExtras.a.o"			ƒ	"{HFSExtensionsDir}CMSvcsExtras.a"
+	Asm {StdAOpts} -o "{Targ}" "{HFSExtensionsDir}CMSvcsExtras.a"
+
+
 "{ObjDir}DiskCache.a.o"			ƒ	"{HFSCacheDir}DiskCache.a" ∂
 									"{ObjDir}StandardEqu.d"							∂
 									"{IntAIncludes}DiskCachePriv.a"					∂

@@ -408,6 +408,11 @@ GetParamRamData	PROC	ENTRY
 				rts
 				ENDPROC
 
+InsrtResMenu proc export
+	nop
+	nop
+	nop
+
 InitProcMenu	PROC	EXPORT
 ; Begin <2.3 EMT>
 

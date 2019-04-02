@@ -949,7 +949,7 @@
 			$0006, $0007, $0008, $0009,
 			$000A, $000B, $000C, $000D,
 			$000E, $000F, $0010, $0011,
-			$0012, $0013, $0014, $0015
+			$0012, $0013, $0014
 		};
 	};
 
@@ -975,7 +975,7 @@
 	// Picasso Macintosh icon (loaded by System Error Handler)
 
 	resource 'cicn' (-16396, purgeable) {
-		4, {0, 0, 32, 32}, 4,			// bounds, bits per pixel
+		16, {0, 0, 32, 32}, 4,			// bounds, bits per pixel
 	// mask
 		$"0007FF80 00080000 00087E20 00080120"
 		$"00080120 04080120 0C080120 08080120"
@@ -1136,7 +1136,7 @@
 //__________________________________________________________________________________________________
 // patches
 
-//	IncSys "LinkedPatches.rsrc";
+	IncSys "LinkedPatches.rsrc";
 
 	IncSys "BeforePatches.a.rsrc" codeAs 'PTCH' (0, sysHeap, locked);
 

@@ -516,6 +516,20 @@ ShowHideActivatePalette PatchProc _ShowHide,(II)
 @done
 			RTD		#6							; strip parameters and return
 
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+
 			EndProc
 	ENDIF
 
@@ -1151,16 +1165,16 @@ oldCloseWindow
 
 ;————————————————————————————————————————————————————————————————————————————————————————————————————
 
-				MakePatch __CheckUpdate,_CheckUpdate
-				
-	IF hasLayerlessApps THEN
-				MakePatch __patchCalcVis,_CalcVis
-				MakePatch __patchCalcVisBehind,_CalcVBehind
-	ELSE
-				MakePatch __CalcVis,_CalcVis
-				MakePatch __CalcVisBehind,_CalcVBehind
-	ENDIF
-				MakePatch __FrontWindow,_FrontWindow
+;				MakePatch __CheckUpdate,_CheckUpdate
+;				
+;	IF hasLayerlessApps THEN
+;				MakePatch __patchCalcVis,_CalcVis
+;				MakePatch __patchCalcVisBehind,_CalcVBehind
+;	ELSE
+;				MakePatch __CalcVis,_CalcVis
+;				MakePatch __CalcVisBehind,_CalcVBehind
+;	ENDIF
+;				MakePatch __FrontWindow,_FrontWindow
 
 ;————————————————————————————————————————————————————————————————————————————————————————————————————
 __NewWindow		PatchProc	_NewWindow

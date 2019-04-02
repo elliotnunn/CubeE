@@ -57,7 +57,7 @@
 										;	don't print includes
 
 			LOAD		'StandardEqu.d'			; from StandardEqu.a and for building ROMs
-			INCLUDE		'HardwareEqu.a'			;													<T2>
+			INCLUDE		'HardwarePrivateEqu.a'			;													<T2>
 			INCLUDE		'SCSI.a'
 			INCLUDE 	'SCSIPriv.a'
 			INCLUDE		'UniversalEqu.a'		; for TestFor										<T2>

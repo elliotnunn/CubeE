@@ -56,6 +56,9 @@ Conds = ∂
 					DBLite=FALSE							∂
 					NewBuildSystem=TRUE						∂
 					hasLayerlessApps=FALSE					∂
+					nonSerializedIO=TRUE					∂
+					forPDMDebug=FALSE						∂
+					forSmurf=FALSE							∂
 					IopADB=FALSE ViaADB=TRUE PwrMgrADB=TRUE hasEgret=FALSE ∂
 					SystemSixOrLater=TRUE SystemSevenOrLater=TRUE Pre70=FALSE CubeE=TRUE Supports24Bit=TRUE TheFuture=FALSE ∂
 
@@ -87,7 +90,7 @@ ResourceFiles = ∂
 					"{RsrcDir}InternationalPACK.a.rsrc"		∂
 					"{RsrcDir}itl4Roman.a.rsrc"				∂
 					"{RsrcDir}KbdInstall.a.rsrc"			∂
-#					"{RsrcDir}LinkedPatches.rsrc"			∂
+					"{RsrcDir}LinkedPatches.rsrc"			∂
 					"{RsrcDir}LinkedPatchLoader.a.rsrc"		∂
 					"{RsrcDir}ListMgrPACK.a.rsrc"			∂
 					"{RsrcDir}ParityINIT.a.rsrc"			∂
@@ -164,42 +167,25 @@ ResourceFiles = ∂
 LinkedPatchObjs = ∂
 					"{ObjDir}PatchProtector.a.o"			∂
 					"{ObjDir}ProcessManagerSegmentTweaks.a.o"	∂
-##					"{ObjDir}GestaltPatches.a.o"			∂
-##					"{ObjDir}ShutDownMgrPatches.a.o"		∂
-#					"{ObjDir}ADBMgrPatch.a.o"				∂
-#					"{ObjDir}AllB&WQDPatch.a.o"				∂
-#					"{ObjDir}backlightpatch.a.o"			∂
-#					"{LibDir}HelpMgr.lib"					∂
-#					"{ObjDir}ControlMgrPatches.a.o"			∂
-#					"{ObjDir}DeskMgrPatches.a.o"			∂
-#					"{ObjDir}DialogDispatch.a.o"			∂
-#					"{ObjDir}DialogMgrPatches.a.o"			∂
-#					"{ObjDir}DialogMgrExtensions.c.o"		∂
-#					"{ObjDir}DispatchHelper.a.o"			∂
-#					"{ObjDir}FileMgrPatches.a.o"			∂
-#					"{ObjDir}GetMgrPatches.a.o"				∂
-#					"{ObjDir}LaterFileMgrPatches.a.o"		∂
-#					"{ObjDir}MemoryMgrPatches.a.o"			∂
-#					"{ObjDir}MenuMgrPatch.a.o"				∂
-#					"{ObjDir}MenuMgrPatchII.a.o"			∂
-#					"{ObjDir}SystemMenusPatch.a.o"			∂
-#					"{LibDir}DialogMgr.lib"					∂
-#					"{ObjDir}MungerPatches.a.o"				∂
-#					"{ObjDir}NotificationMgrPatch.a.o"		∂
-#					"{ObjDir}PowerMgrPatches.a.o"			∂
-#					"{ObjDir}QuickDrawPatches.a.o"			∂
-#					"{ObjDir}ResourceMgrExtensions.a.o"		∂
-#					"{ObjDir}ResourceMgrPatches.a.o"		∂
-#					"{ObjDir}ResourceOverridePatches.a.o"	∂
-#					"{ObjDir}ScrapMgrPatches.a.o"			∂
-#					"{ObjDir}SlotMgrPatch.a.o"				∂
-#					"{ObjDir}SonyPatches.a.o"				∂
-#					"{ObjDir}TextEditPatchIIciROM.a.o"		∂
-#					"{ObjDir}TimeMgrPatch.a.o"				∂
-#					"{ObjDir}ToolboxEventMgrPatches.a.o"	∂
-#					"{ObjDir}WindowList.a.o"				∂
-#					"{ObjDir}WindowMgrPatches.a.o"			∂
-#					"{IfObjDir}interface.o"					∂
+					"{ObjDir}SCSILinkPatch.a.o"				∂
+					"{ObjDir}FileMgrPatches.a.o"			∂
+					"{ObjDir}LaterFileMgrPatches.a.o"		∂
+					"{ObjDir}AllB&WQDPatch.a.o"				∂
+					"{ObjDir}Mouse.a.o"						∂
+					"{ObjDir}ResourceMgrPatches.a.o"		∂
+					"{ObjDir}SonyPatches.a.o"				∂
+					"{ObjDir}BrightnessPatches.a.o"			∂
+					"{ObjDir}MMUPatches.a.o"				∂
+					"{ObjDir}MenuMgrPatch.a.o"				∂
+					"{ObjDir}MenuMgrPatchII.a.o"			∂
+					"{ObjDir}SlotMgrPatch.a.o"				∂
+					"{ObjDir}SlotMgrInit.a.o"				∂
+					"{ObjDir}SlotMgr.a.o"					∂
+					"{ObjDir}DialogMgrPatches.a.o"			∂
+					"{ObjDir}QuickDrawPatches.a.o"			∂
+					"{ObjDir}WindowMgrPatches.a.o"			∂
+					"{IfObjDir}interface.o"					∂
+					"{ObjDir}TrashTalk.a.o"
 
 
 All								ƒ	"{BuildDir}System" "{BuildDir}ProcessMgrINIT"
@@ -294,6 +280,11 @@ LinkPatchToolObjs = "{Sources}LinkedPatches:LinkPatchLib.o" "{ObjDir}LinkPatch.a
 
 ########################################################################
 
+"{ObjDir}TrashTalk.a.o"					ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{Sources}TrashTalk.a"
+	Asm {StdAOpts} -o {Targ} "{Sources}TrashTalk.a"
+
 "{ObjDir}AllB&WQDPatch.a.o"				ƒ	"{AIncludes}SysErr.a"					∂
 											"{AIncludes}Traps.a"					∂
 											"{AIncludes}QuickEqu.a"					∂
@@ -308,6 +299,8 @@ LinkPatchToolObjs = "{Sources}LinkedPatches:LinkPatchLib.o" "{ObjDir}LinkPatch.a
 											"{ColorQDDir}Classic:ClassicGWorld.a"	∂
 											"{ColorQDDir}Patches:QuickPolysClassicPatch.a"	∂
 											"{ColorQDDir}Patches:DrawPicture32Patch.a"	∂
+											"{ColorQDDir}Patches:DrawPicturePlusSE.a"	∂
+											"{ColorQDDir}Patches:DrawPicturePortable.a"	∂
 											"{ColorQDDir}Patches:AllB&WQDPatch.a"
 	Asm {StdAOpts} -o {Targ} -i "{ColorQDDir}" -i "{ColorQDDir}Classic:" -i "{ColorQDDir}Patches:" "{ColorQDDir}Patches:AllB&WQDPatch.a"
 
@@ -351,6 +344,21 @@ LinkPatchToolObjs = "{Sources}LinkedPatches:LinkPatchLib.o" "{ObjDir}LinkPatch.a
 											"{IntAIncludes}LinkedPatchMacros.a"		∂
 											"{ToolboxDir}GetMgr:GetMgrPatches.a"
 	Asm {StdAOpts} -o {Targ} "{ToolboxDir}GetMgr:GetMgrPatches.a"
+
+"{ObjDir}BrightnessPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{AIncludes}ATalkEqu.a"					∂
+											"{AIncludes}Traps.a"					∂
+											"{Sources}Patches:BrightnessPatches.a"
+	Asm {StdAOpts} -o {Targ} "{Sources}Patches:BrightnessPatches.a"
+
+"{ObjDir}MMUPatches.a.o"				ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{IntAIncludes}HardwarePrivateEqu.a"	∂
+											"{IntAIncludes}MMUEqu.a"				∂
+											"{MMUDir}MMUPatches.a"
+	Asm {StdAOpts} -o {Targ} "{MMUDir}MMUPatches.a"
 
 "{ObjDir}TextEditPatchIIciROM.a.o"		ƒ	"{ObjDir}StandardEqu.d"					∂
 											"{AIncludes}GestaltEqu.a"				∂
@@ -483,6 +491,11 @@ LinkPatchToolObjs = "{Sources}LinkedPatches:LinkPatchLib.o" "{ObjDir}LinkPatch.a
 											"{HFSDir}LaterFileMgrPatches.a"
 	Asm {StdAOpts} -o {Targ} "{HFSDir}LaterFileMgrPatches.a"
 
+"{ObjDir}Mouse.a.o"						ƒ	"{ObjDir}StandardEqu.d"					∂
+											"{IntAIncludes}LinkedPatchMacros.a"		∂
+											"{OSDir}Mouse.a"
+	Asm {StdAOpts} -o {Targ} "{OSDir}Mouse.a"
+
 "{ObjDir}FileMgrPatches.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂
 											"{IntAIncludes}FileMgrPrivate.a"		∂
 											"{HFSDir}Extensions:CatSrchPriv.a"		∂
@@ -520,7 +533,8 @@ LinkPatchToolObjs = "{Sources}LinkedPatches:LinkPatchLib.o" "{ObjDir}LinkPatch.a
 
 "{RsrcDir}LinkedPatches.rsrc"			ƒ	"{LibDir}LinkedPatches.lib"				∂
 											"{RsrcDir}LinkPatch"
-	"{RsrcDir}LinkPatch" -o {Targ} "{LibDir}LinkedPatches.lib"
+	"{RsrcDir}LinkPatch" -o {Targ} -w "{LibDir}LinkedPatches.lib"
+	# -l for some table, -v for counts, -p for patches, -w for ?warnings-off
 
 # The runtime lodr for linked patches
 "{ObjDir}LinkedPatchLoader.a.o"			ƒ	"{ObjDir}StandardEqu.d"					∂

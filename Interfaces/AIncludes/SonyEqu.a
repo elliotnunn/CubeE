@@ -285,6 +285,8 @@ drive3			EQU 		drive2+drvLclLth  		; * real external for MacPP
 floppyLclEnd  	EQU 		drive3+drvLclLth
   				ELSEIF		onMac | onNuMac | onMac32 THEN
 floppyLclEnd  	EQU 		drive2+drvLclLth
+          ELSE
+floppyLclEnd EQU $99
   				ENDIF
 
 track 			EQU 		0         				; current track location (used for spd)

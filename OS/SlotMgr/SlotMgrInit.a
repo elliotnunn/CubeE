@@ -13,73 +13,8 @@
 ;
 ;	Change History (most recent first):
 ;
-;	  <SM15>	 9/12/93	pdw		Removed a push,SwapMMU,pop sequence.
-;	  <SM14>	  9/1/93	SKH		Fixed a bug where only LastSDMSelts were being allocated in the dispatch
-;									table.
-;	  <SM13>	  8/4/93	GMR		RC: Added code to enable slave block transfers for BART machines
-;									(PDM,CF).
-;	  <SM12>	 6/14/93	kc		Roll in Ludwig.
-;	   <LW2>	 3/24/93	mal		Added EnableBlockXfer after PrimaryInit for each slot.
-;									EnableBlockXfer sets bits in a MUNI register if slot has block
-;									xfer sRsrcs indicating it supports block xfers.
-;	  <SM11>	11/17/92	kc		Add "IF NOT LC930 THEN" around patchPrimaryInit to facilitate
-;									dead code stripping for the LC930 build.
-;	   <SM10>	10/14/92	CSS		Change some branch short instructions to branches.
-;	   <SM9>	09-24-92	jmp		Added a pRAM-based mechanism for skipping BootBug altogether if
-;									it is installed.
-;	   <SM8>	08-27-92	jmp		Added support for Brigent, Inc.’s BootBug  card.
-;	   <SM7>	 6/30/92	kc		Roll in Horror, comments follow:
-;	                              	• From SlotMgr.a
-;	    <H5>				djw		Add new selector for DoSecondaryInit.
-;									• From SlotMgrPatch.a
-;	   <H11>				djw		Added DoSecondaryInit routine.
-;	   <SM6>	 5/16/92	kc		Roll in Horror changes. Comments follow:
-;                                   Note: This is going to take some work for the system build but
-;									it is likely to change so we might want to hold off awhile.
-;									• From SlotMgr.a
-;		<H3>	 3/18/92	djw		Add new calls to support docking code - AddCard, RemoveCard,
-;									CheckSlot, and GetSRTEntry.
-;		<H2>	  3/5/92	djw		Replaced InitSlotMgr, InitsRsrcTable, InitPRAMRecs, and
-;									Primary_Init entries in the table with new routines.
-;									• From SlotMgrPatch.a
-;		<H5>	02/05/92	jmp		Unfortunately, I put some tables in the middle of this file
-;									that, in Cyclone, will get bigger.  So, I moved them from the
-;									middle of the file into the pad space.  Also, I generalized the
-;									routine that decides whether a DeclROM’s PrimaryInit/Driver
-;									should be patched by not stopping once I found the version I was
-;									looking for (e.g., in case we need to patch out versions 1, 2,
-;									and 3 of the 8•24 card).
-;		<H2>	10/22/91	SAM/jmp	Discontinued patching out the JMFB PrimaryInit & Driver on the
-;									Bungee (1.1) version of the 4•8/8•24 Card ROM.  From Zydeco-TERROR ROM.
-;		<T6>	 2/25/91	jmp		Added code to check version number of the driver before doing
-;									PrimaryInit and GetDriver patches.
-;		<T3>	11/19/90	jmp		Added in patches for PrimaryInit and GetDriver.
-;									• From SlotInfo.a
-;		<H5>	 3/18/92	djw		Add stub entry points for new docking support routines -
-;									StubAddCard and StubRemoveCard
-;		<H4>	  3/6/92	SWC		We thank Dave for <H3> (getting it working in under 25 tries…),
-;									and move the Docking Manager initialization to StartSDeclMgr
-;									just before running the primary inits so that we can decided
-;									whether or not to install the built-in LCD driver when DBLite
-;									(etc.) is inside a docking station and thus the LCD screen is
-;									not useable.
-;		<H3>	  3/5/92	djw		Rewrote slot manager initialization code (major routines from
-;									beginning of file to SecondaryInit) to facilitate new code for
-;									DBLite docking station.  The major change was to modify the
-;									routines to execute their functions for a single slot instead of
-;									for every slot.
-;		<H2>	10/29/91	jmp		Added a patch to the VerifySlot routine for supporting super
-;									sRsrc directories in Slot $0.
-;	   <SM5>	  5/5/92	JSM		Roll-in changes from Reality:
-;									<17>	  5/4/92	JSM		The checks for isUniversal in this file should just be forROM.
-;																(Dean really didn’t have to do all that work in <14>).
-;	   <SM4>	 2/21/92	RB		delete rude code which snuck in late at night while no one was
-;									looking…
-;	   <SM3>	 2/12/92	RM		Change BRA.S to BRA.L.
-;	   <SM2>	 2/11/92	RB		Fixed InitPRamRecs. It was not working right on the Quadras due
-;									to a confusing situation caused when using forROM, and NOT
-;									forROM in diferent places of the same routine. I hate
-;									them...conditionals.
+;		<17>	  5/4/92	JSM		The checks for isUniversal in this file should just be forROM.
+;									(Dean really didn’t have to do all that work in <14>).
 ;		<15>	  1/7/92	RB		Rolled in Terror changes.
 ;		<14>	 8/30/91	DTY		Define isUniversal here since it’s no longer defined in
 ;									BBSStartup.
@@ -129,7 +64,6 @@
 			Include	'RomEqu.a'
 			Include	'UniversalEqu.a'
 			Include	'SlotMgrEqu.a'
-			Include	'ComVideoEqu.a'								; <15> rb
 			Print	On
 
 		
@@ -184,17 +118,11 @@
 			IMPORT	pRestoreBus
 			IMPORT	pAllocSRTBlk
 
-			IMPORT	GetSRTEntry							;								<h3> djw
-
 			IMPORT	SlotEmpty				;		<djw>
 			IMPORT	pGetBoard				;		<3>
 
 			IMPORT	SlotManager					;											<3>
 			IMPORT	p040BusException			;											<4>
-
-			EXPORT	InitsInfo,InitPrimary,InitsPram,InitsRsrc,InitsInfo
-			EXPORT	Secondary_Init,StubCheckSlot,StubAddCard,StubRemoveCard,SDMJmpTable
-			EXPORT	DoSecondaryInit
 
   			If (&TYPE('SeparateFile') = 'UNDEFINED') Then	; equ indicating whether we are		<3>
 SeparateFile   	Equ 		0								; ... building for 32bit QD INIT
@@ -297,7 +225,7 @@ SDMJmpTable	Proc
 			DispatchVector	GetTypesRsrc		;$0C			<1.2>
 			DispatchVector	SlotEmpty			;$0D
 			DispatchVector	SlotEmpty			;$0E
-			DispatchVector	DoSecondaryInit		;$0F			<H5>
+			DispatchVector	SlotEmpty			;$0F
 
 				
 ;    Specialized
@@ -315,21 +243,21 @@ SDMJmpTable	Proc
 			DispatchVector	FindDevBase			;$1B
 			DispatchVector	FindDevBase			;$1C map findbigdevbase to finddevbase		<1.6> 
 			DispatchVector	GetsRsrcPtr			;$1D			<1.3>
-			DispatchVector	StubAddCard			;$1E			<h3> djw
-			DispatchVector	StubRemoveCard		;$1F			<h3> djw
+			DispatchVector	SlotEmpty			;$1E
+			DispatchVector	SlotEmpty			;$1F
 
 
 ;    Advanced  (SDM private routines).
-			DispatchVector	InitsInfo			;$20			<h2> djw
-			DispatchVector	InitPrimary			;$21			<h2> djw
+			DispatchVector	SlotEmpty			;$20
+			DispatchVector	SlotEmpty			;$21
 			DispatchVector	CardChanged			;$22
 			DispatchVector	SlotExec			;$23			
 			DispatchVector	OffsetData			;$24
-			DispatchVector	InitsPram			;$25			<h2> djw
+			DispatchVector	InitPramRecs		;$25
 			DispatchVector	ReadPBSize			;$26
-			DispatchVector	StubCheckSlot		;$27			<h3> djw
+			DispatchVector	SlotEmpty			;$27
 			DispatchVector	CalcStep			;$28
-			DispatchVector	InitsRsrc			;$29			<h2> djw
+			DispatchVector	InitsRsrcTable		;$29
 			DispatchVector	SearchSRT			;$2A
 			DispatchVector	UpdateSRT			;$2B
 			DispatchVector	CalcsPointer		;$2C
@@ -352,32 +280,8 @@ SDMJmpTable	Proc
 			DispatchVector	pInstallBus			;$3A
 			DispatchVector	pRestoreBus			;$3B
 			DispatchVector	pAllocSRTBlk		;$3C
-			DispatchVector	GetSRTEntry			;$3D			<h3> djw
 
-;=======================================================================================
-;	Re-wrote the following old routines:
-;		StartSDeclMgr
-;		InitSlotMgr
-;		InitsRsrcTable
-;		InitPRAMRecs
-;		Primary_Init
-;
-;	...into these new routines:
-;		StartSDeclMgr
-;		AllocSlot
-;		InitsInfo
-;		InitsRsrc
-;		InitsPram
-;		InitPrimary
-;
-;	The major rewrite of the slot manager initialization code was to go from each routine
-;	executing a single function for all slot, to routines which would only execute the
-;	function for a given slot.  This change was to facilitate slot manager changes for
-;	DBLite to accomodate their docking module.  The end resulting data structures are
-;	not changed from the previous slot manager version.
-;=======================================================================================
-
-;_______________________________________________________________________________________	<h3> djw
+;_______________________________________________________________________________________
 ;	StartSDeclMgr  -  start the slot manager
 ;
 ;	Initialize the slot manager.  Create the sInfo and the slot resource table.  Load
@@ -390,18 +294,12 @@ SDMJmpTable	Proc
 
 			Proc
 			Export	StartSDeclMgr
-			Import	InitJmpTbl, InitDocking
 			with	spBlock,sInfoRecord,FHeaderRec,slotGlobals,seBlock
 
 StartSDeclMgr
-			sub.w	#spBlockSize,sp				; allocate spBlock
-			movea.l	sp,a0						; setup a0 = ptr to spBlock
+			movem.l	d1/a1/a2,-(sp)
 				
-			jsr		InitJmpTbl					; create the slot manager's dispatch table
-			bne		@Done				
-				
-			bsr		AllocSlot					; allocate all the slot manager data structures
-			bne		@Done
+			bsr		InitSlotMgr
 
 ;	For all the slots, determine its status, verify its format record, log its
 ;	sResources, initialize the PRAM for the slot.
@@ -409,110 +307,69 @@ StartSDeclMgr
 			moveq.l	#sLastSlot,d1				; d1 = slot loop counter from last slot
 @Loop
 			move.b	d1,spSlot(a0)				; set slot number
-			bsr		InitsInfo					; initialize the sInfo table
-			bsr		InitsRsrc					; initialize the slot resource table (SRT)
-			bsr		InitsPram					; initial a slot's PRAM
-			dbra	d1,@Loop
+			_sFindsInfoRecPtr					; get ptr to sInfoRecord
+			movea.l	spResult(a0),a1				; a1 = ptr to sInfoRecord
+			tst.w	siInitStatusA(a1)			; is the slot status ok?
+			bmi.s	@SlotDone					; bad slot - done
 
-;	Initialize the Docking Manager so built-in video and docking cards can use its facilities
+			bsr		VerifySlot					; verify the config rom format
 
-			BSR.L	InitDocking					; initialize the Docking Manager			<H4>
+@SlotDone	dbra	d1,@Loop
 
-;	Set up the warm/cold start flag for later.												<SM8>
-
-			Moveq.l	#0,D2						; D2 = flag for cold start.
-			Cmpi.l	#WmStConst,WarmStart		; Check low mem for warm start value.
-			Bne.s	@Continue					; Cold start.
-			Bset.l	#fWarmStart,D2				; Warm start.
-
-@Continue
-
-;	Determine if there’s a BootBug card installed or not.  If one is installed,
-;	execute it first.  Otherwise, just run the normal sequence.
-
-			Clr.b	-(Sp)						; Initialize our “savedSlot” space.
-			
-			Clr.b	spSlot(A0)					; Start with Slot $0.
-			Clr.b	spID(A0)					; Begin search with ID 0.
-			Clr.b	spExtDev(A0)				; No external device(s).
-			Clr.b	spTBMask(A0)				; No mask in search.
-			Move.w	#CatProto,spCategory(A0)	; Look for:  Proto,
-			Move.w	#TypDebugger,spCType(A0)	;			 Debugger,
-			Move.w	#DrSwMacsBug,spDrvrSW(A0)	;			 MacsBug,
-			Move.w	#DrHwBootBug,spDrvrHW(A0)	;			 BootBug.
-			Clr.l	spParamData(A0)				; Clear the flags field.
-			Ori.b	#(1<<fNext),spParamData+3(A0) ; Search for the 1st one.
-			_GetTypeSRsrc						; If we don’t find a BootBug card
-			Bne.s	@DoZeroFirst				;	then just run the normal sequence.
-			Move.b	spSlot(A0),(Sp)				; Remember which slot has BootBug in it.
-			
-			Move.l	A0,-(Sp)					; Save SpBlockPtr.										<H15>
-			Subq	#4,Sp						; Make a pRAM buffer on the stack.
-			Move.l	Sp,A0						; Point to it.
-			Move.l	#$000400FC,D0				; Set up to read 4 bytes starting at $FC.
-			_ReadXPRAM							; Read ’em.
-			Move.l	(Sp)+,D0					; Get the result, release buffer.
-			Move.l	(Sp)+,A0					; Restore SpBlockPtr.
-			Cmpi.l	#'Skip',D0					; If the BootBug skip signature is set,
-			Beq.s	@DoZeroFirst				;	then skip it.
-			
-;	Now, go execute all the PrimaryInits as usual, except run the BootBug PrimaryInit
-;	first.
-
-			Move.b	D2,spFlags(A0)				; Set flag for warm or cold start.
-			Bsr		InitPrimary					; Execute the PrimaryInit.
-
-@DoZeroFirst
-			Clr.b	spSlot(A0)					; Set slot 0.
-			Move.b	D2,spFlags(A0)				; Set flag for warm or cold start.
-			Bsr		InitPrimary					; Execute the PrimaryInit.
-
-			Moveq.l	#sLastSlot,D1				; D1 = slot loop counter from last slot.
-@Loop1
-			Move.b	D1,spSlot(A0)				; Set the Slot number.
-			Cmp.b	(Sp),D1						; If this is the BootBug slot,
-			Beq.s	@Skip						;	then skip it this time.
-			
-			Move.b	D2,spFlags(A0)				; Set flag for warm or cold start.
-			Bsr		InitPrimary					; Execute the PrimaryInit.
-
-			Bsr		EnableBlockXfer				; Enable block xfer, if this slot is capable	<LW2>
-			
-@Skip		Subq.b	#1,D1
-			Bne.s	@Loop1						; Continue for all slots.
-
-			Tst.b	(Sp)+						; Free up “savedSlot” space.
-@Done
-			Add.w	#spBlockSize,Sp				; Free SpBlock.
-			Moveq.l	#noErr,D0					; Return noErr.
-			Rts									;											<SM8>
+			movem.l	(sp)+,d1/a1/a2
+			rts
 
 
-;_______________________________________________________________________________________	<h3> djw
-;	AllocSlot  -  allocate slot manager data structures
-;
-;	Allocate the slot manager globals, the sInfo table, the sInfoRecords for disabled
-;	and reserved slots, and the first block of sRsrcRecords for the SRT.
-;
-;	Input	: a0 = ptr to spBlock
-;	Output	: d0 = status	ccr reflects status
+;_______________________________________________________________________________________
+;	InitSlotMgr
 ;
 
-AllocSlot
-@regs		reg		a0-a1
+			Export	InitSlotMgr
+
+InitSlotMgr
+@regs		reg		d1-d2/a0-a3
 			movem.l	@regs,-(sp)						; save registers
+
+;	Enumerate all the slots
+;		d0 = number of slots found
+;		sp points to array of index/-1 words
+
+			move.l	sp,SInfoPtr					; create a fake SlotMgr global block for InstallBus
+			sub.w	#slotGlobalSize,sp
+
+			move.l	#minorLast,a1				; explore the standard slot space ($Fn......)
+			move.l	#TotalSlots-1,d1
+			move.l	#0,d0
+
+			lea		@BusError,a2				; switch to 32-bit mode, and jump to a2 on bus error
+			slotjsr	InstallBus
+
+@NextSlot
+			sub.l	#2,sp
+			move.b	(a1),d2
+			add.w	#1,d0
+			move.w	d0,(sp)
+			bra.s	@NoBusError
+@BusError
+			move.w	#-1,(sp)
+@NoBusError
+			sub.l	#minorStep,a1
+			sub.w	#1,d1
+			bne.s	@NextSlot
+
+			slotjsr	RestoreBus					; undo InstallBus
 
 ;	Allocate the necessary memory as one contiguous block
 
-			move.l	#(slotGlobalSize			\	; size of globals
+			mulu.w	#sInfoNewSize,d0				; size of N sInfoRecords
+			add.l	#(slotGlobalSize			\	; size of globals
 					+(4*TotalSlots)				\	; size of sInfor vector table
-					+(3*sInfoNewSize)			\	; size of 3 sInfoRecords (disabled,reserved,empty)
-					),d0							; d0 = number of bytes to alloc
+					),d0
 			_NewPtr	,sys,clear						; alloc block
-			bne.s	@Done							; some error - done
 
 			adda.w	#slotGlobalSize,a0				; globals are at a negative offset from sInfo tbl
 			move.l	a0,sInfoPtr						; set ptr to sInfo table
+			move.l	a0,a1
 
 ;	There are three special sInfoRecords which we are setting up.  These records are shared by
 ;	all slots which have a disabled, reserved, or empty status.  The records are shared because
@@ -524,114 +381,34 @@ AllocSlot
 			move.w	#smDisabledSlot,			\
 					siInitStatusA(a0)				; set slot status to disabled
 			lea		sInfoNewSize(a0),a0				; inc a0 to reserved sInfoRecord
-			move.w	#smReservedSlot,			\
-					siInitStatusA(a0)				; set slot status to reserved
-			lea		sInfoNewSize(a0),a0				; inc a0 to empty sInfoRecord
-			move.w	#smEmptySlot,				\
-					siInitStatusA(a0)				; set slot status to reserved
 
-;	Allocate the first SRT block.
+			move.l	#$40000,d0
+			sub.l	#1,d0
+			add.l	RomBase,d0
+			move.l	d0,siROMAddr(a0)
+			move.w	#1,siTOConst(a0)
 
-			slotjsr	AllocSRTBlk					; return a1 = ptr to blk
-			move.l	a1,sRsrcTblPtr				; save ptr in low mem
-			move.l	a1,([sInfoPtr],lastSRTPtr)	; set ptr to last entry in SRT
+			move.l	a0,(a1) ; ?????
 
-@Done
-			tst.w	d0							; return err in ccr
-			movem.l	(sp)+,@regs
-			rts
-
-
-;_______________________________________________________________________________________	<h3> djw
-;	InitsInfo  -  init a slot's sinfoRecord
-;
-;	Check the NuBus info in the universal tables to see if the given slot is enabled.
-;	If so, then scan the slot to determine whether it is occupied or empty.  If occupied,
-;	then verify the declaration ROM.
-;
-;	Input	:	a0 = ptr to spBlock
-;	Output	:	none
-;
-;	spBlock	:	-> spSlot			slot number
-			Export InitsInfo
-InitsInfo
-@regs		reg		d1/a0-a3
-			movem.l	@regs,-(sp)
-
-			moveq.l	#0,d1
-			move.b	spSlot(a0),d1						; d1 = slot number in question
-			movea.l	sInfoPtr,a1							; a1 = ptr to beginning of sInfoTable
-			
-;	Check if the slot is enabled in the universal tables.  The two currently defined
-;	states are enabled (no bit set), disabled (do no scan), and reserved (hack for VM
-;	to disable VM from looking into slot's address space.  Previously, VM ignored
-;	the disabled error).
-
-			movea.l	a1,a3
-			lea		4*TotalSlots(a3),a3					; a3 = ptr to disabled sInfoRecord
-			move.l	a3,(a1,d1.w*4)						; set slot pointing to disabled record
-
-			with NuBusInfo
-			movea.l	UnivInfoPtr,a2		
-			adda.l	ProductInfo.NuBusInfoPtr(a2),a2		; a2 = ptr to universal slot info tbl
-			btst.b	#slotDisabled,(a2,d1.w)				; test if slot is disabled
-			bne		@Done
-			lea		sInfoNewSize(a3),a3					; a3 = ptr to reserved record
-			move.l	a3,(a1,d1.w*4)						; set slot pointing to reserved record
-			btst.b	#slotReserved,(a2,d1.w)				; test if the slot is reserved
-			bne 	@Done								; <SM10> CSS
-			endwith
-
-;	The slot is enabled for use.  Initially, set the slot to point to the empty sInfoRecord.
-
-			lea		sInfoNewSize(a3),a3					; a3 = ptr to empty record
-			move.l	a3,(a1,d1.w*4)						; set slot pointing to empty record
-
-;	If this is slot zero, then special case the declaration ROM address
-
-			tst.b	d1									; slot 0 ?
-			bne.s	@doRead								; not slot 0
-			movea.l	RomBase,a3							; get base of rom
-			adda.l	ROMHeader.RomSize(a3),a3			; a3 = addr of end of ROM
-			suba.l	#1,a3								; adjust to last byte in ROM
-			bra.s	@Verify								; verify slot 0
-
-;	Do a nubus read to see if the slot is occupied.  If it is, then when we
-;	read, we will not get a bus error.
-
-@doRead
-			moveq.l	#-1,d0
-			bfins	d1,d0{4,4}						; inset slot number to get $fsffffff
-			movea.l	d0,a3							; a3 = minor space nubus addr for slot
-			lea		@Empty,a2						; a2 = addr to go if bus error occurs
-			slotjsr	InstallBus						; replace bus excptn, 32 bit mode
-			move.b	(a3),d0							; NUBUS READ - read byte from minor space
-			slotjsr	RestoreBus						; restore mmu state and bus exception vector
-			bra.s	@Verify							; slot is occupied - verify config rom
-@Empty
-			slotjsr	RestoreBus						; restore mmu state and bus exception vector
-			bra.s	@Done
-
-
-;	The slot is not empty.  Allocate an sInfoRecord for it and verify the card.
-;	a0 = ptr to spBlock, a1 = ptr to sInfoTable, a3 = ptr to top of config rom
-
-@Verify
+			move.w	#1,d0
+@Loop
 			movea.l	a0,a2							; save ptr to spBlock
-			move.l	#sInfoNewSize,d0				; size of sInfoRecord
-			_NewPtr	,sys,clear
-			bne.s	@Done							; err - leave pointing to empty record
-			move.l	a0,(a1,d1.w*4)					; set ptr in sInfo vector table
-			movea.l	a0,a1							; a1 = ptr to sInfoRecord for this slot
-			movea.l	a2,a0							; restore a0 = ptr to spBlock
+			move.w	(sp)+,d1						; pop word from
+			muls.w	#sInfoNewSize,d1				; size of sInfoRecord
+			add.l	d1,a2
+			move.l	a2,(a1,d0.w*4)					; set ptr in sInfo vector table
 
-			move.w	#retryCnt,siTOConst(a1)			; set default bus error retry cnt (not used)
-			move.b	d1,siSlot(a1)					; set slot number
-			move.l	a3,siROMAddr(a1)				; set ROM address
+			move.w	#retryCnt,siTOConst(a2)			; set default bus error retry cnt (not used)
+			move.b	d0,siSlot(a2)					; set slot number
 
-			bsr.s	VerifySlot						; verify the config rom format
+			not.l	siROMAddr(a2)					; set ROM address ???
+			bfins	d0,siROMAddr(a2){4,4}			; inset slot number to get $fsffffff
 
-@Done
+			add.w	#1,d0
+			cmp.w	#sLastSlot,d0
+			ble.s	@Loop
+
+			add.w	#slotGlobalSize,sp				; pop fake globals
 			movem.l	(sp)+,@regs
 			rts
 
@@ -667,8 +444,8 @@ VerifySlot
 			MOVE.L	A2,spResult(A0)			; pass A2 = addr to put format header
 			moveq	#3,d1					; start with byte lane 3						<2.0>
 
-@Loop		BSR		GetByteLane				; get a valid byte lane - return byte lane value in D1
-			BNE		VerifySlotDone			; error - no valid byte lane
+@Loop		BSR.S	GetByteLane				; get a valid byte lane - return byte lane value in D1
+			BNE.S	VerifySlotDone			; error - no valid byte lane
 			_sReadFHeader					; read the format header from the declaration ROM
 			BNE.S	@EndLoop				; some error - try another byte lane			<1.7>
 			
@@ -689,75 +466,10 @@ VerifySlot
 @EndLoop	sub.l	#1,siROMAddr(a1)		; decrement ROM ptr to next byte lane			<1.7>
 			DBRA	D1,@Loop
 			move.w	#smBLFieldBad,d0		; error - could not find a valid byte lane
-			BRA		VerifySlotDone
+
+			BRA.S	VerifySlotDone
 								
-;	Get the pointer to the sResource directory from the declaration ROM and store
-;	it in the sInfo record for future use.  The directory is at an offset from the
-;	directory offset field in the format header.
-			EndWith ; FHeaderRec
-			With XFHeaderRec
-@GoodRom	
-VerifySlotPatch
-
-			Tst.b	spSlot(A0)								; If we’re not looking at slot 0, then 
-			Bne		@StdHeader								; 	just assume a standard header.
-			
-			Move.l	siROMAddr(A1),spsPointer(A0)			; Set ptr to top of ROM.
-			Move.l	#-(fhXBlockSize)+1,spOffsetData(A0)		; Set offset to beginning of extended header.
-			Move.b	siCPUByteLanes(A1),spByteLanes(A0)		; Set byte lanes field.
-			_sCalcsPointer									; Get pointer to extended header.
-			Bne		@StdHeader								; If failed, just try standard header.
-
-@SaveRegs	Reg		A3-A4									; Define some work register.	
-			Movem.l	@SaveRegs,-(Sp)							; Save them.
-			Suba.l	#XFHdrExtraSize,Sp						; Allocate space for extended part of FHeaderRec.
-			Move.l	Sp,A3									; Point to it.
-			Suba.l	#seBlockSize,Sp							; Allocate space for sExec block.
-			Move.l	Sp,A4									; Point to it.
-			
-			Move.l	A3,spResult(A0)							; Point to buffer for extra part of format block.
-			Move.l	#XFHdrExtraSize,spSize(A0)				; Number of bytes to copy.
-			_sReadStruct									; Read extended part of header.
-			Bne.s	@FallBack								; If failed, just try the standard header.
-			
-			Cmpi.l	#TestPattern,fhXSTstPat(A3)				; If the (extended) test pattern doesn’t exist,
-			Bne.s	@FallBack								;	just try the standard header.
-			
-			Move.b	fhFormat(A2),D0							; Get the format ID of the header.
-			Cmp.b	fhXSuperInit(A3),D0						; If not using an appropriately ID’d SuperInit,
-			Bne.s	@FallBack								;	just try the standard header.
-			
-			Move.b	spSlot(A0),seSlot(A4)					; Copy the slot number.
-			Move.b	fhXSuperInit(A3),sesRsrcId(A4)			; Copy the sRsrc/format ID of the SuperInit.
-			Move.b	fhXSuperInit(A3),spID(A0)				; Make sure sExec calls the right SuperInit.
-			Move.l	A4,spsExecPBlk(A0)						; Point to the sExec param block.
-			_SExec											; Call SuperInit.
-			Bne.s	@FallBack								; If failed, just try the standard header.
-			
-			Tst.b	seStatus(A4)							; If upper byte of seStatus is non-zero (a failure),
-			Bne.s	@FallBack								;	just try the standard header.
-			
-			Move.l	siROMAddr(A1),spsPointer(A0)			; Point back to the top of ROM.
-			Move.l	fhXSDirOffset(A3),spOffsetData(A0)		; Load super directory offset.
-			Clr.b	spOffsetData(A0)						; Strip psuedo-spID byte.
-			Add.l	#XOffsetToDir,spOffsetData(A0)			; Negative offset.
-			Move.b	siCPUByteLanes(A1),spByteLanes(A0)		; Set byte-lanes field.
-			_sCalcsPointer									; Get ptr to start of super sRsrc directory.
-			Bne.s	@FallBack								; If failed, just try standard header.
-
-			Move.b	seStatus+1(A4),spID(A0)					; Get the id of the super sRsrc directory.
-			_sFindStruct									; Look for it.
-			Bne.s	@FallBack								; If failed, try standard header.
-			
-			Move.l	spsPointer(A0),siDirPtr(A1)				; Set ptr to sRsrc dir in sInfo record.
-			Adda.l	#XFHdrExtraSize+seBlockSize,Sp			; Restore stack.
-			Movem.l	(Sp)+,@SaveRegs							; Restore work registers.
-			Bra.s	VerifySlotDone
-			
-@FallBack	Adda.l	#XFHdrExtraSize+seBlockSize,Sp			; Restore stack.
-			Movem.l	(Sp)+,@SaveRegs							; Restore work registers.
-
-@StdHeader	MOVE.L	siROMAddr(A1),spsPointer(A0)			; set ptr to slot declaration ROM
+@GoodRom	MOVE.L	siROMAddr(A1),spsPointer(A0)			; set ptr to slot declaration ROM
 			MOVE.L	fhDirOffset(A2),spOffsetData(A0)		; get dir offset from format blk image
 			add.l	#OffsetToDir,spOffsetData(a0)			; negative offset to directory field <2.0>
 			_sCalcsPointer									; calc ptr to directory
@@ -957,8 +669,8 @@ VerifyCRC
 			RTS										; end - VerifyCRC
 
 
-;_______________________________________________________________________________________	<h3> djw
-;	InitsRsrc  -  initialize the slot resource table
+;_______________________________________________________________________________________
+;	InitsRsrcTable  -  initialize the slot resource table
 ;
 ;	Loop through the given slot's sRsrc directory and add all the sRsrcs to the
 ;	SRT.  The SRT is actually made up of fixed sized blocks linked together.  A
@@ -971,28 +683,47 @@ VerifyCRC
 ;
 ;	spBlock	:	-> spSlot			slot number
 
-			Export	InitsRsrc
+			Export	InitsRsrcTable
 			with	srrBlock,srtLink
 			
-InitsRsrc
-@regs		reg		d1-d3/a1-a2
+InitsRsrcTable
+@regs		reg		a1-a2
 			movem.l	@regs,-(sp)
 
-;	Check the slot's status
+			slotjsr	AllocSRTBlk
 
+			move.l	a1,SRsrcTblPtr
+
+			clr.b	spSlot(a0)					; clear fields used by _InsertSRTRec
+			clr.w	spIOReserved(a0)
+			clr.w	spRefNum(a0)
+			clr.b	spExtDev(a0)
+			clr.b	spHwDev(a0)
+
+;	Check the slot's status
+@NextSlot
 			_sFindsInfoRecPtr					; get ptr to sInfoRecord
-			bne.s	@Done						; slot not valid - done
 			movea.l	spResult(a0),a2				; a2 = ptr to sInfoRecord
 			tst.w	siInitStatusA(a2)			; is the slot status ok?
-			bmi.s	@Done						; bad slot - done
+			bmi.s	@BadSlot					; bad slot - done
+			bsr		@InitTheResourceTable
+@BadSlot
+			add.b	#1,spSlot(a0)
+			cmp.b	#sLastSlot,spSlot(a0)
+			ble.s	@NextSlot
 
+			movem.l	(sp)+,@regs
+			rts
+
+@InitTheResourceTable
+			movem.l	d3-d4/a3,-(sp)
 ;	Calculate the step value for this slot so we can step through the sRsrc dir
 
 			move.l	siDirPtr(a2),spsPointer(a0)			; set ptr field to get step value for
 			move.b	siCPUByteLanes(a2),spByteLanes(a0)	; set byte lanes field
 			bset.b	#fConsecBytes,spFlags(a0)			; set flag for step value for bytes
 			_sCalcStep
-			bne.s	@Done
+			bne		@Done
 			
 ;	Loop through the sResource directory.  Check that the sResource id's are in
 ;	acsending order.  The last entry must have id = $FF.
@@ -1021,25 +752,39 @@ InitsRsrc
 ;	Given the sRsrc id, insert a new entry into the SRT
 
 			move.b	d3,spId(a0)						; set sRsrc id to insert
-			clr.l	spsPointer(a0)					; clear fields used by _InsertSRTRec
-			clr.w	spIOReserved(a0)
-			clr.w	spRefNum(a0)
-			clr.b	spExtDev(a0)
-			clr.b	spHwDev(a0)
-			clr.l	spParamData(a0)					; make sure to insert sRsrc as enabled
-			_InsertSRTRec							; insert <slot><id> sRsrc into SRT
-			beq.s	@Loop							; continue inserting sRsrc's
 
+			move.l	spResult(a0),d5
+			and.l	#$FFFFFF,d5
+			move.l	d5,spOffsetData(a0)
+
+			_InsertSRTRec							; insert <slot><id> sRsrc into SRT
+			bne.s	@Done							; continue inserting sRsrc's
+
+			cmp.w	#-1,(a1)
+			bne.s	@no
+			move.l	a1,a3
+
+			slotjsr	AllocSRTBlk
+			move.l	a1,2(a3)
+
+@no
+			clr.l	$18(a0)
+			slotjsr	InitEntry
+			bne.s	@Done
+			add.w	#1,([sInfoPtr],srtCnt)
+			move.l	a1,([sInfoPtr],lastSRTPtr)
+			add.w	#$18,a1
+			bra		@Loop
 @Done
-			movem.l	(sp)+,@regs
+			movem.l	(sp)+,d3-d4/a3
 			rts
 			
 			endwith
 
 
 
-;_______________________________________________________________________________________	<h3> djw
-;	InitsPRAM  -  initialize slot PRAM
+;_______________________________________________________________________________________
+;	InitPramRecs  -  initialize slot PRAM
 ;
 ;	Each slot is assigned 8 bytes of PRAM: <board id><6 user bytes>.  On boot,
 ;	the <board id> is compared against the card in the slot.  If they are
@@ -1053,35 +798,20 @@ InitsRsrc
 ;
 ;	spBlock	:	-> spSlot			slot number
 
-			Export	InitsPRAM
-InitsPRAM
+			Export	InitPramRecs
+InitPramRecs
 @regs		reg		d1-d3/a1-a2
 			movem.l	@regs,-(sp)
 			suba.w	#SizesPRAMRec,sp				; alloc slot PRAM buffer
 			movea.l	sp,a1							; a1 = ptr to PRAM buffer
-			clr.l	(a1)							; zero pram buffer (8 bytes)
-			clr.l	4(a1)
+			moveq	#sLastSlot,d1
 
-;	Get the state of this slot.  If the slot is disabled or reserved, then DO NOT ZERO
-;	PRAM.  If the pram has already been initialized, then do not initialize again.
-
-			_sFindsInfoRecPtr						; get ptr to sInfoRecord
-			bne		@Done							; slot invalid - done
-			movea.l	spResult(a0),a2					; a2 = ptr to sInfoRecord
-
-			cmpi.b	#statePRAMInit,siState(a2)		; has PRAM already been initialized ?
-			bge		@Done							; already initialized - done
-			tst.w	siInitStatusA(a2)				; is the slot status ok?
-			beq.s	@readPRAM						; slot ok - read board id from pram
-			cmp.w	#smDisabledSlot,siInitStatusA(a2)	; is slot disabled?
-			beq.s	@Done							; don't touch disabled slot's pram
-			cmp.w	#smReservedSlot,siInitStatusA(a2)	; is slot reserved?
-			beq.s	@Done							; reserved is the same as disabled
-			bra.s	@writePRAM						; slot status is bad - zero pram
+@NextSlot
 
 ;	Read PRAM to get the current board id.
 
-@readPRAM
+			move.b	d1,spSlot(a0)
+			clr.w	(a1)							; zero board ID in pram buffer
 			move.l	a1,spResult(a0)					; pass ptr to read PRAM bytes into
 			_sReadPRAMRec							; return (a1).w = board id
 			move.w	(a1),d3							; d3 = board id from PRAM
@@ -1096,12 +826,18 @@ InitsPRAM
 ;	slot zero, loop through all the board sResource records found, trying to match the
 ;	pram board id.
 
-			moveq.l	#0,d1							; sRsrc id to start looking at (incase of slot 0)
+			moveq.l	#0,d4							; sRsrc id to start looking at (incase of slot 0)
 
 @Loop
 			move.b	d1,spId(a0)						; pass sRsrc id to routine to begin looking from
 			slotjsr	GetBoard						; return board sRsrc and sInfo rec ptrs
 			bne.s	@writePRAM						; no board sRsrc - write zero PRAM
+
+			movea.l	spResult(a0),a2					; a2 = ptr to sInfoRecord
+			tst.w	siInitStatusA(a2)				; is the slot status ok?
+			bmi.s	@writePRAM						; slot status is bad - zero pram
+			cmpi.b	#statePRAMInit,siState(a2)		; has PRAM already been initialized ?
+			bge.s	@Done							; already initialized - done
 
 ;	Board sResource is found - read the board id
 
@@ -1121,7 +857,7 @@ InitsPRAM
 
 ;	Board id's are different - if this is slot zero, then look for another board sResource
 
-			tst.b	spSlot(a0)						; slot zero ?
+			tst.b	d1								; slot zero ?
 			beq.s	@Loop							; yes - look for another board sResource
 
 ;	Look for a pram init record on the card's config ROM.  If found, use the values to
@@ -1144,13 +880,16 @@ InitsPRAM
 			_InitSlotPRAM							; initialize board id and user PRAM
 
 @Done
+			dbra	d1,@NextSlot
+			moveq	#0,d0
+
 			adda.w	#SizesPRAMRec,sp				; free pram data buffer
 			movem.l	(sp)+,@regs
 			rts
 
 
-;_______________________________________________________________________________________	<h3> djw
-;	InitPrimary		-	execute primaryInit
+;_______________________________________________________________________________________
+;	Primary_Init		-	execute primaryInit
 ;
 ;	Execute primary init code for a slot having a primaryInit record in it's board
 ;	sResource.  Primary inits are passed parameters in an seBlock.Primary inits are
@@ -1166,9 +905,9 @@ InitsPRAM
 ;				sesRsrcId	->	BoardId
 ;				seFlags		->	spFlags
 ;
-			Export	InitPrimary
+			Export	Primary_Init
 
-InitPrimary
+Primary_Init
 @regs		reg		d1-d3/a1-a3
 			movem.l	@regs,-(sp)
 			suba.w	#seBlockSize,sp
@@ -1176,7 +915,22 @@ InitPrimary
 			move.l	a2,spsExecPBlk(a0)				; set ptr in spblock to sExec blk
 			move.b	#BoardId,sesRsrcId(a2)			; indicates exec code is from board sResource
 
+			moveq	#0,d0							; MMU to 32-bit mode
+			_SwapMMUMode
+			move.b	d0,-(sp)
+
+			move.b	#0,spSlot(a0)
 			bsr.s	doPrimaryInit					; execute the primary init
+
+			moveq	#sLastSlot,d1
+@Loop
+			move.b	d1,spSlot(a0)
+			bsr.s	doPrimaryInit					; execute the primary init
+			subq	#1,d1
+			bnz.s	@Loop
+
+			move.b	(sp)+,d0						; restore MMU
+			_SwapMMUMode
 
 			adda.w	#seBlockSize,sp
 			movem.l	(sp)+,@regs
@@ -1215,20 +969,10 @@ doPrimaryInit
 			_sFindStruct
 			bne.s	@Done							; no primary init record - done
 
-			IF NOT LC930 THEN
-
-;	Identify Apple Cards whose PrimaryInit code is faulty, and execute fixed
-;	versions from the CPU ROM.
-			Bsr.s	PatchPrimaryInit					; If PatchPrimaryInit returns a 
-			Tst.b	D0									;	result >= 0, don’t execute
-			Bpl.s	@cleanup							;	normal PrimaryInit.
-			
-			ENDIF
-			
 ;	Load the code and execute the primary init record.
 ;
 			Move.l	A3,spsPointer(A0)					; Restore ptr to board sRsrc.
- 			Move.b	spSlot(A0),seSlot(A2)				; Set slot in sExec blk.
+ 			Move.b	D1,seSlot(A2)						; Set slot in sExec blk.
 			Move.b	spFlags(A0),seFlags(A2)				; Xfer warmstart flag (if present).
  			_sExec										; Execute the code.
 
@@ -1241,172 +985,6 @@ doPrimaryInit
 
 @done		Rts
 
-;____________________________________________________________________________
-;
-; PatchPrimaryInit and support (called from doPrimaryInit).
-;
-;	Entry:		A0		-- points to spBlock.
-;				A1		-- points to sInfoRecord.
-;				A2		-- (after restore from BigJump) points to sExec param blk.
-;				A3		-- points to board sResource.
-;
-;				D1		-- contains spSlot (we use spBlock.spSlot here, though).
-;	
-;	Exit:		A0-A3	-- preserved.
-;				D1		-- preserved.
-;
-;	Purpose:	The purpose of SlotPrimaryInitPatch is to identify Apple
-;				Cards whose PrimaryInit code is faulty, and execute fixed
-;				versions from the CPU ROM.
-;
-;				SlotPrimaryInitPatch is executed from the (non-exported)
-;				routine doPrimayInit in SlotInfo.a.
-;____________________________________________________________________________
-			
-			IF NOT LC930 THEN
-
-			With	seBlock,spBlock
-			Import	GetDevIndex,JsrTbl
-
-PatchPrimaryInit
-
-@saveRegs	Reg		A0-A3/D1/D3							; Define some work and scratch registers,
-			Movem.l	@saveRegs,-(Sp)						; 	and save them on the stack.
-			
-			Move.l	A0,A3								; Save the spBlockPtr for later.
-			
-			Bsr		GetDevIndex							; Get the device/card index into D0.
-			Move.l	D0,D3								; If the device index is negative, then
-			Bmi.s	@done								;	PrimaryInit doesn’t need patching.
-			
-			Lea		JsrTbl,A1							; Point to base of JsrTbl.
-			Lsl.l	#2,D3								; Adjust index.
-			
-			Move.l	A1,A0								; Copy base address.
-			Add.l	D3,A0								; Point to proper entry.
-			Add.l	(A0),A1								; Load A1 with effective address of PrimaryInit.
-			
-			Move.l 	A3,A0								; Restore spBlockPtr.
-			Move.b	spSlot(A0),seSlot(A2)				; Set the right slot number.
-			Move.b	spFlags(A0),seFlags(A2)				; Set the flags.
-			Move.l	A2,A0								; Set A0 to sExecBlkPtr for fake sExec call.
-			Jsr		(A1)								; Execute the PrimaryInit.
-			
-			Move.l	D3,D0								; Return result code.
-			
-@done		Movem.l	(Sp)+,@saveRegs
-			Rts
-
- 			Endwith
-
-			ENDIF
-
-;_______________________________________________________________________________________	<h5> djw
-;	StubCheckSlot	-	check if a slot status has changed
-;
-;	This is a little stub routine for the real CheckSlot routine in the slot manager
-;	overpatch file.  We need this stub because the slot manager jump table in ROM only
-;	has 16 bit offset and the overpatch file is out of range.  We therefore vector to
-;	this stub routine which then jumps to the overpatch file.
-;
-;	Input	: none
-;	Output	: none
-;
-			export	StubCheckSlot
-			import	CheckSlot
-
-StubCheckSlot
-			bra.l	CheckSlot						; go to the real routine
-
-
-;_______________________________________________________________________________________	<h5> djw
-;	StubAddCard	-	add a card to slot manager
-;
-;	This is a little stub routine for the real StubAddCard routine in the slot manager
-;	overpatch file.  We need this stub because the slot manager jump table in ROM only
-;	has 16 bit offset and the overpatch file is out of range.  We therefore vector to
-;	this stub routine which then jumps to the overpatch file.
-;
-;	Input	: none
-;	Output	: none
-;
-			export	StubAddCard
-			import	AddCard
-
-StubAddCard
-			bra.l	AddCard						; go to the real routine
-
-
-;_______________________________________________________________________________________	<h5> djw
-;	StubRemoveCard	-	remove a card from the slot manager
-;
-;	This is a little stub routine for the real CheckSlots routine in the slot manager
-;	overpatch file.  We need this stub because the slot manager jump table in ROM only
-;	has 16 bit offset and the overpatch file is out of range.  We therefore vector to
-;	this stub routine which then jumps to the overpatch file.
-;
-;	Input	: none
-;	Output	: none
-;
-			export	StubRemoveCard
-			import	RemoveCard
-
-StubRemoveCard
-			bra.l	RemoveCard					; go to the real routine
-
-;_______________________________________________________________________________________	start 	<LW2>
-;	EnableBlockXfer		-	find then enable cards capable of support block xfers as a Slave
-;
-;	Input	: a0 = ptr to spBlock
-;	Output	: none
-;
-;	spBlock	:	-> spSlot			slot number
-;				-> spFlags			fWarmStart - if set then a warm start (may be used by primary
-EnableBlockXfer
-			Testfor	BARTExists					; are we on a ColdFusion or PDM
-			bne.s	@goodMach
-			Testfor	MUNIExists					; do we have MUNI Nubus Controller?
-			Beq		@exit						; no, leave
-			
-@goodMach	MoveM.l	A0/D0-D2, -(SP)
-			Clr.b	spID(A0)					; Begin search with ID 0.
-			Clr.b	spExtDev(A0)				; No external device(s).
-			Clr.b	spHwDev(A0)					; No hardware device(s).
-			Clr.b	spTBMask(A0)				; No mask in search.
-			Move.w	#catBoard,spCategory(A0)	; Look for:  Board sRsrc
-			Clr.w	spCType(A0)
-			Clr.w	spDrvrSW(A0)
-			Clr.w	spDrvrHW(A0)
-			Move.l	#(1<<foneslot), spParamData(A0)	; look only in this slot
-			_GetTypeSRsrc						; get slots board sRsrc
-			Bne.s	@done
-			Move.b	#sBlockTransferInfo, spID(A0)
-			_sReadLong							; does slot support block xfers?
-			Bne.s	@done						; no, leave
-			Move.l	spResult(A0), D0			; get sBlockTransferInfo long
-			BTst	#fIsSlave, D0				; handles blk xfer as slave? 
-			Beq.s	@done						; no, leave
-
-			Testfor	BARTExists					; are we on a ColdFusion or PDM
-			beq.s	@muni						; no, must be MUNI
-			BTst	#fSlvXferSz2, D0			; handles blk xfer size of 2?
-			Bne.s	@enable						; yes, go
-			BTst	#fSlvXferSz8, D0			; handles blk xfer size of 8?
-			Bne.s	@enable						; yes, go
-			bra.s	@done						; no, exit
-			
-@muni		BTst	#fSlvXferSz4, D0			; handles blk xfer size of 4?
-			Beq.s	@done						; no, leave
-			
-@enable		MoveQ	#0, D0
-			Move.b	spSlot(A0), D0
-			BSet	#8, D0						; make high word indicate enable blk xfer
-			Move.l	D0, A0
-			_SlotBlockXferCtl			
-
-@done		MoveM.l	(SP)+, A0/D0-D2
-@exit		Rts
-																							;end 	<LW2>
 
 ;_______________________________________________________________________________________
 ;	Secondary_Init	-	secondary initialization
@@ -1457,46 +1035,6 @@ Secondary_Init
 			moveq	#sLastSlot,d1					; start with slot $E					<2.0>
 @Loop
 			move.b	d1,spSlot(a0)
-			bsr.s	DoSecondaryInit					; execute slot secondaryInit code		<h7> djw
-
-@EndLoop	dbra	d1,@Loop						; dec slot count						<2.0>
-			cmpi.b	#sLastSlot,d1					; done ?
-			bls.s	@Loop							; not done yet - continue
-
-		If SeparateFile or Not forROM then			; code for 32bitQD INIT and RAM patch	<8>
-
-;	Re-define the default video device in-case a temporarily disabled card was brought
-;	back to life by secondary inits.
-
-			move.w	sr,-(sp)						; save current interrupt level
-			ori.w	#hiIntMask,sr					; disable all interrupts again
-			bsr		ReConfigVideo
-			move.w	(sp)+,sr						; restore interrupts
-		endif										;										<8>
-
-			adda.w	#seBlockSize,sp
-			movem.l	(sp)+,d1-d2/a1-a3
-			rts
-
-;_______________________________________________________________________________________	<h11> djw
-;	DoSecondaryInit  	-	find and execute secondaryInit records
-;
-;	Called by Secondary_Init.  For a single slot, find the board sResource and if there
-;	is a secondary init record, execute it.
-;
-;	Input	: reg a0 = ptr to spBlock
-;				  a2 = ptr to sExecBlk
-;	Output	: none
-;
-;   trashes d0/d2-a1/a3.
-;
-;	spBlock	:	-> spSlot			slot number
-;
-			Export	DoSecondaryInit
-
-DoSecondaryInit
-@regs		reg		d0-d2/a1/a3
-			movem.l	@regs,-(sp)
 
 			clr.b	spId(a0)						; start looking with id = 0				<4>
 			slotjsr	GetBoard						; get the sInfo and board sRsrc ptrs	<4>
@@ -1533,7 +1071,7 @@ DoSecondaryInit
 ;	Load the code and execute the secondary init record
 
 @Execute	move.l	a3,spsPointer(a0)				; restore ptr to board srsrc
-			move.b	spSlot(a0),seSlot(a2)			; set slot in sExec blk
+			move.b	d1,seSlot(a2)					; set slot in sExec blk
 			move.b	spFlags(a0),seFlags(a2)			; xfer warmstart flag (if present)
 			_sExec									; execute the code
 
@@ -1546,11 +1084,26 @@ DoSecondaryInit
 			move.w	#smInitStatVErr,siInitStatusA(a1)	; some fatal vendor status returned
 
 @Done
-			movem.l	(sp)+,@regs
-			rts
-			endwith
 
-		If SeparateFile or Not forROM then			;										<8>
+
+@EndLoop	dbra	d1,@Loop						; dec slot count						<2.0>
+			cmpi.b	#sLastSlot,d1					; done ?
+			bls.s	@Loop							; not done yet - continue
+
+		If SeparateFile or Not forROM then			; code for 32bitQD INIT and RAM patch	<8>
+
+;	Re-define the default video device in-case a temporarily disabled card was brought
+;	back to life by secondary inits.
+
+			move.w	sr,-(sp)						; save current interrupt level
+			ori.w	#hiIntMask,sr					; disable all interrupts again
+			bsr		ReConfigVideo
+			move.w	(sp)+,sr						; restore interrupts
+		endif										;										<8>
+
+			adda.w	#seBlockSize,sp
+			movem.l	(sp)+,d1-d2/a1-a3
+			rts
 
 ;_______________________________________________________________________________________
 ;	ReConfigVideo  -  select new default video screen
@@ -1620,8 +1173,6 @@ ROMFROVideo	Equ	$00000b58						; hard offset only applies to Mac II rev A roms	<
 			
 @Done		MOVEQ	#0,D0						; only good returns
 			RTS									; done
-
-		endif									;											<8>
 
 SecondaryEnd
 

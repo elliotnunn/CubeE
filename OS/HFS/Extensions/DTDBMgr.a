@@ -13,12 +13,7 @@
 ;	   <SM4>	  6/9/93	pdw		Changed register saving from interruptRegs to pascalRegs in
 ;									completionRoutine because it is supposed to be using this
 ;									convention.
-;	   <SM3>	10/27/92	CSS		Changed some word bsrs to bigjsrs.
-;	   <SM2>	10/27/92	CSS		Changed short branch to word branch.
-;	   <SM1>	 4/1/92		kc		Copied the routines DesktopCloseDownProc, CheckDesktopSupport and  DTDBMgrInit
-;									from FileMgrPatches.a. Removed the "ROM" prefix from the RomBind routines.
 
-;									• Pre-SuperMario comments follow •
 ;		<32>	 9/13/91	JSM		Cleanup header.
 ;		<31>	 5/23/91	dba		MPW 3.2 assembler no longer supports local labels for records
 ;		<30>	 3/28/91	dnf		ewa, #SetFileAttribsIsntAsyncSafe: The SetFileAttribs subroutine
@@ -212,7 +207,6 @@
 			include		'MFPrivate.a'
 			include		'HardwarePrivateEqu.a'
 			include		'Folders.a'
-			include		'InternalOnlyEqu.a'				; <SM3> CSS
 			print		pop
 
 			BLANKS ON
@@ -258,213 +252,6 @@ DTKeyDescriptor:	proc
 			proc
 			_DTDebugRts	'DTDBQueueManager', 0
 			endproc
-;________________________________________________________________________________	<SM1>
-; <36>
-; Routine:		DesktopCloseDownProc
-;
-; Inputs 		param block to _Unmount
-;
-; Outputs:		(none)
-;
-; Function:		Close the desktop database on _Unmount calls
-;
-;________________________________________________________________________________
-; Rolled into TFS.a for SuperMario <SM1> FM
-; Called by UnMountVol in TFSVol.a
-
-DesktopCloseDownProc Proc Export
-			import		FindDTVol
-@regs		reg			a0/a1/a3/d0/d1					;										<43>
-
-			movem.l		@regs, -(sp)
-
-			movea.l		a0,a3							; save the user's pb					<42>
-
-;	d0 - pascal length byte of string															<43>
-;	d1 - size of string allocated on stack														<43>
-
-			moveq.l		#0,d1							; assume no string on stack				<43>
-			move.l		ioNamePtr(a3),d0				; d0 = caller’s name ptr				<43>
-			beq.s		@noName							; bail on nil							<43>
-			movea.l		d0,a0							; get ready to copy						<43>
-			moveq.l		#0,d0							; clear high bytes						<43>
-			move.b		(a0),d0							; d0 = string length					<43>
-			beq.s		@noName							; bail on zero length (d0.l has nil)	<43>
-
-			move.b		d0,d1							; d1 = copy of string length byte		<43>
-			addq.b		#2,d1							; add length byte and rounding fodder	<43>
-			bclr.l		#0,d1							; make it even							<43>
-			suba.w		d1,sp							; allocate a string of the right length	<43>
-			movea.l		sp,a1							; point to it							<43>
-
-@1:			move.b		(a0)+,(a1)+						;										<43>
-			dbra		d0,@1							; copy string length+1 bytes			<43>
-
-			move.l		sp,d0							; point to it again						<43>
-
-@noName:
-			suba.w		#ioHVQElSize,sp					; get a pb								<42>
-			movea.l		sp,a0							; point to it							<42>
-			move.w		ioVRefNum(a3),ioVRefNum(a0)		; copy caller's vRefNum					<42>
-			move.l		d0,ioNamePtr(a0)				; our version of the caller's name		<42>
-			move.w		#-1,ioVolIndex(a0)				; by name&vRef, please					<42>
-			_GetVolInfo									;										<42>
-			bne.s		@done							;										<42>
-
-			move.w		ioVRefNum(a0), d0				; grab the volume that's going away
-			bsr			FindDTVol						; try to find a DTDBQElt for this volume
-			bne.s		@done							; no work to do if the DTDB is closed
-			sub.w		#ioDTQElSize, sp				; allocate a DT param block
-			movea.l		sp, a0
-			move.w		DTDBQElt.DTRefNum(a3), ioRefNum(a0)	; stash the DTRefNum for this volume
-			_DTCloseDown
-			add.w		#ioDTQElSize, sp				; deallocate the param block
-
-@done:
-			adda.w		#ioHVQElSize,sp					; deallocate the pb						<42>
-			adda.w		d1,sp							; deallocate the string					<43>
-			movem.l		(sp)+, @regs
-			rts
-			endproc
-;__________________________________________________________________________________
-;
-; Allocate the DTDBMgr's globals block
-;
-; FSVars has been allocated by btree patches.  
-;__________________________________________________________________________________	<SM1>
-DTDBMgrInit			proc	export
-					export	QMInit
-
-		move.l			#DTGlobals.size, d0			; we need this much space for DT manager
-		_NewPtr			sys, clear
-		bne				@fail						; no? Run away.
-		move.l			FSVarsPtr, a1				; a1 = ptr(FSVars block)
-		move.l			a0, FSVars.DTDBMgr(a1)		; stuff ourselves into our slot in FSVars
-		rts
-
-@fail
-		moveq.l			#dsMemFullErr, d0			; sys heap is full, so punt
-		_SysError
-
-; Allocate the Queue Manager's globals block
-QMInit			
-
-; Allocate a block big enough of all of the Queue Manager's needs:
-;	Queue manager globals
-;	Desktop manager QMRec
-;	Compatibility layer QMRec
-;	Desktop manager stack
-;	Compatibility layer stack
-
-		move.l			#QMGlobals.size+QMRec.size*2+DTStackSize+clStackSize, d0
-		_NewPtr			sys, clear
-		bne.s			@fail						; fail if we can't get memory
-
-		move.l			FSVarsPtr, a1				; a1 = ptr(FSVars block)
-		move.l			a0, FSVars.QMgr(a1)			; leave a pointer to globals in FSVars
-		move.l			a0, a1						; a1 = ptr(FSVars.QMgr)
-		adda.l			#QMGlobals.size, a0			; skip over globals
-		move.l			a0, QMGlobals.DTQueuePtr(a1); stuff pointer to DTMgr's QMRec
-		adda.l			#QMRec.size, a0				; skip over DTMgr's QMRec
-		move.l			a0, QMGlobals.CLQueuePtr(a1); stuff pointer to Comp Layer's QMRec
-
-		adda.l			#QMRec.size+DTStackSize, a0		; skip over QMRec and Stack
-		move.l			QMGlobals.DTQueuePtr(a1), a1	; a1 = ptr(DTMgr's QMRec)
-		move.l			a0, QMRec.stackBase(a1)			; store stack address (stack grows down)
-		move.w			#desktopQType, QMRec.qType(a1)	; set queue type/refnum
-
-		adda.l			#CLStackSize, a0				; skip to end of CLStack
-		move.l			FSVarsPtr, a1					; a1 = ptr(FSVars)
-		move.l			FSVars.QMgr(a1), a1				; a1 = ptr(QM globals)
-		move.l			QMGlobals.CLQueuePtr(a1), a1	; a1 = ptr(Comp Layer's QMRec)
-		move.l			a0, QMRec.stackBase(a1)			; store stack address (stack grows down)
-		move.w			#fsCompatQType, QMRec.qType(a1)		; set queue type/refnum
-
-		rts
-
-@fail:
-		moveq.l			#dsMemFullErr, d0			; sys heap is full, so punt
-		_SysError
-		endproc
-
-; <SM1> FM needed for GetVolParms
-;________________________________________________________________________________	<SM1>
-;
-; Routine:		CheckDesktopSupport													
-;
-; Input:		a2 - pointer to local volume's vcb
-; Output:		zero flag clear if we support the desktop on this volume
-;				zero flag set if we don't
-;
-; Function: 	Indicate whether a volume can support the desktop manager calls
-;
-; Only call this on local hfs volumes
-;
-; The rule:		A local volume gets desktop support if it is either
-;					1) non-ejectable
-;					2) ejectable but bigger than DTMinVolSize
-;
-; AlkBlkSiz is stored as a long and used as a word throughout HFS
-;________________________________________________________________________________
-CDSRegs			reg			d0/d1/a1
-CheckDesktopSupport	proc	export	
-
-			movem.l	CDSRegs, -(sp)
-
-;
-; Is this an MFS volume?
-;
-			cmp.w	#SigWord,vcbSigWord(a2)	; is this an MFS volume?
-			beq.s	@NoSupport			; yes, so use the exciting resource file technique
-;
-; Is this volume bigger than DTMinVolSize?
-;
-			move.w	vcbNmBlks(a2), d0	; d0 = # of allocation blocks on this volume
-			move.w	vcbAlBlkSiz+2(a2), d1	; d1 = allocation block size
-										; AlkBlkSiz is used as a word throughout HFS
-			mulu.w	d1, d0				; d0 = # bytes on this volume
-			cmp.l	#DTMinVolSize, d0	; is this a big volume?
-			bhs.s	@SupportsDT			; then we always support the DTDB
-;
-; It's not a big volume, but check and see if the volume is ejectable
-;
-			move.l	DrvQHdr+qHead, a1	; a1 = ptr (1st drive in Drive Queue)
-
-			move.w	vcbDrvNum(a2), d0	; d0 = drive number for this volume (if online)
-			bne.s	@SearchDrvQ			; if it's online, we can go straight to the search
-
-			move.w	vcbDRefNum(a2), d1	; d1 = + or - DrvNum (since we know we're not online)
-			cmp.w	d0, d1				; = means volume is ejected
-			beq.s	@NoSupport			; which means it gets no DT support
-			move.w	d1, d0				; d0 now = -DrvNum (since we know it's offline)
-			neg.w	d0					; d0 now = DrvNum, so we can search the drive Q
-;
-; We now have the drive number in d0, and we know that the drive is not big enough to
-; automatically get DT support.  We need to see if it is ejectable, and if it is a small
-; non-ejectable volume (say, a ramdisk) we support it.
-;
-@SearchDrvQ:
-			cmp.w	dQDrive(a1), d0		; is this the dQ entry we want?
-			beq.s	@GotDQ
-			move.l	qLink(a1), d1		; get the next dQ entry (test for zero)
-			movea.l	d1, a1				; move to an A reg where we can use it
-			bne.s	@SearchDrvQ			; and keep going if there is one
-			move.w	#nsvErr, d0			; if we have a real vcb, we should find a dQ entry
-			bra.s	@NoSupport			; but if we ever don't, let's return 'no support'
-
-@GotDQ:
-			cmp.b	#8, -3(a1)			; drive queue entry flag bytes => 8 (signed) are non-ejectable <19><51>
-			blt.s	@NoSupport			; we don't support DT on small ejectable volumes
-
-@SupportsDT:
-			moveq.l	#1, d0				; clear the zero flag
-			bra.s	@CDSExit
-
-@NoSupport:
-			moveq.l	#0, d0				; set the zero flag
-@CDSExit:	movem.l	(sp)+, CDSRegs
-			rts
-			endproc
 ;________________________________________________________________________________
 ;
 ; Routine:		BottleNeckIO
@@ -499,9 +286,7 @@ BottleNeckIO		proc	export
 	move.l			a0, FSVars.dtOwnCall(a1); leave a bread crumb for FileShare <17>
 
 	moveq.l			#desktopQType, d2		; our queue type/refnum
-	move.l			a4,-(sp)				; save a4 <SM3> CSS
-	bigjsr			GetQMRecPtr,a4			; a1 = ptr(QMRec) <SM3> CSS
-	move.l			(sp)+,a4				; recover a4 <SM3> CSS
+	bsr				GetQMRecPtr
 	move.l			a6, QMRec.curStack(a1)	; save current alt stack pointer
 	; •• do high water mark checking here
 
@@ -531,9 +316,7 @@ BottleNeckIO		proc	export
 completionRoutine:
 	moveq.l			#desktopQType, d2		; our queue type/refnum
 	MACHINE			mc68020
-	move.l			a4,-(sp)				; save a4 <SM3> CSS
-	bigjsr			GetQMRecPtr,a4			; a1 = ptr(QMRec) <SM3> CSS
-	move.l			(sp)+,a4				; recover a4 <SM3> CSS
+	bsr				GetQMRecPtr
 	move.l			a6, -(sp)				; save a6 for a sec
 	movea.l			QMRec.curStack(a1), a6	; get our a6 back
 	bset.b			#0, hasContinued(a6)	; mark that we've been back
@@ -546,9 +329,7 @@ completionRoutine:
 contDeskThread:
 	moveq.l			#desktopQType, d2		; our queue type/refnum
 	MACHINE			mc68020
-	move.l			a4,-(sp)				; save a4 <SM3> CSS
-	bigjsr			GetQMRecPtr,a4			; a1 = ptr(QMRec) <SM3> CSS
-	move.l			(sp)+,a4				; recover a4 <SM3> CSS
+	bsr				GetQMRecPtr
 	movea.l			QMRec.curStack(a1), a6	; restore alt stack pointer
 	adda.w			#Lsize, a6				; clear off the locals
 	movem.l			(a6)+, BottleNeckRegs	; restore desktop thread registers
@@ -1313,7 +1094,7 @@ FindDTRegs	reg			d4/a0/a2/a3
 	move.w	d3,ioVRefNum(a0)			; vRef of volume to look at
 	clr.w	ioVolIndex(a0)				; no indexing; use VRef only
 	go_HGetVInfo
-	bne 	Error						; punt on errors <SM2> CSS
+	bne.s	Error						; punt on errors
 	
 	move.w	bigPB+ioVAtrb(a6), d0		; get the volume attributes
 	btst.l	#15, d0						; software locked?

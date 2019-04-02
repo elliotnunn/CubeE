@@ -19,7 +19,6 @@
 ;	  <SM11>	11/18/92	kc		Import GetDriverPatch to fix problem introduced by last checkin.
 ;	  <SM10>	11/17/92	kc		Add "IF NOT LC930 THEN" around GetDriverPatch to facilitate dead
 ;									code stripping for the LC930 build.
-;	   <SM9>	10/22/92	CSS		Change some branch short instructions to branches.
 ;	   <SM8>	09-24-92	jmp		Fixed a bug in the GetDevIndex utility where a register was
 ;									being trashed.
 ;	   <SM7>	 6/30/92	kc		Roll in Horror, comments follow:
@@ -391,14 +390,14 @@ GetcString	Proc	Export
 			move.b	spSlot(a0),-(sp)				; save the slot
 
 			_sFindStruct							; get the ptr to the string
-			bne 	@Done							; <SM9> CSS
+			bne.s	@Done
 			movea.l	spsPointer(a0),a3				; a3 = ptr to the string
 
 ;  Calculate the step register
 
 			bset.b	#fConsecBytes,spFlags(a0)		; calc for consecutive bytes
 			_sCalcStep
-			bne 	@Done							; <SM9> CSS 
+			bne.s	@Done
 			move.l	spResult(a0),d1					; d1 = step register
 
 ;	Loop and count all the chars in the string so we know how big a block to allocate. 
@@ -866,8 +865,6 @@ FindDevBase	Proc	Export
 			bne.s	@Major							; minor base offset not found
 			move.l	spResult(a0),d1					; d1 = minor base offset
 			and.l	#$00ffffff,d1					; max offset in minor slot space
-			tst.b	spSlot(a0)						; getting base addr for slot zero ?				<H2>
-			beq.s	@SlotZero
 			bra.s	@FormSmall						; form a 1Mb or 16Mb ptr
 
 ;	No minor base - try to get the major base offset
@@ -877,8 +874,6 @@ FindDevBase	Proc	Export
 			bne.s	@Done							; major base offset not found - error
 			move.l	spResult(a0),d1					; d1 = major base offset
 			and.l	#$0fffffff,d1					; max offset in major slot space
-			tst.b	spSlot(a0)						; getting base addr for slot zero ?				<H2>
-			beq.s	@SlotZero
 
 ;	Form a major base pointer (256Mb space) : d2 = slot number
 
@@ -927,9 +922,6 @@ FindDevBase	Proc	Export
 			move.b	(sp)+,spId(a0)
 			movea.l	(sp)+,a1						;										<1.8>
 			rts
-
-@SlotZero	Bsr.l	FindDevBaseSlot0				; Jump to our SlotZero utility.					<H2>
-			Bra.s	@RtnBase						; And exit.
 
 
 ;=========================================================================================
@@ -1417,7 +1409,7 @@ EndDynLoad														;							<1.8>
 				
 ;  Get a pointer to the sResource list and find the driver directory.
 StatLoadDrvr	_sRsrcInfo										;Get a pointer to the sResource list.	<C468>
-				BNE 	SError2								; <SM9> CSS 
+				BNE.S	SError2
 				MOVE.B	#sRsrcDrvrDir,spId(ParamBlk$a0)		;Find the driver directory.
 				_sFindStruct
 				BNE.S	SError2
@@ -1454,6 +1446,7 @@ LoadDrvr		MOVE.B	#sMacOS68020,spId(ParamBlk$a0)			;Load a MacOS 68020 driver.			
 																;  GOTO SError1.						<C600>
 				MOVE.L	DrvrHand$a,spResult(ParamBlk$a0)		;Put handle to the driver in spResult.	<C600>
 				JSR		([jCacheFlush])							; flush the caches  <18> rb
+				MOVEQ	#0,d0
 				BRA.S	EndStatLoad								;GOTO end.								<C600>
 				
 ;  ERRORS
@@ -1483,15 +1476,6 @@ EndStatLoad		RTS
 ;	Patch out Drivers for any Apple Cards that need it.
 
 BeginGetSlotDrvr
-			IF NOT LC930 THEN
-				Import	GetDriverPatch
-				Bsr		GetDriverPatch						; If GetDriverPatch returns a 
-				Tst.b	D0									;	result >= 0, don’t execute
-				Bge.s	ExitGetSlotDrvr						; Patched, so just return.
-			ENDIF
-;	This is the original entry-point. It is called by GetDevIndex
-				Export	OrigGetSlotDrvr
-OrigGetSlotDrvr
 				MOVEM.L	A2-A3,-(SP)								;Save registers		<C783>
 				MOVE.L	ParamBlk$a0,spBlkPtr$a					;Save spBlkPtr
 				MOVE.B	spId(ParamBlk$a0),SavedId$d				;Save Id.
@@ -1550,7 +1534,7 @@ GetDriverPatch		Proc	Export
 ;
 			Bsr		GetDevIndex							; Get the card/device index into D0.
 			Move.l	D0,D3								; If the device index is negative, then
-			Bmi 	@done								; driver doesn’t need patching.<SM9> CSS	
+			Bmi.s	@done								; driver doesn’t need patching.
 
 ; Next, check to see that we’re pointing to the sResource that has the driver or
 ;	driver loader in it (i.e., we don’t want to be opening the driver multiple
@@ -1646,7 +1630,7 @@ GetDriverPatch		Proc	Export
 			Macro										; Macro for jumping directly int
 			_GetSlotDriver								;	GetSlotDrvr (acting like trap dispatcher).								
 			Movem.l	A1/D1-D2,-(Sp)						; Save registers (A0 i/o, D0 is result).
-			Bsr.l	OrigGetSlotDrvr						; Make call.					<T8>
+;			jsr	OrigGetSlotDrvr						; Make call.					<T8>
 			Tst.w	D0									; Act like Slot Manager for result.
 			Movem.l	(Sp)+,A1/D1-D2						; Restore registers.
 			EndMacro									;
@@ -1728,28 +1712,28 @@ GetDevIndex
 			
 			Export	JsrTbl
 
-DevTbl		Dc.w	CatDisplay,TypVideo,DrSwApple,DrHwTFB,0	 ; TFB  Entry									<11>
-			Dc.w	CatDisplay,TypVideo,DrSwApple,DrHwJMFB,0 ; JMFB Entry									<11>
-			Dc.w	0									
+DevTbl		;Dc.w	CatDisplay,TypVideo,DrSwApple,DrHwTFB,0	 ; TFB  Entry									<11>
+			;Dc.w	CatDisplay,TypVideo,DrSwApple,DrHwJMFB,0 ; JMFB Entry									<11>
+			;Dc.w	0									
 					
 			Align	4
 			
-LoadTbl		Dc.l	TFBDrvr-LoadTbl						; Start of TFB driver code.	
-			Dc.l	TFBDrvrSize-LoadTbl					; Length.
-			Dc.b	sRsrcDrvrDir						; TFB’s have an sRsrcDrvrDir.
-			Dc.b	0									; TFB’s are singly deviced.
-			Dc.b	0,0									; Padding.											<11>
+LoadTbl		;Dc.l	TFBDrvr-LoadTbl						; Start of TFB driver code.	
+			;Dc.l	TFBDrvrSize-LoadTbl					; Length.
+			;Dc.b	sRsrcDrvrDir						; TFB’s have an sRsrcDrvrDir.
+			;Dc.b	0									; TFB’s are singly deviced.
+			;Dc.b	0,0									; Padding.											<11>
 			
-			Dc.l	JMFBDrvr-LoadTbl					; Start of 4•8/8•24 driver code.
-			Dc.l	JMFBDrvrSize-LoadTbl				; Length.
-			Dc.b	sRsrcDrvrDir						; 4•8/8•24’s have an sRsrcDrvrDir.
-			Dc.b	0									; 4•8/8•24’s are singly deviced.
-			Dc.b	0,0									; Padding.
+			;Dc.l	JMFBDrvr-LoadTbl					; Start of 4•8/8•24 driver code.
+			;Dc.l	JMFBDrvrSize-LoadTbl				; Length.
+			;Dc.b	sRsrcDrvrDir						; 4•8/8•24’s have an sRsrcDrvrDir.
+			;Dc.b	0									; 4•8/8•24’s are singly deviced.
+			;Dc.b	0,0									; Padding.
 			
 			Align	4
 			
-JsrTbl		Dc.l	TFBPrimaryInit-JsrTbl				; TFBPrimaryInit
-			Dc.l	JMFBPrimaryInit-JsrTbl				; 4•8/8•24 PrimaryInit
+JsrTbl		;Dc.l	TFBPrimaryInit-JsrTbl				; TFBPrimaryInit
+			;Dc.l	JMFBPrimaryInit-JsrTbl				; 4•8/8•24 PrimaryInit
 
 
 ;=========================================================================================
@@ -1804,28 +1788,13 @@ CommonPRAM
 			CLR.W	D3
 			MOVE.L	D0,D1						; D1 = indicates which routine executing
 			MOVE.B	spSlot(A0),D3				; D3 = slot number with high byte clear
-			BNE.S	@CheckRange					; not slot zero
-
-; <SM2> rb, Start
-;	Check for slot zero and convert slot number to relative slot to index into PRAM.  On		<1.2>
-;	RBV machines, slot zero steals the PRAM from one of the 9-$E slots.  The slot mgr			<1.2>
-;	is only assigned enough PRAM for 6 slots.													<1.2>
-		
-			WITH 	VideoInfo					; <SM3> rb
-			movea.l	UnivInfoPtr,a1					; point to the ProductInfo record			<1.9>
-			adda.l	ProductInfo.VideoInfoPtr(a1),a1	; point to the VideoInfo record				<1.9>
-			move.b	VideoInfo.SlotNumberAlias(a1),d3; get the alias for slot zero PRAM			<1.9>
-
-@CheckRange										; not slot zero
-			MOVEA.L	spParamData(A0),A1			; A1 = ptr to buf to read to or write from		<1.9>
-
 ;	Check range for internal slots with PRAM on the motherboard
 
 			MOVE.W	#smSlotOOBErr,D0			; assume error
 			CMP.B	#sLastSlot,D3
 			BHI.S	@Done						; slot number out of range
 			CMP.B	#FirstPRAMSlot,D3			; a motherboard slot?
-			bge.s	@InternalPRAM				; good slot - get PRAM, <SM2> rb, End
+			bge.s	@InternalPRAM				; good slot - get PRAM
 
 ;	Slot number is in the expansion chassis range.  If an expansion chassis is present,		<1.5>
 ;	call a vendor routine, to handle PRAM requests.
@@ -1838,6 +1807,7 @@ CommonPRAM
 ;	Setup parameters to read or write PRAM from motherboard
 
 @InternalPRAM
+			MOVE.L	$18(A0),A1
 			SUB.B	#FirstPRAMSlot,D3			; convert slot to relative index
 			MULU.W	#SizesPRAMRec,D3			; index to PRAM record for slot
 			ADD.W	#SMPRAMTop,D3				; add offset to slot manager PRAM 
@@ -1963,48 +1933,46 @@ GetsRsrcPtr
 PtrToSlot	Proc	Export
 			With	spBlock
 
-			movem.l	d1-d2,-(sp)						; <SM2> rb
+			movem.l	d1/a1,-(sp)
 
-;  Verify a good sPointer
-													; <SM2> rb, Start
+;	Fail on nil pointer
+
+			CLR.B	spSlot(A0)
+
 			MOVE	#smsPointerNil,D0				; assume nil ptr - set error status
 			MOVE.L	spsPointer(A0),D1				; D1 = sPointer
 			BEQ.S	@Done							; nil pointer - error
 
+;	Test for slot 0 (host)
+
+			CMP.L	RealMemTop,D1					; inside RAM = slot 0
+			BLS.S	@OK
+
+			MOVE.L	ROMBase,A1						; inside ROM (256k) = slot 0
+			CMP.L	A1,D1
+			BLO.S	@NotInRom
+			ADD.L	#$40000,A1
+			CMP.L	A1,D1
+			BLS.S	@OK
+@NotInRom
+
 ;  Determine the slot
 
-			clr.b	d1								; clear low byte of pointer				<2.1>
-			ROL.L	#4,D1							; determine if major or minor space
-			CMP.B	#$0F,D1							; minor space?
-			BEQ.S	@minor							; minor slot space
-
-;	Super slot space - if the high nibble is the same as ROMBase, then this is an access to
-;	the host ROM's declaration data (or ram).  Translate it into slot 0.
-
-			MOVE.B	ROMBase,D2						; D2 = high byte of ROMBase
-			lsr.b	#4,d2							; shift high nib to low nibble			<2.1>
-			CMP.B	D2,D1							; same?
-			BHI.S	@FoundSlot						; must be other super slot space
-			
-;	Pointer is to ram or rom.  Translate it to slot 0.
-			
-			MOVEQ	#0,D1							; access to host ROM - translate to slot 0
-			BRA.S	@FoundSlot
-
-@minor		clr.b	d1								; sxxxxx0F to sxxxxx00					<2.1>
-			ROL.L	#4,D1							; minor space - reg D1 = xxxxx00s
-
-@FoundSlot	MOVE.W	#smSlotOOBErr,D0				; assume out of bounds
+			ROL.L	#4,D1
+			CLR.B	D1
+			ROL.L	#4,D1
+			BEQ.S	@Done
 			CMP.B	#sLastSlot,D1					; good slot number?
 			BHI.S	@Done							; must be slot $0F which is bad
 
 			MOVE.B	D1,spSlot(A0)					; return slot number
-			MOVEQ	#0,D0							; set good return
-			
+		
+@OK			MOVEQ	#0,D0							; set good return
+
 @Done		TST		D0								; set condition codes
-			movem.l	(sp)+,d1-d2
+			movem.l	(sp)+,d1/a1
 			RTS										; done - PtrToSlot
-			ENDP									; <SM2> rb, End
+			ENDP
 
 ;_______________________________________________________________________________________
 ;	ReadFHeader  -  copy a declaration ROM's format header block
@@ -2553,13 +2521,8 @@ DeleteSRTRec
 
 ;	Last SRT block is empty - free the block.  Traverse SRT to end to nil the link ptr.
 
-@Free		MOVE.B	mmu32Bit,-(SP)				; save current mmu state <SM2> rb
-			MOVE.B	#false32b,D0				; <SM2> rb
-			_SwapMMUMode						; switch to 24 bit mode <SM2> rb
-			MOVEA.L	A2,A0						; A0 = ptr to last SRT blk
+@Free		MOVEA.L	A2,A0						; A0 = ptr to last SRT blk
 			_DisposPtr							; free the block
-			MOVE.B	(SP)+,D0					; recover status <SM2> rb
-			_SwapMMUMode						; restore mmu state <SM2> rb
 			MOVEA.L	sRsrcTblPtr,A1				; get ptr to beginning of SRT
 @Loop1		ADDA.W	#srtBlkSize,A1				; inc to end of blk
 			CMPA.L	srtNext(A1),A2				; found end of link ?
@@ -2793,11 +2756,14 @@ pInitEntry
 
 ;	If there is a valid reference number, then find the DCE and calculate the dCtlDevBase	<1.5>
 
-			MOVEQ	#0,D0							; set a good return					<SM2> rb
-			MOVE.W	spRefNum(A0),D1					; get ref num						<SM2> rb
-			BEQ.S	@Done							; no ref num - done					<SM2> rb
-			BSR.S	MapUnit							; return reg A2 = ptr to DCE		<SM2> rb
-			BNE.S	@Error							; some error with ref num or DCE	<SM2> rb
+			MOVEQ	#0,D0							; set a good return
+			MOVE.W	spRefNum(A0),D1					; get ref num
+			BEQ.S	@Done							; no ref num - done
+			MOVE.W	#-1,D0							; set a bad return
+			NOT.W	D1								; test for valid ref number
+			BMI.S	@Error							; invalid - error
+			MOVE.L	([UTableBase],D1.W*4),A2		; DCE handle
+			MOVE.L	(A2),A2							; dereference handle
 
 ;	Read a 24 or 32 bit base address from the sResource										<2.0>
 
@@ -2824,41 +2790,8 @@ pInitEntry
 			MOVEM.L	(SP)+,D1/A2						; restore regs
 			TST.W	D0								; set CCR
 			RTS
-; <SM2> rb, from Zydeco...I give you MapUnit !
-;_______________________________________________________________________________________	<1.5>
-;	MapUnit  -  map a reference number to a pointer to a DCE
-;
-;	Given a driver reference number, get the pointer to it's DCE
-;
-;	Input	: reg D1 = reference number
-;
-;	Output	: reg A2 = ptr to DCE
-;				  D0 = status, 0=ok		CCR reflects status
-;
 
-MapUnit
-			MOVE.W	#rfNumErr,D0		; setup bad ref num error return
-		 	NOT.W	D1					; bitwise complement to get unitnum
-			BMI.S	@Done
-			CMP.W	UnitNtryCnt,D1		; is it in range ?
-			BGE.S	@Done	 			; skip if it's not
 
-			ASL.W	#2,D1				; multiply by four
-			MOVE.L	UTableBase,A2		; get address of unit table
-			MOVE.L	0(A2,D1.W),D1		; add in the offset
-			BEQ.S	@Done 				; branch if there is no driver installed
-
-			MOVE.L	D1,A2				; DCE handle
-			MOVE.L	(A2),D1 			; dereference handle
-			BEQ.S	@SysErr				; DCE should never be purged - call sys error
-			MOVE.L	D1,A2				; pointer to Device Control Entry
-			MOVEQ	#0,D0				; init good return
-
-@Done		TST.W	D0
-			RTS
-
-@SysErr		MOVEQ	#dsIOCoreErr,D0 	; deep shit IOCore error
-			_SysError					; invoke deep shit
 
 ;_______________________________________________________________________________________	<2.0>
 ;	pAllocSRTBlk  -  allocate and initialize an SRT block
@@ -3522,521 +3455,6 @@ pRestoreBus
 			rts
 
 			ENDWITH									; { stackframe,slotGlobals }			<5>
-
-
-;____________________________________________________________________________
-;
-;  Routine:		p040BusException
-;
-;  Inputs:		a2	-	address to return to from exception when a bus error occurs
-;
-;  Outputs:		ccr set to value in reg d0
-;
-;  Function:	nubus bus error exception handler for 68040-based machines
-;
-;____________________________________________________________________________
-				Export	p040BusException
-p040BusException						;									
-
-;	The 040 Special Status Word (SSW) is different than the 020/030 one.  It looks like	
-;																						
-;		+---------------------------------------------------------------------+			
-;		| CP | CU | CT | CM | MA | ATC | LK | RW | X |  SIZE  |  TT  |   TM   |			
-;		+---------------------------------------------------------------------+			
-;		  15   14   13   12   11   10    9    8    7   6    5  4   3  2      0			
-;																						
-;																						
-;			CP		=	Continuation - Floating Pt. Post Exception Pending				
-;			CU		=	Continuation - Unimplemented Floating Pt. Instruction Exception	
-;			CT		=	Continuation - Trace Exception Pending							
-;			CM		=	Continuation - MOVEM Instruction Execution Pending				
-;			MA		=	Misaligned Access												
-;			ATC		=	ATC Fault														
-;			LK		=	Locked Transfer													
-;			RW		=	Read/Write (1=Read)												
-;			X		=	Undefined														
-;			SIZE	=	Transfer Size													
-;			TT		=	Transfer Type													
-;			TM		=	Transfer Modifier												
-
-aeStackFrame	RECORD		0						; 040 Access Stack Frame				
-savereg			DS.L		1						; space to save working register (D0)
-aeSR			DS.W		1						; status register					
-aePC			DS.L		1						; program counter					
-aeType			DS.B		1						; type of exception stack frame		
-less			DS.B		1						; filling (vector offset)			
-aeEffAddr		DS.L		1						; effective address					
-aeSSW			DS.W		1						; special status word				
-aeWBnS			DS.W		3						; WriteBack #n Status				
-aeFA			DS.L		1						; fault address						
-aeWB3Addr		DS.L		1						; WriteBack 3 Address				
-aeWB3Data		DS.L		1						; WriteBack 3 Data					
-aeWB2Addr		DS.L		1						; WriteBack 2 Address				
-aeWB2Data		DS.L		1						; WriteBack 2 Data					
-aeWB1Addr		DS.L		1						; WriteBack 1 Address				
-aeWB1Data		DS.L		1						; WriteBack 1 Data/Push Data LW0	
-aePD1			DS.L		1						; Push Data LW 1					
-aePD2			DS.L		1						; Push Data LW 2					
-aePD3			DS.L		1						; Push Data LW 3					
-				ENDR
-
-aeXFrameSize	EQU		$3C							; size of an Access Error stack frame	
-aeXFrameType	EQU		$07							; access error exception frame type		
-
-
-			WITH	aeStackFrame,slotGlobals		;									
-
-;	Verify that this is a faulted NuBus read data cycle									
-
-			move.l	d0,-(SP)						; save working register				
-			move.w	aeSSW(SP),d0					; retrieve SSW						
-			andi.w	#$0518,d0						; mask off only ATC, RW, TT			
-			cmp.w	#$0100,d0						; should be ATC=0, RW=1, TT=0		
-			bne.s	@RealBusEx						; can't handle these case - pass it on
-			move.b	aeType(SP),d0					; get format of stack frame			
-			lsr.b	#4,d0							; look at high nibble				
-			cmp.b	#aeXFrameType,d0				; access error exception frame?		
-			bne.s	@RealBusEx						; NO  ... use sys. access error handler
-			move.b	aeFA(SP),d0						; get high byte of fault address	
-			cmp.b	#majorSpace,d0					; in super slot space ($60-$E0)?	
-			blo.s	@RealBusEx						; not in slot address space			
-			cmp.b	#$FF,d0							; in minor slot space range?		
-			beq.s	@RealBusEx						; not in minor slot space			
-			cmp.b	#$F0,d0							; in minor slot space range?		
-			beq.s	@RealBusEx						; not in minor space $F1 - $FE		
-
-;	Have verified that a NuBus read data access caused the bus error.  Pop the exception
-;	stack frame and jump to the error return address in register a2.
-;
-;	***	I don't think this will work correctly.  Given that you could have other exceptions
-;	***	of a lesser priority pending, and could possibly have pending writebacks as well,
-;	***	does this code need to look to complete those writebacks, stuff A2 into aePC(SP)
-;	*** and do an RTE?  Or can we legally/safely stuff A2 into aePC(SP)?				
-
-;			move.l	(sp)+,d0						; restore reg d0					
-;			adda.w	#aeXFrameSize,sp				; pop the exception stack frame		
-;			jmp		(a2)							; take the error return address		
-
-			move.l	a2,aePC(SP)						; (re-)set the PC to where we want to go
-			move.l	(sp)+,d0						; restore reg d0						
-			rte										; return, catching any pending exceptions
-
-;	The bus exception was not caused by a read to NuBus - pass the exception to the
-;	real bus exception handler.
-
-@RealBusEx	MOVE.L	(SP)+,D0						; restore reg D0
-			MOVE.L	([sInfoPtr],sysBusExcptn),-(SP)	; put saved bus exception vector on stack
-			RTS										; jump to bus exception vector
-
-			ENDWITH									; { aeStackFrame,slotGlobals }		
-
-;_______________________________________________________________________________________	<h7> djw
-;	AddCard	-	add a card to the slot manager data structures
-;
-;	There is a stub entrypoint for this routine in the file slotInfo.a which does a long
-;	branch here.  The stub routine is needed for the slot manager's jump table offset
-;	limitation.
-;
-;	Add a card to the slot manager's data structures and run it's primaryInit.  If the
-;	card's current status is not empty, then the slot is rejected as not valid.  Memory
-;	is allocated, so this routine should not be run at interrupt time.
-;
-;	Input	:	a0 = ptr to spBlock
-;	Output	:	none
-;
-;	spBlock	:	-> spSlot			slot number (slot 0 is not valid)
-;
-			Export	AddCard
-			with	spBlock,sInfoRecord,seBlock
-AddCard
-@regs		reg		d1/a0/a2
-			movem.l	@regs,-(sp)
-
-;	If the current slot status is not empty, then the slot may not be re-initialized
-
-			_sFindsInfoRecPtr					; get ptr to sInfoRecord
-			bne		@Done						; slot not valid - done
-			movea.l	spResult(a0),a2				; a2 = ptr to sInfoRecord
-			move.w	#smSlotOOBErr,d0			; assume bad slot
-			cmp.w	#smEmptySlot,		\		; check for empty slot
-					siInitStatusA(a2)
-			bne.s	@Done						; only empty slots are valid
-
-;	Execute the slot manager initialization again on this slot
-
-			slotjsr	initSDeclMgr				; initialize a slot's sInfoRecord
-			slotjsr	sInitSRsrcTable				; initialize the slot resource table (SRT)
-			slotjsr	sInitPRAMRecs				; initialize a slot's PRAM
-
-			clr.b	spFlags(a0)					; clear flag bit to assume cold start
-			cmp.l	#WmStConst,WarmStart		; check low mem for warm start value
-			bne.s	@continue					; cold start
-			bset.b	#fWarmStart,spFlags(a0)		; warm start
-
-@continue
-			move.w	sr,-(sp)
-			ori.w	#HiIntMask,sr				; disable ints for primary init
-			slotjsr	sPrimaryInit				; execute the primaryInit
-			move.w	(sp)+,sr					; restore ints
-
-;	Execute the secondaryInit record														<h12> thru next <h12>
-
-			lea		-seBlockSize(sp),sp			; alloc seBlock
-			movea.l	sp,a2						; a2 = ptr to seBlock
-			move.l	a2,spsExecPBlk(a0)			; set ptr in spblock to sExec blk
-			move.b	#BoardId,sesRsrcId(a2)		; indicates exec code is from board sResource
-			slotjsr	sDoSecondary				; jump thru the vector
-			lea		seBlockSize(sp),sp			; dealloc seBlock							<h12> from last <h12>
-
-@Done
-			movem.l	(sp)+,@regs
-			rts
-			endwith
-
-
-;_______________________________________________________________________________________	<h7> djw
-;	RemoveCard	-	Remove a card from the slot manager
-;
-;	This routine will remove a card from the system by:
-;
-;		1.	Delete all sRsrc's from the SRT for that slot
-;		2.	Delete sInfoRecord and set to empty status
-;		3.	If there is a driver attached to the slot, attempt to close the driver
-;		4.	Remove any slot interrupt queue elements for the slot
-;
-;	Input	:	a0 = ptr to spBlock
-;	Output	:	none
-;
-;	spBlock	:	-> spSlot			slot number (slot 0 is not valid)
-;
-			Export	RemoveCard
-			with	spBlock,SlotIntQElement,slotIntGlobals,srrBlock,sInfoRecord
-
-RemoveCard
-@regs		reg		d1-d3/a1-a2
-			movem.l	@regs,-(sp)
-			lea		-ioQElSize(sp),sp					; alloc iopb
-			movea.l	sp,a2								;									<H14><SM13>
-			clr.l	ioCompletion(a2)					; no completion routine
-			moveq.l	#0,d1
-			move.b	spSlot(a0),d1						; d1 = slot number
-
-;	Loop through SRT deleting all sResources for this slot.
-
-@LoopAgain
-			movea.l	sRsrcTblPtr,a1						; get ptr to beginning of SRT
-			suba.w	#SRTRecSize,a1						; pre-decrement pointer
-@Loop
-			adda.w	#SRTRecSize,a1						; inc to next srrBlock
-			clr.l	spParamData(a0)						; ignore input flags because…
-			bset.b	#fall,spParamData+3(a0)				; …we need to find both enabled and disabled sRsrc's
-			slotjsr	sGetSRTEntry						; get next entry - rtn in ptr in a1
-			bne.s	@noMore								; found all sRsrc's
-			slotjsr	SrToSpBlock							; fill spBlock with srrBlock info
-			cmp.b	spSlot(a0),d1						; is this the slot we are looking at?
-			bne.s	@Loop								; not right slot - continue looking
-
-;	If there is a driver associated with this slot, attempt to close it
-
-			tst.w	spRefNum(a0)						; is there a valid refnum?
-			bpl.s	@remove								; not a refnum
-			move.w	spRefnum(a0),ioRefnum(a2)			; set refnum to close
-			move.l	a0,-(sp)							; save ptr to spBlock
-			movea.l	a2,a0								; a0 = ptr to iopb
-			_Close										; close driver
-			movea.l	(sp)+,a0							; restore a0 = ptr to spBlock
-			
-;	Delete the sRsrc from SRT
-
-@remove
-			slotjsr	sDeleteSRTRec						; delete the found sRsrc
-			bra.s	@LoopAgain							; find and delete all sRsrc's
-
-;	Delete the sInfoRecord
-
-@noMore
-			lea		([sInfoPtr],(4*TotalSlots)	\
-					+(sInfoNewSize*2)),a1				; get ptr to empty sInfo record
-			move.l	a1,([sInfoPtr],d1.w*4)				; set slot to point to empty record
-
-;	Clear the slot interrupt queue for this slot
-;	****	WARNING		****	WARNING		****
-;	This code is very implementation specific.  If slot interrupt table structure
-;	changes, this code will not work.  Also, this routine leaks memory because
-;	it does not free the slot int queue elements
-
-			lea		([SlotQDT],d1.w*4,slotIntQHeads-SQLink),a1	; get address of queue header
-			clr.l	SQLink(a1)									; zero queue link
-
-;	Done
-
-@Done
-			lea		ioQElSize(sp),sp					; de-alloc iopb
-			movem.l	(sp)+,@regs
-			rts
-
-			endwith
-
-;_______________________________________________________________________________________	<h7> djw
-;	CheckSlot	-	check if a card has changed
-;
-;	Check whether a slot's status has changed.  There are 3 slot state changes to
-;	consider:
-;
-;		1.	empty		-->		occupied
-;		2.	occupied	-->		empty
-;		3.	occupied	-->		occupied
-;
-;	If a slot goes from empty to occupied, or occupied to empty, return status that
-;	the slot's state has changed.  If a slot was previously occupied and is still
-;	occupied, then read the board id from the card and match it to the board id in
-;	PRAM.  If they are not the same, then the previous card was removed, and a new
-;	card is now in it's place.
-;
-;	Input	:	a0 = ptr to spBlock
-;
-;	Output	:	d0 = 0 if no change, non-zero if change
-;
-;	spBlock	:	-> spSlot			slot number (slot 0 is not valid)
-;
-			Export	CheckSlot
-			Import	VerifySlot
-			with	spBlock,sInfoRecord
-
-CheckSlot
-@regs		reg		d1-d3/a1-a4
-			movem.l	@regs,-(sp)
-			moveq.l	#0,d3							; set d3 = change status flag
-
-;	get ptr to slot's sInfoRecord so we can check its previous state
-
-			_sFindsInfoRecPtr						; get ptr to sInfoRecord
-			bne		@Return							; slot not valid - no change
-			movea.l	spResult(a0),a4					; a4 = ptr to sInfoRecord
-
-;	If a slot is disabled or reserved, then it is invalid
-
-			cmp.w	#smDisabledSlot,		\		; check for disabled slot
-					siInitStatusA(a4)
-			beq		@Return							; disabled slots not valid
-			cmp.w	#smReservedSlot,		\		; check for reserved slot
-					siInitStatusA(a4)
-			beq		@Return							; reserved slots not valid
-
-			moveq.l	#0,d1							; zero reg
-			move.b	spSlot(a0),d1					; d1 = slot number
-
-;	Save the current sInfoRecord for the slot
-
-			lea		-sInfoNewSize(sp),sp			; alloc temp sInfoRecord
-			move.w	d3,siInitStatusA(sp)			; clear status field
-			move.b	d3,siState(sp)					; clear state variable
-			move.w	siTOConst(a4),siTOConst(sp)		; set bus error retry cnt (not used)
-			move.b	d1,siSlot(sp)					; set slot number
-			move.l	d3,siROMAddr(sp)				; clear ROM address
-			movea.l	sp,a1							; a1 = ptr to temp sInfoRecord
-			move.l	a1,([sInfoPtr],d1.w*4)			; set new temp sInfoRecord ptr for slot
-
-;	Determine whether the slot is empty or occupied
-
-			moveq.l	#-1,d0
-			bfins	d1,d0{4,4}						; inset slot number to get $fsffffff
-			movea.l	d0,a3							; a3 = minor space nubus addr for slot
-			lea		@Empty,a2						; a2 = addr to go if bus error occurs
-			slotjsr	InstallBus						; replace bus excptn, 32 bit mode
-			move.b	(a3),d0							; NUBUS READ - read byte from minor space
-			slotjsr	RestoreBus						; restore mmu state and bus exception vector
-			move.l	a3,siROMAddr(sp)				; set ROM address
-			bra.s	@Verify							; slot is occupied - verify the decl rom
-
-;	If the slot is still empty and was previously empty, then we are done
-
-@Empty
-			slotjsr	RestoreBus						; get here if empty slot
-			move.w	#smEmptySlot,siInitStatusA(a1)	; set empty status
-			bra.s	@CheckError						; check if same as previous status
-
-;	Verify the format header  -  a0 = ptr to spblock, a1 = ptr to sInfoRecord
-
-@Verify
-			bsr.l	VerifySlot						; verify the config rom format
-			tst.w	siInitStatusA(a1)				; is the slot status ok?
-			bne.s	@CheckError						; bad or empty slot - check previous status
-
-;	Config ROM verifies ok - walk through all the sResources looking for the board sResource
-
-			bsr		GetBoardID						; find the board sRsrc and board id
-			beq.s	@Changed						; no board id - a bad card
-
-;	Compare with pram board id.  If sRsrc board id is different, then there is
-;	a different card in the slot.
-
-			move.w	d0,d2							; d2 = board id for new card
-			lea		-8(sp),sp						; alloc pram buffer
-			move.l	sp,spResult(a0)					; pass ptr to pram buffer
-			slotjsr	sReadPRAMRec					; read the current slot pram
-			bne.s	@Changed						; something wrong - change the card
-
-			cmp.w	(sp),d2							; are board id's the same?
-			lea		8(sp),sp						; de-alloc buffer
-			beq.s	@Done							; same board id's - return no change
-			bra.s	@Changed
-
-;	Some error - if same as previously, then mark as unchanged
-
-@CheckError
-			move.w	siInitStatusA(a4),d0				; get previous status
-			cmp.w	siInitStatusA(a1),d0				; same error?
-			beq.s	@Done								; same board id's - no change
-
-;	The card has changed
-
-@Changed
-			moveq.l	#-1,d3							; return error to indicate card changed
-
-;	Done
-
-@Done
-			lea		sInfoNewSize(sp),sp				; free temp sInfoRecord
-			move.l	a4,([sInfoPtr],d1.w*4)			; restore original sInfoRecord
-
-@Return
-			move.l	d3,d0							; return change status
-			movem.l	(sp)+,@regs
-			rts
-
-
-;_______________________________________________________________________________________	<h7> djw
-;	GetBoardID	-	Find and return board id
-;
-;	Find the board sResource and return the board id for the given slot.  This
-;	routine walks through the sResource data structures on the card, not using
-;	the SRT.
-;
-;	Input	:	a0 = ptr to spBlock
-;				a1 = ptr to sInfoRecord
-;	Output	:	d0 = board id or zero		ccr reflects status
-;
-;	spBlock	:	-> spSlot			slot number (slot 0 is not valid)
-;
-
-GetBoardID
-@regs		reg		d1-d4/a1-a2
-			movem.l	@regs,-(sp)
-			moveq.l	#0,d4							; d4 = board id value to return
-
-;	Calculate the step value for this slot so we can step through the sRsrc dir
-
-			move.l	siDirPtr(a1),spsPointer(a0)			; set ptr field to get step value for
-			move.b	siCPUByteLanes(a1),spByteLanes(a0)	; set byte lanes field
-			bset.b	#fConsecBytes,spFlags(a0)			; set flag for step value for bytes
-			_sCalcStep
-			bne		@Done
-
-;	For every entry in the sResource directory, read the sResource type to find the
-;	board sResource.  Also check for ascending order for the sResources in case there
-;	is no $ff at the end.
-
-			move.l	spResult(a0),spParamData(a0)	; set step value for reading bytes
-			move.l	siDirPtr(a1),d2					; set d2 = ptr to current dir entry
-			moveq.l	#0,d1							; zero last id read
-
-@Loop		move.l	d2,spsPointer(a0)				; set spsPointer to addr of id to read in dir
-			slotjsr	Read4Bytes						; read <id><offset> - inc spsPointer to next long
-			bne.s	@Done							; an error - stop searching
-			move.l	spsPointer(a0),d2				; get d2 = ptr to next id to read
-
-;	Check for acsending order in sResource directory id's
-
-			move.b	spResult(a0),d3					; get high byte to get <id> field
-			cmp.b	#$ff,d3							; end of list ?
-			beq.s	@Done							; done - board sResource is not found
-			cmp.b	d1,d3							; is new id greater than last id ?
-			bls.s	@Done							; id's out of order - not found
-			move.b	d3,d1							; set reg d1 = last id read
-
-;	Get a pointer to the sResource id found
-
-			move.l	siDirPtr(a1),spsPointer(a0)		; point to directory
-			move.b	d1,spId(a0)						; find the sRsrc id just read from the dir
-			_sFindStruct
-			bne.s	@Done							; some error
-
-;	With the spsPointer field now pointing to the sRsrc, read the type field
-
-			movea.l	spsPointer(a0),a2				; save ptr to sRsrc
-
-			move.b	#sRsrcType,spId(a0)				; get ptr to type field
-			_sFindStruct
-			bne.s	@Done							; error - no sRsrc type field found
-			lea		-8(sp),sp						; alloc sRsrc_type buffer
-			move.l	sp,spResult(a0)					; set buffer ptr
-			move.l	#8,spSize(a0)					; set size to read
-			_sReadStruct
-			bne.s	@Done							; @@@@Remember to dealloc stack@@@@can't read it - error
-
-			move.l	(sp)+,d0						; get category and type fields
-			move.l	(sp)+,d3						; get drvrSW and drvrHW fields
-			cmp.l	#(catBoard<<16)+typBoard,d0		; board type?
-			bne.s	@Loop							; not found - continue search
-			tst.l	d3								; drvrSW and drvrHW fields should be zero
-			bne.s	@Loop							; not found - continue search
-
-;	At this point, we have found the board sResource.  Read the board id
-
-			move.l	a2,spsPointer(a0)				; restore ptr to sRsrc
-			move.b	#Boardid,spId(a0)				; read board id field from board sRsrc
-			_sReadWord
-			bne.s	@Done							; some error - no board id
-			move.w	spResult+2(a0),d4				; d4 = board id for new card
-
-;	Done
-
-@Done
-			move.w	d4,d0							; return board id or zero
-			movem.l	(sp)+,@regs
-			rts
-
-			endwith
-
-;____________________________________________________________________________								<H8>
-;
-; FindDevBaseSlot0 (called from FindDevBase).
-;
-;	Entry:		a0 points to spBlock.
-;	 			d1 is the major/minorbase offset.
-;
-;	Exit:		a0 points to spBlock.
-;				d2 is the DevBase.
-;
-;	Trashes:	A1/D0-D1.
-;____________________________________________________________________________
-
-			Export	FindDevBaseSlot0
-
-			With	SpBlock
-
-FindDevBaseSlot0
-			
-			movea.l	UnivInfoPtr,a1					; point to the ProductInfo record
-			adda.l	ProductInfo.VideoInfoPtr(a1),a1	; point to the VideoInfo record
-			
-			move.b	#sRsrcFlags,spId(a0)			; get flags to determine whether the pointer
-			_sReadWord								; - should be 24 or 32 bit
-			bne.s	@Do24							; no flag field - default to 24 bit space
-			
-			move.w	spResult+2(a0),d0				; get value of spFlags
-			btst.l	#f32BitMode,D0					; see if 32- or 24-bit base address
-			beq.s	@Do24							; branch if 24-bit base address	
-				
-			Add.l	VideoInfo.VRAMLogAddr32(a1),d1	; 32bit dev base to alias addr for slot zero
-			Bra.s	@Done
-
-@Do24		Add.l	VideoInfo.VRAMLogAddr24(a1),d1	; 24bit dev base to alias addr for slot zero
-@Done		Move.l	d1,d2							; d2 has what we want
-			Rts		
-			
-			EndWith
 
 			Endp									; must have endp for RAM builds			<djw>
 

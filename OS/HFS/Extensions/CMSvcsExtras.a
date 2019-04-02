@@ -41,6 +41,14 @@
 			LOAD		'StandardEqu.d'
 			include		'LinkedPatchMacros.a'
 
+ROMBTDELETE		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+ROMBTINSERT		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+ROMBTUPDATE		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+ROMBUILDKEY		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+ROMCMFLUSH		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+ROMLOCCREC		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+ROMUPDCNAME		ROMBind	(Plus,$600000),(II,$610000),(SE,$620000),(Portable,$630000),(IIci,$640000)
+
 ;_________________________________________________________________________________
 ;
 ; Routine:		CMDeleteCN (Delete CNode)

@@ -109,5 +109,14 @@ MFSRenamePatch	PatchProc	ExtFSHook, (Plus)
 										;	 ioResult(A0) later...)
 			jmpOld
 			
+			; this is ugly and temporary....
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+
+
 			endProc
 			end
